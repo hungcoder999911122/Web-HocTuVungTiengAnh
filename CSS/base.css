@@ -1,1 +1,16 @@
-﻿
+﻿* {
+    box-sizing: border-box;
+}
+
+body{
+    margin:0;
+}
+
+header{
+    width:100%;
+}
+
+.main-nav{
+    display: flex;
+    align-items: center;
+}
