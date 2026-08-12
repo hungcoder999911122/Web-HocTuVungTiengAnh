@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  # Server chạy PHP + Apache
+  web:
+    image: php:8.2-apache
+    container_name: web_app
+    ports:
+      - "8080:80"
+    volumes:
+      - ./src:/var/www/html
+    depends_on:
+      - db
+
+  # Database MySQL
+  db:
+    image: mysql:8.0
+    container_name: web_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root123
+      MYSQL_DATABASE: hoc_ngoai_ngu
+      MYSQL_USER: webuser
+      MYSQL_PASSWORD: webpass123
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+
+  # phpMyAdmin - giao diện quản lý MySQL qua web (không bắt buộc, nhưng rất tiện)
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: web_phpmyadmin
+    restart: always
+    ports:
+      - "8081:80"
+    environment:
+      PMA_HOST: db
+      MYSQL_ROOT_PASSWORD: root123
+    depends_on:
+      - db
+
+volumes:
+  db_data:
