@@ -1,0 +1,23 @@
+.box
+{
+	border: 2px solid #000000;
+	padding: 15px;
+	
+}
+
+body
+{
+	min-height:100vh;   /* viewport height  */
+	display:flex;   /* Flexible box layout */
+	margin:0;
+	justify-content: center; /* căn theo chiều ngang */
+
+	align-items: center /* căn theo chiều dọc */
+}
+
+fieldset
+{
+	border: none;
+	padding:0;
+	margin:0;
+}
