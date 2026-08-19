@@ -1,0 +1,5 @@
+/* Để khi click menu nó cuộn mượt */
+html {
+    scroll-behavior: smooth;
+}
+
