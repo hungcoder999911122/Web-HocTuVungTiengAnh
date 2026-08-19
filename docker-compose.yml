@@ -7,6 +7,7 @@ services:
     container_name: web_app
     ports:
       - "8080:80"
+    # Thay đổi dường dẫn cho phù hợp với dự án
     volumes:
       - ./:/var/www/html
     depends_on:
