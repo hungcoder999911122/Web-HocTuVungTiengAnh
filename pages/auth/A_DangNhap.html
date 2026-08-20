@@ -45,7 +45,7 @@
 			<div>
 				<label> hoặc </label> <br />
 				<form>
-					<input type="button" name="TaoTaiKhoan" id="TaoTaiKhoan" value="Tạo tài khoản" action=" " A_DangKy.html" />
+					<input type="button" name="TaoTaiKhoan" id="TaoTaiKhoan" value="Tạo tài khoản" action=" "./A_DangKy.html" />
 				</form>
 			</div>
 			<script>
@@ -56,8 +56,6 @@
 						if (email === "" || password === "") {
 							alert("Vui lòng nhập đầy đủ thông tin đăng nhập.");
 						} else {
-							// Thực hiện kiểm tra đăng nhập tại đây (ví dụ: gửi yêu cầu đến server)
-							// Nếu đăng nhập thành công, chuyển hướng đến trang A_Homepage.html
 							window.location.href = "A_Homepage.html";
 						}
 					});
