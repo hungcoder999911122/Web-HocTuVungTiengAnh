@@ -3,15 +3,21 @@
 
     <head>
         <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="description" content="Website học từ vựng tiếng Anh theo phương pháp Spaced Repetition.">
+
         <title>English vocabulary Learning - Homepage</title>
-        <link rel="stylesheet" href="./CSS/base.css">
+
+        <link rel="stylesheet" href="./CSS/B_homepage.css">
+        <link rel="stylesheet" href="./CSS/style.css">
+        <link rel="icon" type="image/x-icon" href="favicon.ico">
     </head>
     
     <body>
         <header>
             <nav class="main-nav" aria-label="Điều hướng chính">
                 <!--Logo trang homepage & click để di chuyển về hompage-->
-                <a href="index.html" class="logo">English vocabulary</a>
+                <a href="B_homepage.html" class="logo">English vocabulary</a>
 
                 <!-- Điều hướng chính -->
                 <ul class="nav-list">
@@ -24,8 +30,8 @@
 
                 <!-- Điều hướng xác thực tài khoản -->
                 <ul class="nav-auth">
-                    <li> <a href="./pages/auth/login.html">Đăng nhập</a></li>
-                    <li> <a href="./pages/auth/register.html">Đăng ký</a> </li>
+                    <li> <a href="./pages/auth/A_DangNhap.html">Đăng nhập</a></li>
+                    <li> <a href="./pages/auth/A_DangKy.html">Đăng ký</a> </li>
                 </ul>
             </nav>
         </header>
@@ -48,30 +54,136 @@
                         những lần ôn tập đúng thời điểm.    
                     </p>
 
-                    <a href="#featured-topics" class="hero-cta">Bắt đầu trải nghiệm</a>
+                    <a href="#featured-topics" class="hero-cta">
+                        Bắt đầu trải nghiệm
+                    </a>
                 </div>
 
-                <!-- Ảnh hero  -->
+                <!-- Ảnh hero chèn ảnh sau -->
                 <div class="hero-visual">
-                    <img src="Hero-1.jpg" 
+                    <img src="#Hero-1.jpg"                                              
                     alt="Minh họa học từ vựng tiếng anh">
                 </div>
 
             </section>
 
             <section id="how-it-works" class="how-it-works">
-                <div>
+                <div class="how-it-works-content">
+                    <div class="step">
+                        <h3>1. Học từ mới</h3>
+                        <p>Làm quen với từ vựng thông qua nghĩa, phát âm, ví dụ và hình ảnh.</p>
+                    </div>
 
+                    <div class="step">
+                        <h3>2. Ôn tập đúng thời điểm</h3>
+                        <p>Hệ thống đưa từ vựng quay lại vào những khoảng thời gian phù hợp.</p>
+                    </div>
+
+                    <div class="step">
+                        <h3>3. Ghi nhớ lâu hơn</h3>
+                        <p>Những từ chưa nhớ tốt sẽ được ưu tiên ôn lại.</p>
+                    </div>
                 </div>
+
             </section>
 
+            <!-- Một số chủ để có thể thấy và trải nghiệm -->
             <section id="featured-topics" class="featured-topics">
-                <div>
+                <h2>Khám phá các chủ đề</h2>
+
+                <p>
+                    Hãy chọn chủ đề và bắt đầu học thử
+                </p>
+
+                <div class="topic-list">
+
+                    <div class="card">
+                        <img src="#" alt="Từ vựng chủ để du lịch">
+
+                        <h3 class="card-title">
+                            ✈️ Travel
+                        </h3>
+
+                        <p class="card-description">
+                            Đi lạc ở sân bay hay bối rối khi gọi món nơi xứ người? Mở khóa bộ từ vựng "sinh tồn" giúp bạn vi vu khắp thế giới mà không sợ rào cản ngôn ngữ.
+                        </p>
+
+                        <p class="card-count">
+                            Số lượng từ: 20
+                        </p>
+                        
+                        <a href="./pages/learning/Learn_demo.html">
+                            Học thử
+                        </a>
+                    </div>
+
+                    <div class="card">
+                        <img src="#" alt="Từ vựng chủ đề đời sống hằng ngày">
+
+                        <h3 class="card-title">
+                            Daily Life
+                        </h3>
+
+                        <p class="card-description">
+                            Những thứ bạn thấy và dùng mỗi ngày... bạn đã chắc mình biết gọi tên chúng bằng tiếng nước ngoài? Khám phá ngay góc từ vựng quen thuộc nhưng bất ngờ này.
+                        </p>
+
+                        <p class="card-count">
+                            Số lượng từ: 20
+                        </p>
+
+                        <a href="./pages/learning/Learn_demo.html">
+                            Học thử
+                        </a>
+                    </div>
+
+                    <div class="card">
+                        <img src="#" alt="Từ vựng chủ đề học thuật">
+
+                        <h3 class="card-title">
+                            Academic
+                        </h3>
+
+                        <p class="card-description">
+                            Từ những cụm từ "cứu nguy" trong phòng thi đến thuật ngữ chuyên sâu ít người để ý. Xem bạn đã nắm được bao nhiêu từ vựng học thuật đỉnh cao?
+                        </p>
+
+                        <p class="card-count">
+                            Số lượng từ: 20
+                        </p>
+                        
+                        <a href="./pages/learning/Learn_demo.html">
+                            Học thử
+                        </a>
+                    </div>
 
                 </div>
             </section>
-
         </main>
+
+        <footer class="site-footer">
+            <div class="footer-container">
+                <!-- Thương hiệu & Mô tả -->
+                <div class="footer-brand">
+                    <h3>English Vocabulary</h3>
+                    <p>Học từ vựng tiếng Anh theo phương pháp Spaced Repetition.</p>
+                </div>
+
+                <!-- Menu liên kết sử thanh điều hướng -->
+                <nav class="footer-nav" aria-label="Điều hướng chân trang">
+                    <a href="#hero">Trang chủ</a>
+                    <!-- <span class="divider">|</span> -->
+                    <a href="#how-it-works">Cách hoạt động</a>
+                    <!-- <span class="divider">|</span> -->
+                    <a href="#featured-topics">Chủ đề</a>
+                </nav>
+
+                <!-- Bản quyền -->
+                <div class="footer-copyright">
+                    <p>&copy; 2026 English Vocabulary. All rights reserved.</p>
+                </div>
+            </div>
+        </footer>
     </body>
 
 </html>
