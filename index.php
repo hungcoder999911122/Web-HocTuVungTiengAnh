@@ -1,4 +1,8 @@
 <?php
+header("Location: pages/main/B_homepage.html");
+exit();
+?>
+<?php
 // 1. Kết nối CSDL
 $host     = 'db'; 
 $dbname   = 'hoc_ngoai_ngu';
