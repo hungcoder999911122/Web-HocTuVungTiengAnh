@@ -8,8 +8,8 @@
     <title>Danh sách các topic & học từ vựng</title>
 
     <!-- <script src="jquery-4.0.0.min.js"></script> -->
-    <link rel="stylesheet" type="text/css" href="/CSS/Style.css">
-    <link rel="stylesheet" type="text/css" href="/CSS/B_DanhSachChuDe.css">
+    <link rel="stylesheet" type="text/css" href="../../CSS/Style.css">
+    <link rel="stylesheet" type="text/css" href="../../CSS/B_DanhSachChuDe.css">
 </head>
 
 <body>
@@ -17,66 +17,96 @@
     <aside class="sidebar">
         <!-- Logo -->
         <div class="sidebar-logo">
-            <a href="B_homepage.html" class="logo">
+            <a href="B_DanhSachChuDe.html" class="logo">
                 LexiLoop
             </a>
         </div>
 
+        <nav class="sidebar-nav">
+            <a href="#" class="sidebar-link active">
+                📚
+                <span>Chủ đề</span>
+            </a>
+        </nav>
+
         <!-- Đăng nhập -->
-        <div class="sidebar-auth">
-            <a href="/pages/auth/A_DangNhap.html">
-                Đăng nhập
+        <div class="sidebar-back">
+            <a href="../main/B_homepage.html">
+                Quay lại
             </a>
         </div>
     </aside>
 
     <main class="page-content">
         <!-- TOP BAR -->
-        <div class="top-bar">
+        <header class="top-bar">
+            <!-- Các chức năng bên phải -->
             <div class="top-bar-actions">
-
+                <!-- Chế độ sáng / tối -->
                 <button type="button" class="top-bar-button" aria-label="Chế độ sáng tối">
                     🌙
                 </button>
 
-                <button type="button" class="top-bar-button" aria-label="Báo lỗi">
-                    ⚠️
-                </button>
-
-                <button type="button" class="top-bar-button" aria-label="Thông báo">
+                <!-- Thông báo -->
+                <button type="button" class="top-bar-button notification-button" aria-label="Thông báo">
                     🔔
+                    <span class="notification-dot"></span>
                 </button>
 
-                <button type="button" class="top-bar-button" aria-label="Tài khoản">
-                    👤
-                </button>
+                <!-- Đăng nhập -->
+                <a href="../auth/A_DangNhap.html" class="login-button">
+                    Đăng nhập
+                </a>
             </div>
+        </header>
+
+        <!-- Thông báo -->
+        <div class="public-notice">
+
         </div>
 
         <section class="topics-header">
             <div class="topics-header-content">
-                <span class="section-label">KHÁM PHÁ CHỦ ĐỀ</span>
 
-                <h1>Danh sách chủ đề</h1>
+                <span class="topics-eyebrow">
+                    — KHÁM PHÁ
+                </span>
+                <h1>Khám phá các chủ đề </h1>
 
                 <p>
-                    Khám phá các chủ đề từ vựng tiếng Anh và bắt đầu
-                    hành trình học theo cách phù hợp với bạn.
+                    Hãy cùng khám phá các chủ đề từ vựng tiếng Anh thú vị và đầy mới mẻ
                 </p>
             </div>
 
-            <!-- TÌM KIẾM CHỦ ĐỀ -->
-            <div class="topic-search">
-                <label for="topic-search" class="search-label">
-                    Tìm kiếm chủ đề
-                </label>
-                <div class="search-input-wrapper">
-                    <span class="search-icon" aria-hidden="true">🔎</span>
-
+            <!-- THANH TÌM KIẾM VÀ LỌC -->
+            <div class="topics-toolbar">
+                <!-- Tìm kiếm -->
+                <div class="topics-search">
+                    <span class="search-icon" aria-hidden="true">🔍</span>
                     <input type="search" id="topic-search" name="topic-search" placeholder="Tìm kiếm chủ đề...">
                 </div>
-            </div>
 
+                <!-- Lọc -->
+                <div class="topic-filter">
+
+                    <label for="topic-filter">
+                        Lọc:
+                    </label>
+
+                    <select id="topic-filter" name="topic-filter">
+                        <option value="all">Tất cả</option>
+                        <option value="travel">Du lịch</option>
+                        <option value="food">Ẩm thực</option>
+                        <option value="office">Công sở</option>
+                        <option value="family">Gia đình</option>
+                        <option value="sport">Thể thao</option>
+                        <option value="technology">Công nghệ</option>
+                        <option value="vocabulary">Từ vựng cơ bản</option>
+                    </select>
+
+                </div>
+
+            </div>
         </section>
 
         <section class="topic-section">
@@ -85,8 +115,8 @@
                 <!-- CÁC TOPIC  -->
                 <article class="topic-card" data-slug="du-lich">
                     <!-- ẢNH TOPIC -->
-                    <div class="topic-image">
-                        <img src="#" alt="Chủ đề du lịch">
+                    <div class="topic-icon">
+                        <img src="../../assets/icons/book-open-svgrepo-com.svg" alt="book">
                     </div>
 
                     <div class="topic-content">
@@ -94,21 +124,18 @@
                             Du lịch
                         </h3>
 
-                        <p class="topic-description">
-                            Từ vựng thường gặp khi đi du lịch,
-                            sân bay, khách sạn và giao tiếp.
+                        <p class="topic-count">
+                            42 từ vựng
                         </p>
 
-                        <a href="#" class="topic-button">
-                            Xem bộ từ vựng
-                        </a>
+                        <a href="#">Xem bộ từ vựng</a>
                     </div>
                 </article>
 
                 <article class="topic-card" data-slug="am-thuc">
 
-                    <div class="topic-image">
-                        <img src="#" alt="Chủ đề Ẩm thực">
+                    <div class="topic-icon">
+                        <img src="../../assets/icons/book-open-svgrepo-com.svg" alt="book">
                     </div>
 
                     <div class="topic-content">
@@ -117,21 +144,18 @@
                             Ẩm thực
                         </h3>
 
-                        <p class="topic-description">
-                            Từ vựng về món ăn, đồ uống, nhà hàng
-                            và những tình huống giao tiếp khi ăn uống.
+                        <p class="topic-count">
+                            50 từ vựng
                         </p>
 
-                        <a href="#" class="topic-button">
-                            Xem bộ từ vựng
-                        </a>
+                        <a href="#">Xem bộ từ vựng</a>
                     </div>
                 </article>
 
                 <article class="topic-card" data-slug="cong-so">
 
-                    <div class="topic-image">
-                        <img src="#" alt="Chủ đề Công sở">
+                    <div class="topic-icon">
+                        <img src="../../assets/icons/book-open-svgrepo-com.svg" alt="book">
                     </div>
 
                     <div class="topic-content">
@@ -140,21 +164,18 @@
                             Công sở
                         </h3>
 
-                        <p class="topic-description">
-                            Từ vựng thường gặp trong môi trường làm việc,
-                            văn phòng, cuộc họp và giao tiếp công việc.
+                        <p class="topic-count">
+                            45 từ vựng
                         </p>
 
-                        <a href="#  " class="topic-button">
-                            Xem bộ từ vựng
-                        </a>
+                        <a href="#">Xem bộ từ vựng</a>
                     </div>
                 </article>
 
                 <article class="topic-card" data-slug="gia-dinh">
 
-                    <div class="topic-image">
-                        <img src="#" alt="Chủ đề Gia đình">
+                    <div class="topic-icon">
+                        <img src="../../assets/icons/book-open-svgrepo-com.svg" alt="book">
                     </div>
 
                     <div class="topic-content">
@@ -163,21 +184,18 @@
                             Gia đình
                         </h3>
 
-                        <p class="topic-description">
-                            Từ vựng về các thành viên trong gia đình,
-                            mối quan hệ và cuộc sống gia đình.
+                        <p class="topic-count">
+                            52 từ vựng
                         </p>
 
-                        <a href="#" class="topic-button">
-                            Xem bộ từ vựng
-                        </a>
+                        <a href="#">Xem bộ từ vựng</a>
                     </div>
                 </article>
 
                 <article class="topic-card" data-slug="the-thao">
 
-                    <div class="topic-image">
-                        <img src="#" alt="Chủ đề Thể thao">
+                    <div class="topic-icon">
+                        <img src="../../assets/icons/book-open-svgrepo-com.svg" alt="book">
                     </div>
 
                     <div class="topic-content">
@@ -186,21 +204,18 @@
                             Thể thao
                         </h3>
 
-                        <p class="topic-description">
-                            Từ vựng về các môn thể thao, hoạt động
-                            luyện tập và thi đấu.
+                        <p class="topic-count">
+                            49 từ vựng
                         </p>
 
-                        <a href="#" class="topic-button">
-                            Xem bộ từ vựng
-                        </a>
+                        <a href="#">Xem bộ từ vựng</a>
                     </div>
                 </article>
 
                 <article class="topic-card" data-slug="cong-nghe">
 
-                    <div class="topic-image">
-                        <img src="#" alt="Chủ đề Công nghệ">
+                    <div class="topic-icon">
+                        <img src="../../assets/icons/book-open-svgrepo-com.svg" alt="book">
                     </div>
 
                     <div class="topic-content">
@@ -209,17 +224,55 @@
                             Công nghệ
                         </h3>
 
-                        <p class="topic-description">
-                            Từ vựng về máy tính, Internet, phần mềm
-                            và các công nghệ hiện đại.
+                        <p class="topic-count">
+                            60 từ vựng
                         </p>
 
-                        <a href="#" class="topic-button">
-                            Xem bộ từ vựng
-                        </a>
+                        <a href="#">Xem bộ từ vựng</a>
                     </div>
                 </article>
-            </div>  
+
+                <article class="topic-card" data-slug="vocab-1">
+
+                    <div class="topic-icon">
+                        <img src="../../assets/icons/book-open-svgrepo-com.svg" alt="book">
+                    </div>
+
+                    <div class="topic-content">
+
+                        <h3 class="topic-title">
+                            PART 1 - Từ vựng cơ bản
+                        </h3>
+
+                        <p class="topic-count">
+                            100 từ vựng
+                        </p>
+
+                        <a href="#">Xem bộ từ vựng</a>
+                    </div>
+                </article>
+
+                <article class="topic-card" data-slug="vocab-2">
+
+                    <div class="topic-icon">
+                        <img src="../../assets/icons/book-open-svgrepo-com.svg" alt="book">
+                    </div>
+
+                    <div class="topic-content">
+
+                        <h3 class="topic-title">
+                            PART 2 - Từ vựng cơ bản
+                        </h3>
+
+                        <p class="topic-count">
+                            200 từ vựng
+                        </p>
+
+                        <a href="#">Xem bộ từ vựng</a>
+                    </div>
+                </article>
+            </div>
+
             <!-- PHÂN TRANG -->
             <nav class="pagination" aria-label="Phân trang danh sách chủ đề">
 
