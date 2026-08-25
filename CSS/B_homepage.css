@@ -29,9 +29,22 @@ header {
 
 /*LOGO  */
 .logo {
-    font-size: 24px;
-    font-weight: 700;
-    color: var(--color-primary);
+    display: block;
+
+    margin: 0 0 20px;
+    padding: 4px 12px;
+
+    color: var(--color-primary-dark);
+
+    font-size: 27px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+
+    text-decoration: none;
+
+    transition:
+        color 0.2s ease,
+        transform 0.2s ease;
 }
 /* ----------------------------- */
 
