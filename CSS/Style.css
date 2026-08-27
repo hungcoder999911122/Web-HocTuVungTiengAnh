@@ -21,7 +21,7 @@
 :root {
     /* Màu thương hiệu */
     --color-primary: #35A853;
-    --color-primary-dark: #247A3B;
+    --color-primary-dark: #24a547;
     --color-primary-light: #b0f5c1;
 
     /* Màu nền */
@@ -90,7 +90,7 @@ body{
 	padding: 0 ;
 	background-color: var(--color-background);
 	color: var(--color-text);
-	font-family: Arial, sans-serif;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
 /* Thiết kế nút */

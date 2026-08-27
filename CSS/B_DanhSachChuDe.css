@@ -4,30 +4,20 @@
 
 .sidebar {
     position: fixed;
-
     top: 0;
     left: 0;
-
     width: 220px;
     height: 100vh;
-
-    padding: 32px 16px;
-
+    padding: 30px 20px; 
     box-sizing: border-box;
-
     background-color: var(--color-surface);
     border-right: 1px solid var(--color-border);
 
+    /* Thiết lập Flexbox cột để đẩy phần bottom xuống đáy */
     display: flex;
     flex-direction: column;
-
-    z-index: 100;
+    z-index: 100vh;
 }
-
-
-/* =========================================
-   LOGO
-   ========================================= */
 
 .sidebar-logo {
     display: block;
@@ -53,11 +43,6 @@
     transform: translateX(2px);
 }
 
-
-/* =========================================
-   SIDEBAR NAV
-   ========================================= */
-
 .sidebar-nav {
     width: 100%;
 
@@ -70,33 +55,21 @@
     flex: 1;
 }
 
-/* =========================================
-   SIDEBAR LINK
-   ========================================= */
-
 .sidebar-link {
     display: flex;
     align-items: center;
-
     gap: 12px;
-
     width: 100%;
     min-height: 58px;
-
     padding: 0 14px;
-
     box-sizing: border-box;
 
     /* Trạng thái bình thường */
     background-color: transparent;
     border: 2px solid transparent;
-
     color: rgb(117, 128, 113);
-
     text-decoration: none;
-
     border-radius: 12px;
-
     font-size: 18px;
     font-weight: 600;
 
@@ -107,48 +80,30 @@
         transform 0.2s ease;
 }
 
-/* =========================================
-   HOVER
-   ========================================= */
-
 .sidebar-link:hover {
     background-color: var(--color-primary-light);
-
     color: var(--color-primary-dark);
-
     border-color: var(--color-primary-light);
-
     transform: translateX(2px);
 }
-.sidebar-icon{
-    width: 22px;
-    height: 22px;
 
-    flex-shrink: 0;
+.sidebar-link .icon{
+    font-size: 20px;
+    font-weight: normal;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
 }
 
-/* =========================================
-   QUAY LẠI
-   ========================================= */
-
-.sidebar-back-link {
-    margin-top: auto;
-
-    /* Không để nút sát đáy */
-    margin-bottom: 16px;
-}
-.sidebar-back-icon {
-    width: 22px;
-    height: 22px;
-
-    flex-shrink: 0;
+.sidebar-bottom {
+    width: 100%;
+    /* Dự phòng trường hợp flex: 1 bị lỗi trên trình duyệt cũ */
+    margin-top: auto; 
 }
 
-/* =========================================
-   TOP BAR
-   ========================================= */
-
-.top-bar {
+/* Nhóm chức năng bên phải */
+.top-header {
     display: flex;
     align-items: center;
     justify-content: flex-end;
@@ -160,9 +115,7 @@
     border-bottom: 1px solid var(--color-border);
 }
 
-
-/* Nhóm chức năng bên phải */
-.top-bar-actions {
+.top-header-act {
     display: flex;
     align-items: center;
 
@@ -171,56 +124,49 @@
     flex-shrink: 0;
 }
 
-
 /* Nút chức năng */
-.top-bar-button {
+.top-header-btn {
     width: 48px;
     height: 48px;
-
     display: flex;
     align-items: center;
     justify-content: center;
-
     padding: 0;
 
     background-color: var(--color-white);
-
     border: 1px solid var(--color-border);
     border-radius: 50%;
-
     color: var(--color-text);
-
     font-size: 20px;
-
     cursor: pointer;
 
     transition:
         background-color 0.2s ease,
         border-color 0.2s ease,
         transform 0.2s ease,
-        box-shadow 0.2s ease;
+        box-shadow 0.2s ease
+}
+.top-header-btn:hover {
+    background-color: var(--color-primary-light);
+    border-color: var(--color-primary);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(31, 45, 36, 0.08);
 }
 
-.login-button {
+.login-btn {
     min-width: 120px;
     height: 48px;
-
     display: flex;
     align-items: center;
     justify-content: center;
 
     padding: 0 20px;
-
     background-color: var(--color-white);
-
     border: 1px solid var(--color-primary);
     border-radius: 24px;
-
     color: var(--color-text);
-
     font-size: 16px;
     font-weight: 600;
-
     text-decoration: none;
 
     transition:
@@ -229,26 +175,17 @@
         transform 0.2s ease,
         box-shadow 0.2s ease;
 }
-
-/* Hover */
-.top-bar-button:hover {
+/* Thêm hiệu ứng hover cho nút đăng nhập */
+.login-btn:hover {
     background-color: var(--color-primary-light);
-
-    border-color: var(--color-primary);
-
+    border-color: var(--color-primary-dark);
     transform: translateY(-2px);
-
     box-shadow: 0 4px 10px rgba(31, 45, 36, 0.08);
 }
 
-/* ================================
-   PAGE-CONTENT
-================================ */
 .page-content {
     margin-left: 220px;
-
     min-height: 100vh;
-
     box-sizing: border-box;
 }
 
@@ -267,21 +204,17 @@
 .topics-header-content {
     max-width: 1480px;
     margin: 0 auto;
-
     text-align: left;
 }
 
 .topics-eyebrow {
     display: block;
-
     margin-bottom: 12px;
 
     font-size: 14px;
     font-weight: 700;
     letter-spacing: 1.5px;
-
     color: var(--color-primary-dark);
-
     text-transform: uppercase;
 }
 
