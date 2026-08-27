@@ -1,0 +1,326 @@
+/* ======= LAYOUT CHÍNH ======= */
+.layout-wrapper {
+    display: flex;
+    min-height: 100vh;
+    width: 100%;
+}
+
+/* ======= SIDEBAR ======= */
+.sidebar {
+    width: 260px; /* Có thể mở rộng một chút cho cân đối với font chữ to */
+    background-color: var(--color-surface);
+    border-right: 1px solid var(--color-border);
+    padding: 30px 20px; 
+    flex-shrink: 0;
+    
+    /* Thiết lập Flexbox cột để đẩy phần bottom xuống đáy */
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.sidebar .sidebar-logo {
+    display: block;
+    margin: 0 0 40px;
+    padding: 4px 12px;
+    color: var(--color-primary-dark);
+    font-size: 27px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    text-decoration: none;
+    transition: color 0.2s ease, transform 0.2s ease;
+}
+.sidebar-logo:hover {
+    color: var(--color-primary);
+    transform: translateX(2px);
+}
+
+.sidebar-nav {
+    width: 100%;
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 12px;
+
+    /* Cho menu chiếm toàn bộ phần còn lại của sidebar */
+    flex: 1;
+}
+.sidebar-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    min-height: 58px;
+    padding: 0 14px;
+    box-sizing: border-box;
+    background-color: transparent;
+    border: 2px solid transparent;
+    color: rgb(117, 128, 113);
+    text-decoration: none;
+    border-radius: 12px;
+    font-size: 18px;
+    font-weight: 600;
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+
+
+.sidebar-link .icon {
+    font-size: 18px;
+    font-weight: normal;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+}
+
+/* Khi di chuột qua */
+.sidebar-link:hover {
+    background-color: var(--color-background);
+    color: var(--color-primary);
+    transform: translateX(4px);                  /* Hiệu ứng trượt nhẹ sang phải */
+}
+
+
+/* Căn chỉnh khoảng cách cho link dưới cùng */
+.sidebar-bottom {
+    width: 100%;
+    /* Dự phòng trường hợp flex: 1 bị lỗi trên trình duyệt cũ */
+    margin-top: auto; 
+}
+
+/* ======= MAIN CONTENT ======= */
+.main-content {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--color-background);
+}
+
+.top-header {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+
+    min-height: 76px;
+    padding: 0 24px;
+
+    background-color: var(--color-white);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.top-header-act {
+    display: flex;
+    align-items: center;
+
+    gap: 10px;
+
+    flex-shrink: 0;
+}
+
+.top-header-btn {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+
+    background-color: var(--color-white);
+    border: 1px solid var(--color-border);
+    border-radius: 50%;
+    color: var(--color-text);
+    font-size: 20px;
+    cursor: pointer;
+
+    transition:
+        background-color 0.2s ease,
+        border-color 0.2s ease,
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+.top-header-btn:hover {
+    background-color: var(--color-primary-light);
+    border-color: var(--color-primary);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(31, 45, 36, 0.08);
+}
+
+.login-btn{
+    min-width: 120px;
+    height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 0 20px;
+    background-color: var(--color-white);
+    border: 1px solid var(--color-primary);
+    border-radius: 24px;
+    color: var(--color-text);
+    font-size: 16px;
+    font-weight: 600;
+    text-decoration: none;
+
+    transition:
+        background-color 0.2s ease,
+        border-color 0.2s ease,
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+/* Thêm hiệu ứng hover cho nút đăng nhập */
+.login-btn:hover {
+    background-color: var(--color-primary-light);
+    border-color: var(--color-primary-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(31, 45, 36, 0.08);
+}
+
+.content-area {
+    padding: 30px;
+    flex-grow: 1;
+    overflow-y: auto;
+}
+
+/* ======= KHU VỰC BẢNG TỪ VỰNG ======= */
+
+.topic-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end; /* Căn đáy nếu có nút bên phải */
+    
+    margin-bottom: 24px;
+    padding: 0 4px; /* Lùi vào một chút cho thẳng hàng với mép thẻ vocab-card */
+}
+
+.topic-info {
+    display: flex;
+    flex-direction: column;
+    gap: 8px; /* Khoảng cách giữa H2 và P */
+}
+
+/* Định dạng chữ "Chủ đề: " */
+.topic-name {
+    margin: 0;
+    font-size: 32px;
+    font-weight: 600;
+    color: var(--color-text-muted);
+}
+
+/* Định dạng Tên Topic đổ từ PHP (Màu xanh đậm nhấn mạnh) */
+.topic-name .dynamic-text {
+    font-weight: 800;
+    color: var(--color-primary-dark);
+}
+
+/* Định dạng chữ "Số lượng:" */
+.topic-count {
+    margin: 0;
+    font-size: 16px;
+    color: var(--color-text-muted);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Định dạng con số đổ từ PHP (Nổi bật dưới dạng huy hiệu - badge) */
+.topic-count .dynamic-badge {
+    font-weight: 700;
+    color: var(--color-primary-dark);
+    background-color: var(--color-primary-light);
+    
+    padding: 2px 12px;
+    border-radius: 16px;
+    font-size: 14px;
+    display: inline-block;
+}
+
+.vocab-card {
+    background-color: var(--color-surface);
+    border-radius: 12px;
+    padding: 20px 30px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+}
+
+.vocab-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.vocab-table th {
+    text-align: left;
+    padding: 15px 10px;
+    color: var(--color-text-muted);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.vocab-table td {
+    padding: 20px 10px;
+    border-bottom: 1px solid var(--color-border);
+    vertical-align: middle;
+}
+
+/* Cột từ vựng & loại */
+.word-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.word-img-placeholder {
+    width: 40px;
+    height: 40px;
+    background-color: var(--color-border);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    color: var(--color-text-muted);
+}
+
+.word-details {
+    display: flex;
+    flex-direction: column;
+}
+
+.word-name {
+    font-weight: 700;
+    font-size: 16px;
+    color: var(--color-text);
+    margin-bottom: 4px;
+}
+
+.word-type {
+    font-size: 14px;
+    color: #9b51e0; /* Màu tím cho loại từ như trong mẫu */
+    font-weight: 500;
+}
+
+/* Cột Nghĩa và Phiên âm */
+.col-meaning, .col-ipa {
+    font-size: 15px;
+    color: var(--color-text);
+}
+
+/* Cột Ví dụ */
+.ex-en {
+    font-size: 15px;
+    color: var(--color-text);
+    margin-bottom: 4px;
+}
+
+.ex-vi {
+    font-size: 14px;
+    color: var(--color-text-muted);
+}
+
+/* Tỷ lệ độ rộng các cột (Tham khảo) */
+.col-word { width: 25%; }
+.col-meaning { width: 20%; }
+.col-ipa { width: 20%; }
+.col-example { width: 35%; }
