@@ -1,0 +1,110 @@
+.C_Lichsuontap_body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    background-color: #ffffff;
+    color: #000000;
+}
+
+.C_Lichsuontap_header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 40px;
+    border-bottom: 2px solid #000000;
+    box-sizing: border-box;
+}
+
+.C_Lichsuontap_logo {
+    margin: 0;
+    font-size: 22px;
+    font-weight: bold;
+}
+
+.C_Lichsuontap_filterBtn {
+    padding: 8px 18px;
+    background-color: #ffffff;
+    border: 1.5px solid #000000;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.C_Lichsuontap_filterBtn:hover {
+    background-color: #f0f0f0;
+}
+
+.C_Lichsuontap_main {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 25px 30px 40px 30px;
+    box-sizing: border-box;
+}
+
+.C_Lichsuontap_chartCard {
+    border: 1.5px solid #000000;
+    padding: 20px 25px 25px 25px;
+    margin-bottom: 25px;
+    background-color: #ffffff;
+    box-sizing: border-box;
+}
+
+.C_Lichsuontap_chartTitle {
+    margin: 0 0 20px 0;
+    font-size: 13px;
+    font-weight: 500;
+    color: #333333;
+}
+
+.C_Lichsuontap_chartArea {
+    width: 100%;
+    padding-left: 20px;
+}
+
+.C_Lichsuontap_barsContainer {
+    display: flex;
+    align-items: flex-end;
+    gap: 35px;
+    height: 150px;
+    border-bottom: 1.5px solid #000000;
+    box-sizing: border-box;
+}
+
+.C_Lichsuontap_bar {
+    width: 48px;
+    background-color: #d9d9d9;
+    border: 1.5px solid #000000;
+    border-bottom: none;
+    box-sizing: border-box;
+}
+
+.C_Lichsuontap_tableSection {
+    width: 100%;
+}
+
+.C_Lichsuontap_table {
+    width: 100%;
+    border-collapse: collapse;
+    border: 1.5px solid #000000;
+    background-color: #ffffff;
+}
+
+.C_Lichsuontap_th {
+    border-bottom: 1.5px solid #000000;
+    padding: 14px 20px;
+    text-align: left;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.C_Lichsuontap_td {
+    border-bottom: 1.5px solid #000000;
+    padding: 14px 20px;
+    font-size: 13px;
+    color: #000000;
+}
+
+.C_Lichsuontap_emptyRow .C_Lichsuontap_td {
+    height: 38px;
+    border-bottom: none;
+}

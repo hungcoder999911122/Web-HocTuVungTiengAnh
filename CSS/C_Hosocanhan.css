@@ -1,0 +1,154 @@
+
+.C_Hosocanhan_body {
+    margin: 0;
+    padding: 0;    
+    font-family: Arial, Helvetica, sans-serif;
+    background-color: #ffffff;
+    color: #000000;
+}
+
+.C_Hosocanhan_header {
+    padding: 15px 40px;
+    border-bottom: 2px solid #000000;
+    box-sizing: border-box;
+}
+
+.C_Hosocanhan_logo {
+    margin: 0;
+    font-size: 22px;
+    font-weight: bold;
+}
+
+.C_Hosocanhan_main {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 35px 40px;
+    box-sizing: border-box;
+}
+
+.C_Hosocanhan_profileSection {
+    display: flex;
+    gap: 50px;
+    align-items: flex-start;
+}
+
+.C_Hosocanhan_avatarWrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    width: 140px;
+    flex-shrink: 0;
+}
+
+.C_Hosocanhan_avatarCircle {
+    width: 125px;
+    height: 125px;
+    border: 2px solid #000000;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    font-weight: bold;
+    background-color: #ffffff;
+}
+
+.C_Hosocanhan_btnAvatar {
+    padding: 6px 14px;
+    background-color: #ffffff;
+    border: 1.5px solid #000000;
+    font-size: 12px;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.C_Hosocanhan_btnAvatar:hover {
+    background-color: #f5f5f5;
+}
+
+.C_Hosocanhan_form {
+    flex: 1;
+    max-width: 520px;
+}
+
+.C_Hosocanhan_formGroup {
+    margin-bottom: 16px;
+}
+
+.C_Hosocanhan_label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.C_Hosocanhan_input {
+    width: 100%;
+    height: 38px;
+    border: 1.5px solid #000000;
+    padding: 6px 10px;
+    box-sizing: border-box;
+    font-size: 14px;
+    outline: none;
+    background-color: #ffffff;
+}
+
+.C_Hosocanhan_formRow {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.C_Hosocanhan_btnSubmit {
+    padding: 10px 24px;
+    background-color: #d9d9d9;
+    border: 1.5px solid #000000;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    margin-top: 6px;
+}
+
+.C_Hosocanhan_btnSubmit:hover {
+    background-color: #c4c4c4;
+}
+
+.C_Hosocanhan_divider {
+    border: none;
+    border-top: 1.5px solid #000000;
+    margin: 40px 0 30px 0;
+}
+
+.C_Hosocanhan_sectionTitle {
+    font-size: 16px;
+    font-weight: bold;
+    margin: 0 0 20px 0;
+}
+
+.C_Hosocanhan_achievementGrid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+}
+
+.C_Hosocanhan_card {
+    border: 1.5px solid #000000;
+    padding: 18px 20px;
+    height: 105px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    background-color: #ffffff;
+}
+
+.C_Hosocanhan_cardLabel {
+    font-size: 13px;
+    color: #333333;
+}
+
+.C_Hosocanhan_cardValue {
+    font-size: 26px;
+    font-weight: bold;
+}
