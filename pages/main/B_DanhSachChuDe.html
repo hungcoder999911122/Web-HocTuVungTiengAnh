@@ -10,7 +10,7 @@
     <!-- <script src="jquery-4.0.0.min.js"></script> -->
     <link rel="stylesheet" type="text/css" href="../../CSS/Style.css">
     <link rel="stylesheet" type="text/css" href="../../CSS/B_DanhSachChuDe.css">
-</head>
+    <link rel="stylesheet" type="text/css" href="../../CSS/responsive.css">
 
 <body>
     <!-- SIDEBAR -->
@@ -24,7 +24,7 @@
 
         <nav class="sidebar-nav">
             <!-- Nội dung thanh sidebar -->
-            <a href="./B_DanhSachChuDe.html" class="sidebar-link">
+            <a href="./B_DanhSachChuDe.html" class="sidebar-link active">
                 <span class="icon">|||\</span> Chủ đề
             </a>
 
@@ -35,6 +35,7 @@
 
             <!-- Quay lại -->
             <div class="sidebar-bottom">
+                <hr class="">
                 <a href="B_homepage.html" class="sidebar-link">
                     <span class="icon">→]</span> Trang chủ
                 </a>
@@ -79,25 +80,17 @@
                 <!-- Tìm kiếm -->
                 <div class="topics-search">
                     <span class="search-icon" aria-hidden="true">🔍</span>
-                    <input type="search" id="topic-search" name="topic-search" placeholder="Tìm kiếm chủ đề...">
+                    <input type="search" id="topic-search" name="topic-search" class="search-input" placeholder="Tìm kiếm chủ đề...">
                 </div>
 
                 <!-- Lọc -->
                 <div class="topic-filter">
 
-                    <label for="topic-filter">
-                        Lọc:
-                    </label>
-
                     <select id="topic-filter" name="topic-filter">
                         <option value="all">Tất cả</option>
-                        <option value="travel">Du lịch</option>
-                        <option value="food">Ẩm thực</option>
-                        <option value="office">Công sở</option>
-                        <option value="family">Gia đình</option>
-                        <option value="sport">Thể thao</option>
-                        <option value="technology">Công nghệ</option>
-                        <option value="vocabulary">Từ vựng cơ bản</option>
+                        <option value="Ielts">Ielts</option>
+                        <option value="Toiec">Toiec</option>
+                        <option value="Common">Common</option>
                     </select>
 
                 </div>
@@ -295,6 +288,8 @@
             </nav>
         </section>
     </main>
+
+    <!-- <script src="jquery-4.0.0.min.js"></script> -->
 </body>
 
 </html>

@@ -6,7 +6,7 @@
     position: fixed;
     top: 0;
     left: 0;
-    width: 220px;
+    width: 245px;
     height: 100vh;
     padding: 30px 20px; 
     box-sizing: border-box;
@@ -16,7 +16,7 @@
     /* Thiết lập Flexbox cột để đẩy phần bottom xuống đáy */
     display: flex;
     flex-direction: column;
-    z-index: 100vh;
+    z-index: 1000;
 }
 
 .sidebar-logo {
@@ -56,6 +56,7 @@
 }
 
 .sidebar-link {
+    position: relative;                /* Để làm gốc tọa độ cho vạch kẻ bên trái */
     display: flex;
     align-items: center;
     gap: 12px;
@@ -72,20 +73,39 @@
     border-radius: 12px;
     font-size: 18px;
     font-weight: 600;
-
+    overflow: hidden;                       /* Cắt bỏ mọi phần tử con bị lồi ra khỏi viền bo góc */
+    
     transition:
         background-color 0.2s ease,
         color 0.2s ease,
         border-color 0.2s ease,
         transform 0.2s ease;
 }
+/* Tạo thanh đánh dấu dọc bên trái bằng ::before */
+.sidebar-link.active::before {
+    content: "";
+    position: absolute;
+    left: 0;              /* Đặt sát mép trái của nút */
+    top: 15%;             /* Căn lề trên để thanh ngắn lại một chút so với nút */
+    bottom: 15%;          /* Căn lề dưới */
+    width: 4px;           /* Độ dày của thanh đánh dấu */
+    
+    background-color: var(--color-primary-dark);
+    border-radius: 0 4px 4px 0; /* Bo góc nhẹ phần bên phải của thanh để trông mềm mại hơn */
+}   
 
-.sidebar-link:hover {
+.sidebar-link.active {
     background-color: var(--color-primary-light);
     color: var(--color-primary-dark);
-    border-color: var(--color-primary-light);
-    transform: translateX(2px);
 }
+
+/* Khi di chuột qua */
+.sidebar-link:hover {
+    background-color: var(--color-background);
+    color: var(--color-primary);
+    transform: translateX(4px);                  /* Hiệu ứng trượt nhẹ sang phải */
+}
+
 
 .sidebar-link .icon{
     font-size: 20px;
@@ -113,6 +133,10 @@
 
     background-color: var(--color-white);
     border-bottom: 1px solid var(--color-border);
+
+    position: sticky; 
+    top: 0; /* Dính chặt vào sát mép trên cùng của màn hình */
+    z-index: 100; /* Đảm bảo top-header luôn nổi lên trên cùng, không bị bảng từ vựng hay các khối khác đè lên khi cuộn */
 }
 
 .top-header-act {
@@ -184,14 +208,14 @@
 }
 
 .page-content {
-    margin-left: 220px;
+    margin-left: 245px;
     min-height: 100vh;
     box-sizing: border-box;
 }
 
 .topics-header {
     padding-top: 32px;
-    padding-left: 16px;
+    padding-left: 50px;
     padding-right: 16px;
     box-sizing: border-box;
 }
@@ -300,23 +324,20 @@
         border-color 0.2s ease,
         box-shadow 0.2s ease;
 }
+.search-input:focus {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px var(--color-primary-light);
+}
 
 
 /* lỌC */
 .topic-filter {
     display: flex;
     align-items: center;
-
+    padding-right: 3%;
     gap: 10px;
 
     flex-shrink: 0;
-}
-
-.topic-filter label {
-    font-size: 15px;
-    font-weight: 500;
-
-    color: var(--color-text-muted);
 }
 
 .topic-filter select {
@@ -471,72 +492,3 @@
 /* ================================
    RESPONSIVE
 ================================ */
-/* TABLET LỚN */
-@media (max-width: 1199px) {
-    .topic-list {
-        grid-template-columns: repeat(3, 1fr);
-    }
-}
-/* TABLET NHỎ */
-@media (max-width: 991px) {
-    .topic-list {
-        grid-template-columns: repeat(2, 1fr);
-    }
-}
-/* MOBILE */
-@media (max-width: 767px) {
-    .topic-list {
-        grid-template-columns: 1fr;
-        gap: 16px;
-    }
-
-    .topics-toolbar {
-        flex-direction: column;
-        align-items: stretch;
-
-        gap: 12px;
-    }
-
-    .topics-search {
-        max-width: none;
-    }
-
-    .topic-filter {
-        justify-content: space-between;
-    }
-
-    .topic-filter select {
-        flex: 1;
-    }
-    /* SIDEBAR */
-    .sidebar {
-        position: static;
-
-        width: 100%;
-        height: auto;
-
-        padding: 16px;
-
-        border-right: none;
-        border-bottom: 1px solid var(--color-border);
-    }
-
-    .sidebar-logo {
-        margin-bottom: 12px;
-    }
-
-    .sidebar-nav {
-        display: none;
-    }
-
-    .sidebar-back {
-        margin-top: 0;
-        padding-top: 12px;
-
-        border-top: none;
-    }
-
-    .page-content {
-        margin-left: 0;
-    }
-}
