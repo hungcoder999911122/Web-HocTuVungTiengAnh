@@ -2,52 +2,48 @@
 <html lang="vi">
 <head>
 	<meta charset="UTF-8">
-	<link rel="stylesheet" type="text/css" href="Style.css">
-	<link rel="stylesheet" type="text/css" href="A_DangNhap.css">
+	<link rel="stylesheet" type="text/css" href="/CSS/Style.css">
+	<link rel="stylesheet" type="text/css" href="/CSS/A_DangNhap.css">
 
-	<script src="jquery-4.0.0.min.js"></script>
-	<title> Đăng nhập </title>
+	<script src="/JS/jquery-4.0.0.min.js"></script>
+	<title>Đăng nhập</title>
 </head>
 
 <body>
 	<fieldset>
 		<div class="box">
-			<h2> Đăng nhập </h2>
+			<h2>Đăng nhập</h2>
 			<div>
 				<form>
-
-					<label> Email </label> <br />
-					<input type="email" id=A_DangNhap_Email name=A_DangNhap_Email placeholder="Vui lòng nhập Email">
+					<label>Email</label> <br />
+					<input type="email" id="A_DangNhap_Email" name="A_DangNhap_Email" placeholder="Vui lòng nhập Email">
 				</form>
 			</div>
 
 			<div>
 				<form>
-
-					<label> Mật khẩu </label>  <br />
-					<input type="password" id=A_DangNhap_password name=A_DangNhap_password placeholder="Vui lòng nhập Mật khẩu">
+					<label>Mật khẩu</label> <br />
+					<input type="password" id="A_DangNhap_password" name="A_DangNhap_password" placeholder="Vui lòng nhập Mật khẩu">
 				</form>
-
 			</div>
 
 			<div>
-				<a href="A_QuenMatKhau.html"> Quên mật khẩu? </a>
+				<a href="A_QuenMatKhau.html">Quên mật khẩu?</a>
 			</div>
 
 			<div>
 				<form>
-					<input type="button" name="Dangnhap_btn" id="Dangnhap_btn" value="Đăng nhập" action="A_Homepage.html" />
+					<input type="button" name="Dangnhap_btn" id="Dangnhap_btn" value="Đăng nhập" />
 				</form>
-
 			</div>
-
 
 			<div>
-				<label> hoặc </label> <br />
+				<label>hoặc</label> <br />
 				<form>
-					<input type="button" name="TaoTaiKhoan" id="TaoTaiKhoan" value="Tạo tài khoản" action=" " A_DangKy.html" />
+					<input type="button" name="TaoTaiKhoan" id="TaoTaiKhoan" value="Tạo tài khoản" />
 				</form>
 			</div>
+
 			<script>
 				$(document).ready(function () {
 					$("#Dangnhap_btn").click(function () {
@@ -56,19 +52,16 @@
 						if (email === "" || password === "") {
 							alert("Vui lòng nhập đầy đủ thông tin đăng nhập.");
 						} else {
-							// Thực hiện kiểm tra đăng nhập tại đây (ví dụ: gửi yêu cầu đến server)
-							// Nếu đăng nhập thành công, chuyển hướng đến trang A_Homepage.html
-							window.location.href = "A_Homepage.html";
+							window.location.href = "/pages/main/B_homepage.html";
 						}
 					});
+
 					$('#TaoTaiKhoan').click(function () {
 						window.location.href = "A_DangKy.html";
 					});
 				});
 			</script>
 		</div>
-
 	</fieldset>
-
 </body>
 </html>

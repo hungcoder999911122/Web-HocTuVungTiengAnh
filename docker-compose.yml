@@ -3,12 +3,13 @@ version: '3.8'
 services:
   # Server chạy PHP + Apache
   web:
-    image: php:8.2-apache
+    build: .
     container_name: web_app
     ports:
       - "8080:80"
+    # Thay đổi dường dẫn cho phù hợp với dự án
     volumes:
-      - ./src:/var/www/html
+      - ./:/var/www/html
     depends_on:
       - db
 
@@ -23,7 +24,7 @@ services:
       MYSQL_USER: webuser
       MYSQL_PASSWORD: webpass123
     ports:
-      - "3306:3306"
+      - "3307:3306"
     volumes:
       - db_data:/var/lib/mysql
 

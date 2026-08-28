@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý từ vựng</title>
+    <!-- Link file CSS dùng chung -->
+    <link rel="stylesheet" type="text/css" href="../../CSS/Style.css">
+    <!-- Link file CSS dành riêng cho trang Danh sách từ vựng -->
+    <link rel="stylesheet" type="text/css" href="../../CSS/B_DanhSachTuVung.css">
+    <!-- Responsive -->
+    <link rel="stylesheet" href="../../CSS/responsive.css">
+</head>
+
+<body>
+    <div class="layout-wrapper">
+
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <!-- LOGO -->
+            <div class="sidebar-logo">
+                <a href="B_DanhSachTuVung.html">🌿LexiLoop</a>
+            </div>
+
+            <nav class="sidebar-nav">
+                <!-- Thêm class 'active' cho trang đang được chọn -->
+                <a href="./B_DanhSachChuDe.html" class="sidebar-link active">
+                    <span class="icon">|||\</span> Chủ đề
+                </a>
+
+                <a href="#" class="sidebar-link">
+                    <span class="icon">+</span> Thêm Từ
+                </a>
+
+            </nav>
+
+            <!-- BOTTOM LINK -->
+            <div class="sidebar-bottom">
+                <hr class="">
+                <a href="B_DanhSachChuDe.html" class="sidebar-link">
+                    <span class="icon">→]</span> Quay về
+                </a>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <main class="main-content">
+            <header class="top-header">
+                <div class="top-header-act">
+                    <button class="top-header-btn" type="button" aria-label="Thông báo">🔔</button>
+                    <button class="top-header-btn" type="button" aria-label="Chế độ sáng tối">🌙</button>
+
+                    <a href="../auth/A_DangNhap.html" class="login-btn">Đăng nhập</a>
+                </div>
+            </header>
+
+            <div class="content-area">
+
+                <section class="topic-header">
+                    <div class="topic-info">
+                        <h2 class="topic-name">
+                            Chủ đề:
+                            <!-- Vị trí đổ PHP Tên chủ đề. VD: <?php echo $topic_name; ?> -->
+                            <span class="dynamic-text">Travel</span>
+                        </h2>
+                        <p class="topic-count">
+                            Số lượng:
+                            <!-- Vị trí đổ PHP Số lượng từ. VD: <?php echo $word_count; ?> -->
+                            <span class="dynamic-badge">15</span> từ vựng
+                        </p>
+                    </div>
+                    <!-- Khối dự phòng: Sau này có thể thêm nút chức năng ở đây -->
+                    <!-- <div class="topic-actions">
+                    <button class="btn-primary">Bắt đầu học</button>
+                    </div> -->
+                </section>
+
+                <!-- THANH TÌM KIẾM VÀ LỌC  -->
+                <div class="vocabs-toolbar">
+                    <div class="vocabs-search">
+                        <span class="search-icon" aria-hidden="true">🔍</span>
+                        <input type="search" id="vocab-search" name="vocab-search" class="search-input"
+                            placeholder="Tìm kiếm từ vựng hoặc nghĩa...">
+                    </div>
+
+                    <!-- LỌC -->
+                    <div class="vocab-filter">
+                        <select name="vocab-filter" id="vocab-filter-select">
+                            <option value="all">Tất cả từ vựng</option>
+                            <option value="vocab-new">Từ mới(Chưa học)</option>
+                            <option value="vocab-review">Từ đang ôn tập</option>
+                        </select>
+                    </div>
+                </div>
+
+                <section class="vocab-card">
+                    <!-- Bảng danh sách từ vựng -->
+                    <table class="vocab-table">
+                        <thead>
+                            <tr>
+                                <th class="col-word">TỪ VỰNG & LOẠI</th>
+                                <th class="col-meaning">NGHĨA</th>
+                                <th class="col-ipa">PHIÊN ÂM</th>
+                                <th class="col-example">CÂU VÍ DỤ</th>
+                            </tr>
+                        </thead>
+
+                        <tbody id="vocab-data-body" class="vocab-data">
+                            <!-- Dòng mẫu 1 (Sử dụng PHP/jQuery để lặp thẻ <tr> này) -->
+                            <tr>
+                                <td class="col-word">
+                                    <div class="word-info">
+                                        <div class="word-img-placeholder">IMG</div>
+                                        <div class="word-details">
+                                            <span class="word-name">space upstairs</span>
+                                            <span class="word-type">phr</span>
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <td class="col-meaning">không gian tầng trên</td>
+                                <td class="col-ipa">/ speɪs ʌpˈsteərz /</td>
+                                <td class="col-example">
+                                    <div class="ex-en">The space upstairs is where I keep my old toys.</div>
+                                    <div class="ex-vi">Không gian tầng trên là nơi tôi để đồ chơi cũ.</div>
+                                </td>
+                            </tr>
+
+                            <!-- Dữ liệu sẽ được đổ tiếp vào đây thông qua PHP -->
+                        </tbody>
+                    </table>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- <script src="jquery-4.0.0.min.js"></script> -->
+</body>
+
+</html>
