@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: db
--- Generation Time: Aug 28, 2026 at 04:44 PM
+-- Generation Time: Aug 29, 2026 at 04:51 PM
 -- Server version: 8.0.46
 -- PHP Version: 8.3.26
 
@@ -121,7 +121,7 @@ CREATE TABLE `review_logs` (
   `review_date` date NOT NULL,
   `quality_rating` tinyint NOT NULL,
   `response_time_ms` int DEFAULT NULL
-) ;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `review_logs`
@@ -179,16 +179,16 @@ INSERT INTO `Topics` (`topicID`, `topicName`, `topicDescription`, `created_by`, 
 -- (See below for the actual view)
 --
 CREATE TABLE `tu_vung` (
-`id` int
+`audio_url` varchar(255)
+,`created_at` datetime
+,`created_by` int
+,`example_sentence` text
+,`id` int
+,`meaning` text
+,`part_of_speech` varchar(30)
+,`pronunciation` varchar(100)
 ,`topic_id` int
 ,`word` varchar(100)
-,`pronunciation` varchar(100)
-,`part_of_speech` varchar(30)
-,`meaning` text
-,`example_sentence` text
-,`created_by` int
-,`created_at` datetime
-,`audio_url` varchar(255)
 );
 
 -- --------------------------------------------------------
@@ -199,9 +199,8 @@ CREATE TABLE `tu_vung` (
 
 CREATE TABLE `Users` (
   `userID` int NOT NULL,
-  `username` varchar(50) NOT NULL,
   `email` varchar(50) NOT NULL,
-  `password_hash` varchar(50) NOT NULL,
+  `password_hash` varchar(300) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   `full_name` varchar(100) DEFAULT NULL,
   `avatar_url` varchar(250) DEFAULT NULL,
   `role` enum('user','admin') DEFAULT 'user',
@@ -217,9 +216,9 @@ CREATE TABLE `Users` (
 -- Dumping data for table `Users`
 --
 
-INSERT INTO `Users` (`userID`, `username`, `email`, `password_hash`, `full_name`, `avatar_url`, `role`, `status`, `created_at`, `update_at`, `daily_reminder_enabled`, `reminder_time`, `daily_target_words`) VALUES
-(1, 'admin', 'admin@example.com', '$2y$10$e0MYzXyjpJS7Pd0RVvHwHeFXx...hash...', 'Quản Trị Viên', NULL, 'admin', 'active', '2026-08-28 16:40:44', '2026-08-28 16:40:44', 1, '20:00:00', 20),
-(2, 'quan_le', 'quan@gmail.com', '$2y$10$e0MYzXyjpJS7Pd0RVvHwHeFXx...hash...', 'Lê Quân', NULL, 'user', 'active', '2026-08-28 16:40:44', '2026-08-28 16:40:44', 1, '21:00:00', 15);
+INSERT INTO `Users` (`userID`, `email`, `password_hash`, `full_name`, `avatar_url`, `role`, `status`, `created_at`, `update_at`, `daily_reminder_enabled`, `reminder_time`, `daily_target_words`) VALUES
+(1, 'admin@example.com', '$2y$10$e0MYzXyjpJS7Pd0RVvHwHeFXx...hash...', 'Quản Trị Viên', NULL, 'admin', 'active', '2026-08-28 16:40:44', '2026-08-28 16:40:44', 1, '20:00:00', 20),
+(2, 'quan@gmail.com', '$2y$10$e0MYzXyjpJS7Pd0RVvHwHeFXx...hash...', 'Lê Quân', NULL, 'user', 'active', '2026-08-28 16:40:44', '2026-08-28 16:40:44', 1, '21:00:00', 15);
 
 -- --------------------------------------------------------
 
@@ -254,7 +253,7 @@ CREATE TABLE `user_vocab_progress` (
   `next_review_date` date DEFAULT NULL,
   `last_reviewed_at` datetime DEFAULT NULL,
   `last_quality_rating` tinyint DEFAULT NULL
-) ;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `user_vocab_progress`
@@ -383,7 +382,6 @@ ALTER TABLE `Topics`
 --
 ALTER TABLE `Users`
   ADD PRIMARY KEY (`userID`),
-  ADD UNIQUE KEY `username` (`username`),
   ADD UNIQUE KEY `email` (`email`);
 
 --
@@ -450,7 +448,7 @@ ALTER TABLE `quiz_results`
 -- AUTO_INCREMENT for table `review_logs`
 --
 ALTER TABLE `review_logs`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `Topics`
@@ -474,7 +472,7 @@ ALTER TABLE `user_login_sessions`
 -- AUTO_INCREMENT for table `user_vocab_progress`
 --
 ALTER TABLE `user_vocab_progress`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `vocabulary`
