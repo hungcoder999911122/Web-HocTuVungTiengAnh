@@ -1,3 +1,6 @@
+<?php
+require_once($_SERVER['DOCUMENT_ROOT'] . "/Connect.php");
+?>
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -47,6 +50,34 @@
             </form>
         </div>
     </main>
+
+
+<?php
+if($_SERVER['REQUEST_METHOD'] == 'POST') 
+{
+    $password = $_POST['A_DatLaiMatKhau_password_hash'];
+    $confirm_password = $_POST['A_DatLaiMatKhau_confirm_password'];
+
+
+//Kiểm tra dữ liệu
+$loi="";
+if(empty($password) || empty($confirm_password)) 
+    {
+	$loi="Vui lòng nhập đầy đủ thông tin mật khẩu mới và xác nhận mật khẩu mới.";
+    }
+ elseif($password != $confirm_password) 
+    {
+	$loi="Mật khẩu mới và xác nhận mật khẩu mới không khớp.";
+    }
+    elseif(strlen($password) < 6)
+    {
+	$loi="Mật khẩu mới phải có ít nhất 6 ký tự.";
+    }
+
+}
+
+
+?>
 
 </body>
 </html>
