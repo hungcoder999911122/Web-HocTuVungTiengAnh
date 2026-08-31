@@ -30,27 +30,27 @@
         <!-- Menu ben trai -->
         <nav class="D_Dashboard_admin_Sidebar">
           <a
-            href="D_Dashboard_admin.html"
+            href="D_Dashboard_admin.php"
             class="D_Dashboard_admin_MucMenu D_Dashboard_admin_DangChon"
             >Dashboard</a
           >
-          <a href="D_Quanlynguoidung.html" class="D_Dashboard_admin_MucMenu"
+          <a href="D_Quanlynguoidung.php" class="D_Dashboard_admin_MucMenu"
             >Người dùng</a
           >
-          <a href="D_Quanlychude.html" class="D_Dashboard_admin_MucMenu"
+          <a href="D_Quanlychude.php" class="D_Dashboard_admin_MucMenu"
             >Chủ đề</a
           >
-          <a href="D_Quanlytuvung.html" class="D_Dashboard_admin_MucMenu"
+          <a href="D_Quanlytuvung.php" class="D_Dashboard_admin_MucMenu"
             >Từ vựng</a
           >
-          <a href="D_Thongkehethong.html" class="D_Dashboard_admin_MucMenu"
+          <a href="D_Thongkehethong.php" class="D_Dashboard_admin_MucMenu"
             >Thống kê</a
           >
-          <a href="D_Caidathethong.html" class="D_Dashboard_admin_MucMenu"
+          <a href="D_Caidathethong.php" class="D_Dashboard_admin_MucMenu"
             >Cài đặt</a
           >
           <hr class="D_Dashboard_admin_GachNgang" />
-          <a href="../main/B_homepage.html" class="D_Dashboard_admin_MucMenu"
+          <a href="../main/B_homepage.php" class="D_Dashboard_admin_MucMenu"
             >Đăng xuất</a
           >
         </nav>

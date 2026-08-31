@@ -19,19 +19,19 @@
     <div class="C_Dashboard_user_layoutWrapper">
         <aside class="C_Dashboard_user_sidebar">
             <nav class="C_Dashboard_user_navMenu">
-                <a href="C_Dashboard_user.html" class="C_Dashboard_user_navItem C_Dashboard_user_navActive">Dashboard</a>
-                <a href="../user/C_Ontaphomnay.html" class="C_Dashboard_user_navItem">Ôn tập hôm nay</a>
-                <a href="../user/C_Flashcard.html" class="C_Dashboard_user_navItem">FlashCard</a>
-                <a href="../user/C_Tuvungcuatoi.html" class="C_Dashboard_user_navItem">Từ vựng của tôi</a>
-                <a href="../user/C_Quiz.html" class="C_Dashboard_user_navItem">Quiz</a>
-                <a href="../user/C_Lichsuontap.html" class="C_Dashboard_user_navItem">Lịch sử ôn tập</a>
-                <a href="../user/C_Hosocanhan.html" class="C_Dashboard_user_navItem">Hồ sơ</a>
+                <a href="C_Dashboard_user.php" class="C_Dashboard_user_navItem C_Dashboard_user_navActive">Dashboard</a>
+                <a href="../user/C_Ontaphomnay.php" class="C_Dashboard_user_navItem">Ôn tập hôm nay</a>
+                <a href="../user/C_Flashcard.php" class="C_Dashboard_user_navItem">FlashCard</a>
+                <a href="../user/C_Tuvungcuatoi.php" class="C_Dashboard_user_navItem">Từ vựng của tôi</a>
+                <a href="../user/C_Quiz.php" class="C_Dashboard_user_navItem">Quiz</a>
+                <a href="../user/C_Lichsuontap.php" class="C_Dashboard_user_navItem">Lịch sử ôn tập</a>
+                <a href="../user/C_Hosocanhan.php" class="C_Dashboard_user_navItem">Hồ sơ</a>
                 <a href="#" class="C_Dashboard_user_navItem">Cài đặt</a>
             </nav>
 
             <div class="C_Dashboard_user_sidebarFooter">
                 <hr class="C_Dashboard_user_divider">
-                <a href="../auth/A_DangNhap.html" class="C_Dashboard_user_logoutLink">Đăng xuất</a>
+                <a href="../auth/A_DangNhap.php" class="C_Dashboard_user_logoutLink">Đăng xuất</a>
             </div>
         </aside>
 
@@ -63,20 +63,20 @@
             <section class="C_Dashboard_user_actionsSection">
                 <h3 class="C_Dashboard_user_sectionHeading">Bạn muốn làm gì hôm nay?</h3>
                 <div class="C_Dashboard_user_actionsGrid">
-                    <a href="../user/C_Ontaphomnay.html" class="C_Dashboard_user_actionCard">
+                    <a href="../user/C_Ontaphomnay.php" class="C_Dashboard_user_actionCard">
                         <span class="C_Dashboard_user_actionTitle">Ôn tập</span>
                         <span class="C_Dashboard_user_actionNote">24 từ</span>
                     </a>
-                    <a href="../user/C_HocFlashcard.html" class="C_Dashboard_user_actionCard">
+                    <a href="../user/C_HocFlashcard.php" class="C_Dashboard_user_actionCard">
                         <span class="C_Dashboard_user_actionTitle">Học FlashCard</span>
                     </a>
-                    <a href="../user/C_Quiz.html" class="C_Dashboard_user_actionCard">
+                    <a href="../user/C_Quiz.php" class="C_Dashboard_user_actionCard">
                         <span class="C_Dashboard_user_actionTitle">Làm Quiz</span>
                     </a>
-                    <a href="../user/C_Tuvungcuatoi.html" class="C_Dashboard_user_actionCard">
+                    <a href="../user/C_Tuvungcuatoi.php" class="C_Dashboard_user_actionCard">
                         <span class="C_Dashboard_user_actionTitle">Quản lý từ vựng</span>
                     </a>
-                    <a href="../user/C_Hosocanhan.html" class="C_Dashboard_user_actionCard">
+                    <a href="../user/C_Hosocanhan.php" class="C_Dashboard_user_actionCard">
                         <span class="C_Dashboard_user_actionTitle">Hồ sơ</span>
                     </a>
                     <div class="C_Dashboard_user_actionCard">

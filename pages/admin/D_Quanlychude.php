@@ -23,28 +23,28 @@
 
       <div class="D_Quanlychude_Body">
         <nav class="D_Quanlychude_Sidebar">
-          <a href="D_Dashboard_admin.html" class="D_Quanlychude_MucMenu"
+          <a href="D_Dashboard_admin.php" class="D_Quanlychude_MucMenu"
             >Dashboard</a
           >
-          <a href="D_Quanlynguoidung.html" class="D_Quanlychude_MucMenu"
+          <a href="D_Quanlynguoidung.php" class="D_Quanlychude_MucMenu"
             >Người dùng</a
           >
           <a
-            href="D_Quanlychude.html"
+            href="D_Quanlychude.php"
             class="D_Quanlychude_MucMenu D_Quanlychude_DangChon"
             >Chủ đề</a
           >
-          <a href="D_Quanlytuvung.html" class="D_Quanlychude_MucMenu"
+          <a href="D_Quanlytuvung.php" class="D_Quanlychude_MucMenu"
             >Từ vựng</a
           >
-          <a href="D_Thongkehethong.html" class="D_Quanlychude_MucMenu"
+          <a href="D_Thongkehethong.php" class="D_Quanlychude_MucMenu"
             >Thống kê</a
           >
-          <a href="D_Caidathethong.html" class="D_Quanlychude_MucMenu"
+          <a href="D_Caidathethong.php" class="D_Quanlychude_MucMenu"
             >Cài đặt</a
           >
           <hr class="D_Quanlychude_GachNgang" />
-          <a href="../main/B_homepage.html" class="D_Quanlychude_MucMenu"
+          <a href="../main/B_homepage.php" class="D_Quanlychude_MucMenu"
             >Đăng xuất</a
           >
         </nav>

@@ -23,28 +23,28 @@
 
       <div class="D_Caidathethong_Body">
         <nav class="D_Caidathethong_Sidebar">
-          <a href="D_Dashboard_admin.html" class="D_Caidathethong_MucMenu"
+          <a href="D_Dashboard_admin.php" class="D_Caidathethong_MucMenu"
             >Dashboard</a
           >
-          <a href="D_Quanlynguoidung.html" class="D_Caidathethong_MucMenu"
+          <a href="D_Quanlynguoidung.php" class="D_Caidathethong_MucMenu"
             >Người dùng</a
           >
-          <a href="D_Quanlychude.html" class="D_Caidathethong_MucMenu"
+          <a href="D_Quanlychude.php" class="D_Caidathethong_MucMenu"
             >Chủ đề</a
           >
-          <a href="D_Quanlytuvung.html" class="D_Caidathethong_MucMenu"
+          <a href="D_Quanlytuvung.php" class="D_Caidathethong_MucMenu"
             >Từ vựng</a
           >
-          <a href="D_Thongkehethong.html" class="D_Caidathethong_MucMenu"
+          <a href="D_Thongkehethong.php" class="D_Caidathethong_MucMenu"
             >Thống kê</a
           >
           <a
-            href="D_Caidathethong.html"
+            href="D_Caidathethong.php"
             class="D_Caidathethong_MucMenu D_Caidathethong_DangChon"
             >Cài đặt</a
           >
           <hr class="D_Caidathethong_GachNgang" />
-          <a href="../main/B_homepage.html" class="D_Caidathethong_MucMenu"
+          <a href="../main/B_homepage.php" class="D_Caidathethong_MucMenu"
             >Đăng xuất</a
           >
         </nav>
