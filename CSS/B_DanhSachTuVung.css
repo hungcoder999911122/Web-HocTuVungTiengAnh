@@ -435,3 +435,85 @@
 .col-meaning { width: 20%; }
 .col-ipa { width: 20%; }
 .col-example { width: 35%; }
+
+/* ================================
+   PHÂN TRANG
+================================ */
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    gap: 6px;
+
+    margin-top: 32px;
+}
+
+
+/* NÚT PHÂN TRANG */
+
+.pagination-button {
+    min-width: 38px;
+    height: 38px;
+
+    padding: 0 10px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background-color: var(--color-white);
+
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+
+    color: var(--color-text-muted);
+
+    font-size: 14px;
+    font-weight: 600;
+
+    text-decoration: none;
+
+    box-sizing: border-box;
+
+    transition:
+        color 0.2s ease,
+        background-color 0.2s ease,
+        border-color 0.2s ease;
+}
+
+
+/* HOVER */
+
+.pagination-button:hover {
+    color: var(--color-primary);
+
+    background-color: var(--color-surface);
+
+    border-color: var(--color-primary);
+}
+
+
+/* TRANG HIỆN TẠI */
+
+.pagination-button.active {
+    color: var(--color-primary);
+
+    background-color: var(--color-primary-light);
+
+    border-color: var(--color-primary);
+}
+
+
+/* GIỮ TRẠNG THÁI ACTIVE KHI HOVER */
+
+.pagination-button.active:hover {
+    color: var(--color-primary-dark);
+
+    background-color: var(--color-primary-light);
+}
+
+/* ================================
+   RESPONSIVE
+================================ */
