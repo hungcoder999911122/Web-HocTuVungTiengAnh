@@ -1,0 +1,188 @@
+.C_Tuvungcuatoi_body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    background-color: #ffffff;
+    color: #000000;
+}
+
+.C_Tuvungcuatoi_header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 40px;
+    border-bottom: 2px solid #000000;
+    box-sizing: border-box;
+}
+
+.C_Tuvungcuatoi_logo {
+    margin: 0;
+    font-size: 22px;
+    font-weight: bold;
+}
+
+.C_Tuvungcuatoi_btnAddTop {
+    padding: 8px 20px;
+    background-color: #d9d9d9;
+    border: 1.5px solid #000000;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.C_Tuvungcuatoi_btnAddTop:hover {
+    background-color: #c4c4c4;
+}
+
+.C_Tuvungcuatoi_main {
+    max-width: 1050px;
+    margin: 0 auto;
+    padding: 25px 30px 40px 30px;
+    box-sizing: border-box;
+}
+
+.C_Tuvungcuatoi_filterBar {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.C_Tuvungcuatoi_inputSearch {
+    width: 240px;
+    height: 38px;
+    border: 1.5px solid #000000;
+    padding: 0 12px;
+    font-size: 13px;
+    box-sizing: border-box;
+    outline: none;
+}
+
+.C_Tuvungcuatoi_selectFilter {
+    height: 38px;
+    border: 1.5px solid #000000;
+    padding: 0 12px;
+    font-size: 13px;
+    background-color: #ffffff;
+    box-sizing: border-box;
+    cursor: pointer;
+    outline: none;
+}
+
+.C_Tuvungcuatoi_tableSection {
+    width: 100%;
+    margin-bottom: 40px;
+}
+
+.C_Tuvungcuatoi_table {
+    width: 100%;
+    border-collapse: collapse;
+    border: 1.5px solid #000000;
+    background-color: #ffffff;
+}
+
+.C_Tuvungcuatoi_th {
+    border-bottom: 1.5px solid #000000;
+    padding: 14px 18px;
+    text-align: left;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.C_Tuvungcuatoi_td {
+    border-bottom: 1.5px solid #000000;
+    padding: 14px 18px;
+    font-size: 13px;
+    color: #000000;
+}
+
+.C_Tuvungcuatoi_btnTableAction {
+    padding: 5px 14px;
+    background-color: #ffffff;
+    border: 1.5px solid #000000;
+    font-size: 12px;
+    cursor: pointer;
+    margin-right: 6px;
+}
+
+.C_Tuvungcuatoi_btnTableAction:hover {
+    background-color: #f0f0f0;
+}
+
+.C_Tuvungcuatoi_formModalContainer {
+    display: flex;
+    justify-content: center;
+}
+
+.C_Tuvungcuatoi_formCard {
+    width: 100%;
+    max-width: 580px;
+    border: 1.5px solid #000000;
+    padding: 25px 30px;
+    box-sizing: border-box;
+    background-color: #ffffff;
+}
+
+.C_Tuvungcuatoi_formTitle {
+    margin: 0 0 18px 0;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.C_Tuvungcuatoi_formRow {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.C_Tuvungcuatoi_formGroup {
+    margin-bottom: 15px;
+}
+
+.C_Tuvungcuatoi_label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 13px;
+    color: #333333;
+}
+
+.C_Tuvungcuatoi_input {
+    width: 100%;
+    height: 38px;
+    border: 1.5px solid #000000;
+    padding: 6px 10px;
+    box-sizing: border-box;
+    font-size: 13px;
+    outline: none;
+}
+
+.C_Tuvungcuatoi_formButtons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 15px;
+}
+
+.C_Tuvungcuatoi_btnCancel {
+    padding: 8px 24px;
+    background-color: #ffffff;
+    border: 1.5px solid #000000;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.C_Tuvungcuatoi_btnCancel:hover {
+    background-color: #f0f0f0;
+}
+
+.C_Tuvungcuatoi_btnSave {
+    padding: 8px 24px;
+    background-color: #d9d9d9;
+    border: 1.5px solid #000000;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.C_Tuvungcuatoi_btnSave:hover {
+    background-color: #c4c4c4;
+}

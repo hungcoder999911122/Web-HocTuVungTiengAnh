@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <title>LexiLoop Admin - Thống kê hệ thống</title>
+    <link rel="stylesheet" type="text/css" href="../../CSS/D_Thongkehethong.css" />
+    <script src="../jquery-4.0.0.min.js"></script>
+  </head>
+
+  <body>
+    <div class="D_Thongkehethong_Wrapper">
+      <header class="D_Thongkehethong_Topbar">
+        <div class="D_Thongkehethong_Logo">LexiLoop Admin</div>
+        <div class="D_Thongkehethong_TopbarPhai">
+          <input
+            type="text"
+            class="D_Thongkehethong_TimKiem"
+            placeholder="Tìm kiếm"
+          />
+          <div class="D_Thongkehethong_Avatar">AD</div>
+        </div>
+      </header>
+
+      <div class="D_Thongkehethong_Body">
+        <nav class="D_Thongkehethong_Sidebar">
+          <a href="D_Dashboard_admin.php" class="D_Thongkehethong_MucMenu"
+            >Dashboard</a
+          >
+          <a href="D_Quanlynguoidung.php" class="D_Thongkehethong_MucMenu"
+            >Người dùng</a
+          >
+          <a href="D_Quanlychude.php" class="D_Thongkehethong_MucMenu"
+            >Chủ đề</a
+          >
+          <a href="D_Quanlytuvung.php" class="D_Thongkehethong_MucMenu"
+            >Từ vựng</a
+          >
+          <a
+            href="D_Thongkehethong.php"
+            class="D_Thongkehethong_MucMenu D_Thongkehethong_DangChon"
+            >Thống kê</a
+          >
+          <a href="D_Caidathethong.php" class="D_Thongkehethong_MucMenu"
+            >Cài đặt</a
+          >
+          <hr class="D_Thongkehethong_GachNgang" />
+          <a href="../main/B_homepage.php" class="D_Thongkehethong_MucMenu"
+            >Đăng xuất</a
+          >
+        </nav>
+
+        <main class="D_Thongkehethong_NoiDung">
+          <div class="D_Thongkehethong_HangTieuDe">
+            <h1 class="D_Thongkehethong_TieuDe">Thống kê hệ thống</h1>
+            <button class="D_Thongkehethong_NutXam" type="button">
+              Xuất báo cáo
+            </button>
+          </div>
+
+          <div class="D_Thongkehethong_HangTheSo">
+            <div class="D_Thongkehethong_TheSo">
+              <p class="D_Thongkehethong_NhanTheSo">Người dùng hoạt động</p>
+              <p class="D_Thongkehethong_SoLieu">870</p>
+            </div>
+            <div class="D_Thongkehethong_TheSo">
+              <p class="D_Thongkehethong_NhanTheSo">Tỷ lệ hoàn thành quiz</p>
+              <p class="D_Thongkehethong_SoLieu">78%</p>
+            </div>
+            <div class="D_Thongkehethong_TheSo">
+              <p class="D_Thongkehethong_NhanTheSo">Từ ôn tập mỗi ngày</p>
+              <p class="D_Thongkehethong_SoLieu">3,240</p>
+            </div>
+          </div>
+
+          <div class="D_Thongkehethong_HangBieuDo">
+            <div class="D_Thongkehethong_HopBieuDo">
+              <p class="D_Thongkehethong_TieuDeHop">
+                Người dùng mới theo tháng
+              </p>
+              <div class="D_Thongkehethong_BieuDoCot">
+                <div class="D_Thongkehethong_Cot" style="height: 30%"></div>
+                <div class="D_Thongkehethong_Cot" style="height: 45%"></div>
+                <div class="D_Thongkehethong_Cot" style="height: 35%"></div>
+                <div class="D_Thongkehethong_Cot" style="height: 65%"></div>
+                <div class="D_Thongkehethong_Cot" style="height: 55%"></div>
+                <div class="D_Thongkehethong_Cot" style="height: 80%"></div>
+              </div>
+            </div>
+
+            <div class="D_Thongkehethong_HopBieuDo">
+              <p class="D_Thongkehethong_TieuDeHop">
+                Tỷ lệ người dùng theo chủ đề yêu thích
+              </p>
+              <div class="D_Thongkehethong_HangBieuDoTron">
+                <div class="D_Thongkehethong_BieuDoTron"></div>
+                <div class="D_Thongkehethong_ChuThich">
+                  <p>
+                    <span
+                      class="D_Thongkehethong_OMau D_Thongkehethong_MauMot"
+                    ></span
+                    >Du lịch
+                  </p>
+                  <p>
+                    <span
+                      class="D_Thongkehethong_OMau D_Thongkehethong_MauHai"
+                    ></span
+                    >Công nghệ
+                  </p>
+                  <p>
+                    <span
+                      class="D_Thongkehethong_OMau D_Thongkehethong_MauBa"
+                    ></span
+                    >Khác
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <p class="D_Thongkehethong_TieuDeMuc">Chủ đề được học nhiều nhất</p>
+          <table class="D_Thongkehethong_Bang">
+            <tbody>
+              <tr>
+                <td class="D_Thongkehethong_OTenChuDe">Công nghệ</td>
+                <td class="D_Thongkehethong_OLuot">1,204 lượt học</td>
+              </tr>
+              <tr>
+                <td class="D_Thongkehethong_OTenChuDe">Du lịch</td>
+                <td class="D_Thongkehethong_OLuot">980 lượt học</td>
+              </tr>
+              <tr>
+                <td class="D_Thongkehethong_OTenChuDe">Ẩm thực</td>
+                <td class="D_Thongkehethong_OLuot">742 lượt học</td>
+              </tr>
+            </tbody>
+          </table>
+        </main>
+      </div>
+    </div>
+  </body>
+</html>

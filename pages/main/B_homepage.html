@@ -11,28 +11,29 @@
 
     <link rel="stylesheet" href="../../CSS/Style.css">
     <link rel="stylesheet" href="../../CSS/B_homepage.css">
-    <link rel="icon" type="image/x-icon" href="../../favicon.ico">
+    <link rel="stylesheet" href="../../CSS/responsive.css">
+    <!-- <link rel="icon" type="image/x-icon" href="../../favicon.ico"> -->
 </head>
 
 <body>
     <header>
+        <!-- NAV - THANH ĐIỀU HƯỚNG -->
         <nav class="main-nav" aria-label="Điều hướng chính">
             <!--Logo trang homepage & click để di chuyển về hompage-->
-            <a href="B_homepage.html" class="logo">LexiLoop</a>
+            <a href="B_homepage.html" class="logo">🌿LexiLoop</a>
 
             <!-- Điều hướng chính -->
             <ul class="nav-list">
                 <li> <a href="#hero">Trang chủ</a> </li>
                 <li> <a href="#how-it-works">Phương pháp học</a> </li>
                 <li> <a href="#features">Tính năng </a> </li>
-                <li> <a href="./B_DanhSachChuDe.html">Chủ đề</a> </li>
-                <li> <a href="./B_LexiLoopinfo.html">Về chúng tôi</a> </li>
+                <li> <a href="./B_LexiLoopinfo.php">Về chúng tôi</a> </li>
             </ul>
 
             <!-- Điều hướng xác thực tài khoản -->
             <ul class="nav-auth">
-                <li> <a href="../auth/A_DangNhap.html">Đăng nhập</a></li>
-                <li> <a href="../auth/A_DangKy.html">Đăng ký</a> </li>
+                <li> <a href="../auth/A_DangNhap.php">Đăng nhập</a></li>
+                <li> <a href="../auth/A_DangKy.php">Đăng ký</a> </li>
             </ul>
         </nav>
     </header>
@@ -55,14 +56,15 @@
                     những lần ôn tập đúng thời điểm.
                 </p>
 
-                <a href="./B_DanhSachChuDe.html" class="hero-cta">
-                    Học thử miễn phí
+                <a href="./B_DanhSachChuDe.php" class="hero-cta">
+                    Bắt đầu trải nghiệm
                 </a>
             </div>
 
             <!-- Ảnh hero chèn ảnh sau -->
             <div class="hero-visual">
-                <img src="#Hero-1.jpg" alt="Minh họa học từ vựng tiếng anh">
+                <img src="../../assets/images/avatars/Homepage.jpg" alt="Minh họa học từ vựng tiếng anh"
+                    class="hero-image">
             </div>
 
         </section>
@@ -231,8 +233,8 @@
                 </p>
             </div>
 
-            <a href="./B_DanhSachChuDe.html" class="cta-button">
-                Học thử miễn phí
+            <a href="../auth/A_DangNhap.php" class="cta-button">
+                Đăng nhập
                 <span aria-hidden="true">→</span>
             </a>
 
@@ -248,14 +250,17 @@
                 <p>Học từ vựng tiếng Anh theo phương pháp Spaced Repetition.</p>
             </div>
 
-            <!-- Menu liên kết sử dụng thanh điều hướng -->
+            <!-- Menu liên kết sử dụng thanh điều hướng
             <nav class="footer-nav" aria-label="Điều hướng chân trang">
                 <a href="#hero">Trang chủ</a>
 
                 <a href="#how-it-works">Cách hoạt động</a>
 
-                <a href="#featured-topics">Chủ đề</a>
-            </nav>
+                <a href="B_DanhSachChuDe.php">Chủ đề</a>
+
+                <a href=""></a>
+
+            </nav> -->
 
             <!-- Bản quyền -->
             <div class="footer-copyright">
@@ -263,6 +268,9 @@
             </div>
         </div>
     </footer>
+
+    <script src="../../JS/jquery-4.0.0.min.js"></script>
+    <script src="../../JS/B_homepage.js"></script>
 </body>
 
 </html>

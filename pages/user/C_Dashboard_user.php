@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - LexiLoop</title>
+    <link rel="stylesheet" href="../../CSS/C_Dashboard_user.css">
+</head>
+<body class="C_Dashboard_user_body">
+
+    <header class="C_Dashboard_user_header">
+        <h1 class="C_Dashboard_user_logo">LexiLoop</h1>
+        <div class="C_Dashboard_user_userInfo">
+            <span class="C_Dashboard_user_greeting">Xin chào, Nguyễn An</span>
+            <div class="C_Dashboard_user_avatarCircle">NA</div>
+        </div>
+    </header>
+
+    <div class="C_Dashboard_user_layoutWrapper">
+        <aside class="C_Dashboard_user_sidebar">
+            <nav class="C_Dashboard_user_navMenu">
+                <a href="C_Dashboard_user.php" class="C_Dashboard_user_navItem C_Dashboard_user_navActive">Dashboard</a>
+                <a href="../user/C_Ontaphomnay.php" class="C_Dashboard_user_navItem">Ôn tập hôm nay</a>
+                <a href="../user/C_Flashcard.php" class="C_Dashboard_user_navItem">FlashCard</a>
+                <a href="../user/C_Tuvungcuatoi.php" class="C_Dashboard_user_navItem">Từ vựng của tôi</a>
+                <a href="../user/C_Quiz.php" class="C_Dashboard_user_navItem">Quiz</a>
+                <a href="../user/C_Lichsuontap.php" class="C_Dashboard_user_navItem">Lịch sử ôn tập</a>
+                <a href="../user/C_Hosocanhan.php" class="C_Dashboard_user_navItem">Hồ sơ</a>
+                <a href="#" class="C_Dashboard_user_navItem">Cài đặt</a>
+            </nav>
+
+            <div class="C_Dashboard_user_sidebarFooter">
+                <hr class="C_Dashboard_user_divider">
+                <a href="../auth/A_DangNhap.php" class="C_Dashboard_user_logoutLink">Đăng xuất</a>
+            </div>
+        </aside>
+
+        <main class="C_Dashboard_user_mainContent">
+            <section class="C_Dashboard_user_welcomeSection">
+                <h2 class="C_Dashboard_user_welcomeTitle">Chào mừng trở lại!</h2>
+                <p class="C_Dashboard_user_welcomeSub">Bạn có 24 từ cần ôn tập hôm nay</p>
+
+                <div class="C_Dashboard_user_statsGrid">
+                    <div class="C_Dashboard_user_statCard">
+                        <span class="C_Dashboard_user_statLabel">Chuỗi ngày học</span>
+                        <span class="C_Dashboard_user_statVal">12 ngày</span>
+                    </div>
+                    <div class="C_Dashboard_user_statCard">
+                        <span class="C_Dashboard_user_statLabel">Từ đã học</span>
+                        <span class="C_Dashboard_user_statVal">356</span>
+                    </div>
+                    <div class="C_Dashboard_user_statCard">
+                        <span class="C_Dashboard_user_statLabel">Cần ôn tập hôm nay</span>
+                        <span class="C_Dashboard_user_statVal">24</span>
+                    </div>
+                    <div class="C_Dashboard_user_statCard">
+                        <span class="C_Dashboard_user_statLabel">Điểm quiz TB</span>
+                        <span class="C_Dashboard_user_statVal">82%</span>
+                    </div>
+                </div>
+            </section>
+
+            <section class="C_Dashboard_user_actionsSection">
+                <h3 class="C_Dashboard_user_sectionHeading">Bạn muốn làm gì hôm nay?</h3>
+                <div class="C_Dashboard_user_actionsGrid">
+                    <a href="../user/C_Ontaphomnay.php" class="C_Dashboard_user_actionCard">
+                        <span class="C_Dashboard_user_actionTitle">Ôn tập</span>
+                        <span class="C_Dashboard_user_actionNote">24 từ</span>
+                    </a>
+                    <a href="../user/C_HocFlashcard.php" class="C_Dashboard_user_actionCard">
+                        <span class="C_Dashboard_user_actionTitle">Học FlashCard</span>
+                    </a>
+                    <a href="../user/C_Quiz.php" class="C_Dashboard_user_actionCard">
+                        <span class="C_Dashboard_user_actionTitle">Làm Quiz</span>
+                    </a>
+                    <a href="../user/C_Tuvungcuatoi.php" class="C_Dashboard_user_actionCard">
+                        <span class="C_Dashboard_user_actionTitle">Quản lý từ vựng</span>
+                    </a>
+                    <a href="../user/C_Hosocanhan.php" class="C_Dashboard_user_actionCard">
+                        <span class="C_Dashboard_user_actionTitle">Hồ sơ</span>
+                    </a>
+                    <div class="C_Dashboard_user_actionCard">
+                        <span class="C_Dashboard_user_actionTitle">Cài đặt</span>
+                    </div>
+                </div>
+            </section>
+
+            <section class="C_Dashboard_user_historySection">
+                <h3 class="C_Dashboard_user_sectionHeading">Lịch sử học gần đây</h3>
+                <div class="C_Dashboard_user_historyTable">
+                    <div class="C_Dashboard_user_historyRow">
+                        <span class="C_Dashboard_user_historyText">Hoàn thành Quiz "Du lịch"</span>
+                        <span class="C_Dashboard_user_historyTime">Hôm nay</span>
+                    </div>
+                    <div class="C_Dashboard_user_historyRow">
+                        <span class="C_Dashboard_user_historyText">Học 20 thẻ FlashCard</span>
+                        <span class="C_Dashboard_user_historyTime">Hôm qua</span>
+                    </div>
+                    <div class="C_Dashboard_user_historyRow">
+                        <span class="C_Dashboard_user_historyText">Thêm 5 từ vựng mới</span>
+                        <span class="C_Dashboard_user_historyTime">2 ngày trước</span>
+                    </div>
+                    <div class="C_Dashboard_user_historyRow">
+                        <span class="C_Dashboard_user_historyText">Hoàn thành Quiz "Công nghệ"</span>
+                        <span class="C_Dashboard_user_historyTime">3 ngày trước</span>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+</body>
+</html>

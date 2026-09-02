@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <title>LexiLoop Admin - Cài đặt hệ thống</title>
+    <link rel="stylesheet" type="text/css" href="../../CSS/D_Caidathethong.css" />
+    <script src="../jquery-4.0.0.min.js"></script>
+  </head>
+
+  <body>
+    <div class="D_Caidathethong_Wrapper">
+      <header class="D_Caidathethong_Topbar">
+        <div class="D_Caidathethong_Logo">LexiLoop Admin</div>
+        <div class="D_Caidathethong_TopbarPhai">
+          <input
+            type="text"
+            class="D_Caidathethong_TimKiem"
+            placeholder="Tìm kiếm"
+          />
+          <div class="D_Caidathethong_Avatar">AD</div>
+        </div>
+      </header>
+
+      <div class="D_Caidathethong_Body">
+        <nav class="D_Caidathethong_Sidebar">
+          <a href="D_Dashboard_admin.php" class="D_Caidathethong_MucMenu"
+            >Dashboard</a
+          >
+          <a href="D_Quanlynguoidung.php" class="D_Caidathethong_MucMenu"
+            >Người dùng</a
+          >
+          <a href="D_Quanlychude.php" class="D_Caidathethong_MucMenu"
+            >Chủ đề</a
+          >
+          <a href="D_Quanlytuvung.php" class="D_Caidathethong_MucMenu"
+            >Từ vựng</a
+          >
+          <a href="D_Thongkehethong.php" class="D_Caidathethong_MucMenu"
+            >Thống kê</a
+          >
+          <a
+            href="D_Caidathethong.php"
+            class="D_Caidathethong_MucMenu D_Caidathethong_DangChon"
+            >Cài đặt</a
+          >
+          <hr class="D_Caidathethong_GachNgang" />
+          <a href="../main/B_homepage.php" class="D_Caidathethong_MucMenu"
+            >Đăng xuất</a
+          >
+        </nav>
+
+        <main class="D_Caidathethong_NoiDung">
+          <h1 class="D_Caidathethong_TieuDe">Cài đặt hệ thống</h1>
+
+          <div class="D_Caidathethong_HangPanel">
+            <!-- Cau hinh email -->
+            <div class="D_Caidathethong_Panel">
+              <h2 class="D_Caidathethong_TieuDePanel">Cấu hình Email</h2>
+
+              <label class="D_Caidathethong_Nhan">SMTP Server</label>
+              <input type="text" class="D_Caidathethong_ONhap" />
+
+              <div class="D_Caidathethong_HangHai">
+                <div>
+                  <label class="D_Caidathethong_Nhan">Cổng (Port)</label>
+                  <input type="text" class="D_Caidathethong_ONhap" />
+                </div>
+                <div>
+                  <label class="D_Caidathethong_Nhan">Bảo mật</label>
+                  <input type="text" class="D_Caidathethong_ONhap" />
+                </div>
+              </div>
+
+              <label class="D_Caidathethong_Nhan">Email gửi thông báo</label>
+              <input type="text" class="D_Caidathethong_ONhap" />
+
+              <label class="D_Caidathethong_Nhan">Mật khẩu ứng dụng</label>
+              <input type="password" class="D_Caidathethong_ONhap" />
+
+              <label class="D_Caidathethong_OCheckbox">
+                <input type="checkbox" id="D_Caidathethong_BatNhacNho" />
+                Bật gửi email nhắc nhở ôn tập
+              </label>
+
+              <div class="D_Caidathethong_HangNut">
+                <button class="D_Caidathethong_NutTrang" type="button">
+                  Kiểm tra
+                </button>
+                <button class="D_Caidathethong_NutXam" type="button">
+                  Lưu cấu hình
+                </button>
+              </div>
+            </div>
+
+            <!-- Cau hinh website -->
+            <div class="D_Caidathethong_Panel">
+              <h2 class="D_Caidathethong_TieuDePanel">Cấu hình website</h2>
+
+              <label class="D_Caidathethong_Nhan">Tên website</label>
+              <input
+                type="text"
+                class="D_Caidathethong_ONhap"
+                value="LexiLoop"
+              />
+
+              <label class="D_Caidathethong_Nhan">Slogan</label>
+              <input type="text" class="D_Caidathethong_ONhap" />
+
+              <label class="D_Caidathethong_Nhan">Logo</label>
+              <div class="D_Caidathethong_HangLogo">
+                <div id="D_Caidathethong_OLogo" class="D_Caidathethong_OLogo">
+                  Tải ảnh lên
+                </div>
+                <label
+                  class="D_Caidathethong_NutTrang D_Caidathethong_NutChonFile"
+                >
+                  Chọn file
+                  <input type="file" id="D_Caidathethong_ChonFileLogo" hidden />
+                </label>
+              </div>
+
+              <label class="D_Caidathethong_Nhan">Ngôn ngữ mặc định</label>
+              <input
+                type="text"
+                class="D_Caidathethong_ONhap"
+                value="Tiếng Việt"
+              />
+
+              <label class="D_Caidathethong_OCheckbox">
+                <input type="checkbox" id="D_Caidathethong_BatBaoTri" />
+                Bật chế độ bảo trì
+              </label>
+
+              <div class="D_Caidathethong_HangNut">
+                <button class="D_Caidathethong_NutXam" type="button">
+                  Lưu cấu hình
+                </button>
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+
+    <script src="../JS/D_Caidathethong.js"></script>
+  </body>
+</html>

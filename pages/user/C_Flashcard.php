@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FlashCard - LexiLoop</title>
+    <link rel="stylesheet" href="../../CSS/C_Flashcard.css">
+</head>
+<body class="C_Flashcard_body">
+
+    <header class="C_Flashcard_header">
+        <h1 class="C_Flashcard_logo">FlashCard</h1>
+        <span class="C_Flashcard_progress">The 3/5</span>
+    </header>
+
+    <main class="C_Flashcard_main">
+        <div class="C_Flashcard_cardBox" id="C_Flashcard_cardBox">
+            <h2 class="C_Flashcard_word" id="C_Flashcard_word">Passport</h2>
+            <p class="C_Flashcard_hint">Nhấn để xem nghĩa</p>
+        </div>
+
+        <div class="C_Flashcard_btnGroup">
+            <button type="button" id="C_Flashcard_btnChuaNho" class="C_Flashcard_btn C_Flashcard_btnWhite">
+                Chưa nhớ    
+            </button>
+            <button type="button" id="C_Flashcard_btnDaNho" class="C_Flashcard_btn C_Flashcard_btnGray">
+                Đã nhớ
+            </button>
+        </div>
+
+        <div class="C_Flashcard_ctaContainer">
+            <button type="button" id="C_Flashcard_btnDangKy" class="C_Flashcard_btnCta">
+                Đăng ký để lưu tiến độ học
+            </button>
+        </div>
+
+    </main>
+
+</body>
+</html>

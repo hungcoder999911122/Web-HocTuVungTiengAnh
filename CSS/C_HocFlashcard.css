@@ -1,0 +1,180 @@
+.C_HocFlashcard_body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    background-color: #ffffff;
+    color: #000000;
+}
+
+.C_HocFlashcard_header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 40px;
+    border-bottom: 2px solid #000000;
+}
+
+.C_HocFlashcard_logo {
+    margin: 0;
+    font-size: 22px;
+    font-weight: bold;
+}
+
+.C_HocFlashcard_progressText {
+    font-size: 14px;
+    color: #444444;
+}
+
+.C_HocFlashcard_progressBarWrapper {
+    padding: 20px 40px 0 40px;
+    box-sizing: border-box;
+}
+
+.C_HocFlashcard_progressBar {
+    width: 100%;
+    height: 14px;
+    border: 1.5px solid #000000;
+    background-color: #ffffff;
+    box-sizing: border-box;
+}
+
+.C_HocFlashcard_progressFill {
+    width: 33.3%; 
+    height: 100%;
+    background-color: #cccccc;
+}
+
+.C_HocFlashcard_main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 30px 20px;
+}
+
+.C_HocFlashcard_cardArea {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+}
+
+.C_HocFlashcard_navBtn {
+    background: none;
+    border: none;
+    font-size: 26px;
+    font-weight: bold;
+    cursor: pointer;
+    padding: 10px;
+}
+
+.C_HocFlashcard_navBtn:hover {
+    color: #666666;
+}
+
+.C_HocFlashcard_cardBox {
+    position: relative;
+    width: 460px;
+    height: 270px;
+    border: 2px solid #000000;
+    background-color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    box-sizing: border-box;
+    cursor: pointer;
+}
+
+.C_HocFlashcard_badgeR {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    width: 30px;
+    height: 30px;
+    border: 1.5px solid #000000;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.C_HocFlashcard_word {
+    margin: 0 0 15px 0;
+    font-size: 34px;
+    font-weight: bold;
+}
+
+.C_HocFlashcard_hint {
+    margin: 0;
+    font-size: 12px;
+    color: #666666;
+}
+
+.C_HocFlashcard_btnGroup {
+    display: flex;
+    gap: 30px;
+    margin-top: 30px;
+    width: 460px;
+    justify-content: space-between;
+}
+
+.C_HocFlashcard_btn {
+    width: 215px;
+    height: 48px;
+    font-size: 14px;
+    font-weight: 500;
+    border: 1.5px solid #000000;
+    cursor: pointer;
+    box-sizing: border-box;
+}
+
+.C_HocFlashcard_btnWhite {
+    background-color: #ffffff;
+}
+
+.C_HocFlashcard_btnWhite:hover {
+    background-color: #f0f0f0;
+}
+
+.C_HocFlashcard_btnGray {
+    background-color: #d9d9d9;
+}
+
+.C_HocFlashcard_btnGray:hover {
+    background-color: #c4c4c4;
+}
+
+.C_HocFlashcard_footerWrapper {
+    padding: 0 40px 30px 40px;
+    box-sizing: border-box;
+    margin-top: 20px;
+}
+
+.C_HocFlashcard_footerBox {
+    width: 100%;
+    border: 1.5px solid #000000;
+    padding: 12px 25px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-sizing: border-box;
+}
+
+.C_HocFlashcard_stats {
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.C_HocFlashcard_btnKetThuc {
+    padding: 8px 20px;
+    background-color: #ffffff;
+    border: 1.5px solid #000000;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.C_HocFlashcard_btnKetThuc:hover {
+    background-color: #f0f0f0;
+}

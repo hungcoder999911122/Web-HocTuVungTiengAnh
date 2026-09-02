@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <title>LexiLoop Admin - Dashboard</title>
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="../../CSS/D_Dashboard_admin.css"
+    />
+    <script src="../jquery-4.0.0.min.js"></script>
+  </head>
+
+  <body>
+    <div class="D_Dashboard_admin_Wrapper">
+      <!-- Thanh tren cung -->
+      <header class="D_Dashboard_admin_Topbar">
+        <div class="D_Dashboard_admin_Logo">LexiLoop Admin</div>
+        <div class="D_Dashboard_admin_TopbarPhai">
+          <input
+            type="text"
+            class="D_Dashboard_admin_TimKiem"
+            placeholder="Tìm kiếm"
+          />
+          <div class="D_Dashboard_admin_Avatar">AD</div>
+        </div>
+      </header>
+
+      <div class="D_Dashboard_admin_Body">
+        <!-- Menu ben trai -->
+        <nav class="D_Dashboard_admin_Sidebar">
+          <a
+            href="D_Dashboard_admin.php"
+            class="D_Dashboard_admin_MucMenu D_Dashboard_admin_DangChon"
+            >Dashboard</a
+          >
+          <a href="D_Quanlynguoidung.php" class="D_Dashboard_admin_MucMenu"
+            >Người dùng</a
+          >
+          <a href="D_Quanlychude.php" class="D_Dashboard_admin_MucMenu"
+            >Chủ đề</a
+          >
+          <a href="D_Quanlytuvung.php" class="D_Dashboard_admin_MucMenu"
+            >Từ vựng</a
+          >
+          <a href="D_Thongkehethong.php" class="D_Dashboard_admin_MucMenu"
+            >Thống kê</a
+          >
+          <a href="D_Caidathethong.php" class="D_Dashboard_admin_MucMenu"
+            >Cài đặt</a
+          >
+          <hr class="D_Dashboard_admin_GachNgang" />
+          <a href="../main/B_homepage.php" class="D_Dashboard_admin_MucMenu"
+            >Đăng xuất</a
+          >
+        </nav>
+
+        <!-- Noi dung chinh -->
+        <main class="D_Dashboard_admin_NoiDung">
+          <h1 class="D_Dashboard_admin_TieuDe">Tổng quan hệ thống</h1>
+
+          <div class="D_Dashboard_admin_HangTheSo">
+            <div class="D_Dashboard_admin_TheSo">
+              <p class="D_Dashboard_admin_NhanTheSo">Người dùng</p>
+              <p class="D_Dashboard_admin_SoLieu">1,204</p>
+            </div>
+            <div class="D_Dashboard_admin_TheSo">
+              <p class="D_Dashboard_admin_NhanTheSo">Chủ đề</p>
+              <p class="D_Dashboard_admin_SoLieu">36</p>
+            </div>
+            <div class="D_Dashboard_admin_TheSo">
+              <p class="D_Dashboard_admin_NhanTheSo">Từ vựng</p>
+              <p class="D_Dashboard_admin_SoLieu">4,590</p>
+            </div>
+            <div class="D_Dashboard_admin_TheSo">
+              <p class="D_Dashboard_admin_NhanTheSo">Quiz hoàn thành</p>
+              <p class="D_Dashboard_admin_SoLieu">8,120</p>
+            </div>
+          </div>
+
+          <div class="D_Dashboard_admin_HopBieuDo">
+            <p class="D_Dashboard_admin_TieuDeHop">
+              Biểu đồ hoạt động theo tuần
+            </p>
+            <div class="D_Dashboard_admin_BieuDoCot">
+              <div class="D_Dashboard_admin_Cot" style="height: 40%"></div>
+              <div class="D_Dashboard_admin_Cot" style="height: 65%"></div>
+              <div class="D_Dashboard_admin_Cot" style="height: 35%"></div>
+              <div class="D_Dashboard_admin_Cot" style="height: 80%"></div>
+              <div class="D_Dashboard_admin_Cot" style="height: 55%"></div>
+              <div class="D_Dashboard_admin_Cot" style="height: 75%"></div>
+              <div class="D_Dashboard_admin_Cot" style="height: 45%"></div>
+            </div>
+          </div>
+
+          <p class="D_Dashboard_admin_TieuDeMuc">Hoạt động gần đây</p>
+          <div class="D_Dashboard_admin_DanhSachHoatDong">
+            <div class="D_Dashboard_admin_DongHoatDong">
+              <span>Người dùng mới đăng ký</span>
+              <span class="D_Dashboard_admin_ThoiGian">5 phút trước</span>
+            </div>
+            <div class="D_Dashboard_admin_DongHoatDong">
+              <span>Chủ đề "Du lịch" được thêm</span>
+              <span class="D_Dashboard_admin_ThoiGian">1 giờ trước</span>
+            </div>
+            <div class="D_Dashboard_admin_DongHoatDong">
+              <span>Tài khoản bị khóa</span>
+              <span class="D_Dashboard_admin_ThoiGian">3 giờ trước</span>
+            </div>
+            <div class="D_Dashboard_admin_DongHoatDong">
+              <span>Chủ đề "Công nghệ" được cập nhật</span>
+              <span class="D_Dashboard_admin_ThoiGian">6 giờ trước</span>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+  </body>
+</html>

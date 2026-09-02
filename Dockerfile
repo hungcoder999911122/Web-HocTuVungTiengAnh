@@ -1,8 +1,7 @@
-# file mô tả cách Docker tạo ra môi trường PHP cho project.
+FROM php:8.2-apache
 
-# bắt đầu từ môi trường PHP 8.2 có Apache.
-FROM php:8.2-apache 
+# Cài đặt extension mysqli và pdo_mysql
+RUN docker-php-ext-install mysqli pdo pdo_mysql
 
-RUN docker-php-ext-install pdo pdo_mysql
-
-# --------------------------
+# Kích hoạt module mod_rewrite cho Apache (nếu cần dùng router/URL rewrite)
+RUN a2enmod rewrite

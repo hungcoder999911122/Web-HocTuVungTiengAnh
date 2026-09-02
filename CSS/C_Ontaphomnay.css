@@ -1,0 +1,130 @@
+.C_Ontaphomnay_body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    background-color: #ffffff;
+    color: #000000;
+}
+
+.C_Ontaphomnay_header {
+    padding: 15px 40px;
+    border-bottom: 2px solid #000000;
+}
+
+.C_Ontaphomnay_logo {
+    margin: 0;
+    font-size: 22px;
+    font-weight: bold;
+}
+
+.C_Ontaphomnay_main {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 25px 30px;
+    box-sizing: border-box;
+}
+
+.C_Ontaphomnay_subtitle {
+    font-size: 13px;
+    color: #333333;
+    margin: 0 0 20px 0;
+}
+
+.C_Ontaphomnay_stepCard {
+    display: flex;
+    gap: 20px;
+    border: 1.5px solid #000000;
+    padding: 25px 30px;
+    margin-bottom: 20px;
+    box-sizing: border-box;
+    background-color: #ffffff;
+    align-items: flex-start;
+}
+
+.C_Ontaphomnay_badge {
+    width: 32px;
+    height: 32px;
+    border: 1.5px solid #000000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 14px;
+    flex-shrink: 0;
+    background-color: #ffffff;
+}
+
+.C_Ontaphomnay_stepContent {
+    flex: 1;
+}
+
+.C_Ontaphomnay_stepTitle {
+    margin: 0 0 8px 0;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.C_Ontaphomnay_stepDesc {
+    margin: 0 0 16px 0;
+    font-size: 13px;
+    color: #444444;
+}
+
+.C_Ontaphomnay_progressRow {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 18px;
+}
+
+.C_Ontaphomnay_progressBar {
+    flex: 1;
+    height: 12px;
+    border: 1.5px solid #000000;
+    background-color: #ffffff;
+    box-sizing: border-box;
+}
+
+.C_Ontaphomnay_progressFill {
+    height: 100%;
+    background-color: #d9d9d9;
+}
+
+.C_Ontaphomnay_progressText {
+    font-size: 13px;
+    color: #444444;
+}
+
+.C_Ontaphomnay_btnAction {
+    padding: 9px 24px;
+    background-color: #d9d9d9;
+    border: 1.5px solid #000000;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    box-sizing: border-box;
+}
+
+.C_Ontaphomnay_btnAction:hover {
+    background-color: #c4c4c4;
+}
+
+.C_Ontaphomnay_lockNote {
+    margin: 0;
+    font-size: 12px;
+    color: #777777;
+}
+
+.C_Ontaphomnay_bannerContainer {
+    margin-top: 25px;
+}
+
+.C_Ontaphomnay_bannerBox {
+    width: 100%;
+    border: 1.5px solid #000000;
+    padding: 16px 20px;
+    box-sizing: border-box;
+    font-size: 13px;
+    color: #333333;
+    background-color: #ffffff;
+}
