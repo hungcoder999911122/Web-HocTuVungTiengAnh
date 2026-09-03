@@ -1,6 +1,57 @@
 <?php
 require_once($_SERVER['DOCUMENT_ROOT'] . "/Connect.php");
+session_start();
+
+//Kiểm tra đăng nhập TRƯỚC TIÊN, trước cả xử lý form
+if(!isset($_SESSION['user_id'])) {
+    header("Location: /pages/auth/A_DangNhap.php");
+    exit();
+}
+
+$loi = "";
+
+//Xử lý form, CHỈ chạy sau khi đã chắc chắn đăng nhập rồi
+if($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $A_Caidattaikhoan_password         = $_POST['A_Caidattaikhoan_password'];
+    $A_Caidattaikhoan_password_new     = $_POST['A_Caidattaikhoan_password_new'];
+    $A_Caidattaikhoan_password_new_acp = $_POST['A_Caidattaikhoan_password_new_acp'];
+    $A_Caidattaikhoan_reminder         = isset($_POST['A_Caidattaikhoan_reminder']);
+    $hour                              = $_POST['hour'];
+    $quantity                          = $_POST['quantity'];
+
+    if(empty($A_Caidattaikhoan_password_new) || empty($A_Caidattaikhoan_password_new_acp)) {
+        $loi = "Vui lòng nhập đầy đủ thông tin mật khẩu mới và xác nhận mật khẩu mới.";
+    }
+    elseif($A_Caidattaikhoan_password_new != $A_Caidattaikhoan_password_new_acp) {
+        $loi = "Mật khẩu mới và xác nhận mật khẩu mới không khớp.";
+    }
+    elseif(strlen($A_Caidattaikhoan_password_new) < 6) {
+        $loi = "Mật khẩu mới phải có ít nhất 6 ký tự.";
+    }
+    else {
+        // Kiểm tra mật khẩu hiện tại đúng không
+        $user_id = $_SESSION['user_id'];
+        $sql = "SELECT password_hash FROM Users WHERE userID='$user_id'";
+        $result = mysqli_query($link, $sql);
+        $row = mysqli_fetch_assoc($result);
+
+        if(!password_verify($A_Caidattaikhoan_password, $row['password_hash'])) {
+            $loi = "Mật khẩu hiện tại không đúng.";
+        } else {
+            // BƯỚC 4-5: Mã hóa mật khẩu mới, UPDATE vào DB
+            $new_hash = password_hash($A_Caidattaikhoan_password_new, PASSWORD_DEFAULT);
+            $sql = "UPDATE Users SET password_hash='$new_hash', daily_reminder_enabled='" . ($A_Caidattaikhoan_reminder ? 1 : 0) . "', reminder_time='$hour', daily_target_words='$quantity' WHERE userID='$user_id'";
+
+            if(mysqli_query($link, $sql)) {
+                $loi = "Cập nhật thành công!";
+            } else {
+                $loi = "Lỗi: " . mysqli_error($link);
+            }
+        }
+    }
+}
 ?>
+
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -11,16 +62,6 @@ require_once($_SERVER['DOCUMENT_ROOT'] . "/Connect.php");
 	<title>Cài đặt tài khoản</title>
 </head>
 <body>
-<!-- Nếu chưa đăng nhập, chuyển hướng đến trang đăng nhập	-->
-<?php
-session_start();
-if(!isset($_SESSION['user_id'])) //Dùng user_id vì khi nhập email và pas -> db-> user_id, đỡ mắc công nhập nhiều lần
-{
-	session_start();
-	header("Location: /pages/auth/A_DangNhap.php");
-    exit();
-}
-?>
 
 	<div class="wrapper">
 		<h2>Cài đặt tài khoản</h2>
@@ -174,35 +215,6 @@ if(!isset($_SESSION['user_id'])) //Dùng user_id vì khi nhập email và pas ->
 		</div>
 				</form>
 	</div>
-
-<?php
-//Gắn tên biến
-//Chỉ chạy khi người dùng submit form
-if($_SERVER['REQUEST_METHOD'] == 'POST') {
-$A_Caidattaikhoan_password   = $_POST['A_Caidattaikhoan_password'];
-$A_Caidattaikhoan_password_new   = $_POST['A_Caidattaikhoan_password_new'];
-$A_Caidattaikhoan_password_new_acp   = $_POST['A_Caidattaikhoan_password_new_acp'];
-$A_Caidattaikhoan_reminder   = $_POST['A_Caidattaikhoan_reminder'];
-$hour   = $_POST['hour'];
-$quantity   = $_POST['quantity'];
-$saved   = $_POST['saved'];
-//Kiểm tra dữ liệu
-$loi="";
-if(empty($A_Caidattaikhoan_password_new) || empty($A_Caidattaikhoan_password_new_acp)) {
-	$loi="Vui lòng nhập đầy đủ thông tin mật khẩu mới và xác nhận mật khẩu mới.";
-
-}
-elseif(
-	$A_Caidattaikhoan_password_new != $A_Caidattaikhoan_password_new_acp) {
-	$loi="Mật khẩu mới và xác nhận mật khẩu mới không khớp.";
-}
-elseif(strlen($A_Caidattaikhoan_password_new) < 6){
-	$loi="Mật khẩu mới phải có ít nhất 6 ký tự.";
-}
-
-}
-
-?>
 
 
 </body>
