@@ -1,5 +1,4 @@
 <?php
-
 require_once '../../Connect.php';
 
 $sql = "SELECT 
@@ -145,19 +144,57 @@ if (!$result) {
                                 alt="book">
                         </div>
 
+                        <!-- NỘI DUNG -->
                         <div class="topic-content">
 
                             <h3 class="topic-title">
                                 <?= htmlspecialchars($topic['topicName']) ?>
                             </h3>
 
-                            <p class="topic-count">
-                                <?= $topic['word_count'] ?> từ vựng
-                            </p>
+                            <!-- THÔNG TIN TOPIC -->
+                            <div class="topic-meta">
+                                <span class="topic-count">
+                                    <?= $topic['word_count'] ?> từ vựng
+                                </span>
 
-                            <a href="./B_DanhSachTuVung.php?topicID=<?= $topic['topicID'] ?>">
-                                Xem bộ từ vựng
-                            </a>
+                                <a
+                                    class="topic-list-link"
+                                    href="./B_DanhSachTuVung.php?topicID=<?= $topic['topicID'] ?>">
+                                    Danh sách
+                                </a>
+                            </div>
+
+                            <!-- 2 NÚT HÀNH ĐỘNG -->
+                            <div class="topic-actions">
+
+                                <!-- Nút Học từ mới -->
+                                <a
+                                    class="topic-action topic-action-learn"
+                                    href="./B_HocTuMoi.php?topicID=<?= $topic['topicID'] ?>">
+                                    <span class="topic-action-number">
+                                        <?= $topic['word_count'] ?>
+                                    </span>
+
+                                    <span class="topic-action-label">
+                                        HỌC TỪ MỚI
+                                    </span>
+                                </a>
+
+                                <!-- Nút Ôn tập -->
+                                <a
+                                    class="topic-action topic-action-review"
+                                    href="./B_OnTap.php?topicID=<?= $topic['topicID'] ?>">
+                                    <span class="topic-action-number">
+                                        0
+                                        <!-- Cần đổ dữ liệu php vào từ thuật tính toán SRS đê hiện thị ôn tập -->
+                                    </span>
+
+                                    <span class="topic-action-label">
+                                        ÔN TẬP
+                                    </span>
+                                </a>
+
+                            </div>
 
                         </div>
 
@@ -170,25 +207,18 @@ if (!$result) {
             <!-- PHÂN TRANG -->
             <nav class="pagination" aria-label="Phân trang danh sách chủ đề">
 
-                <a href="#" class="pagination-button" aria-label="Trang trước">
-                    &laquo;
-                </a>
+                <!-- TRANG TRƯỚC -->
+                <a href="#" class="pagination-button pagination-arrow" aria-label="Trang trước"> &laquo; </a>
 
-                <a href="#" class="pagination-button active" aria-current="page">
-                    1
-                </a>
+                <!-- SỐ TRANG -->
+                <a href="#" class="pagination-number active" aria-current="page"> 1 </a>
 
-                <a href="#" class="pagination-button">
-                    2
-                </a>
+                <a href="#" class="pagination-number"> 2 </a>
 
-                <a href="#" class="pagination-button">
-                    3
-                </a>
+                <a href="#" class="pagination-number"> 3 </a>
 
-                <a href="#" class="pagination-button" aria-label="Trang sau">
-                    &raquo;
-                </a>
+                <!-- TRANG SAU -->
+                <a href="#" class="pagination-button pagination-arrow" aria-label="Trang sau"> &raquo; </a>
 
             </nav>
         </section>
