@@ -1,110 +1,329 @@
+/* =========================================
+   DESIGN TOKENS
+   ========================================= */
+:root {
+    --color-primary: #2d7a56;
+    --color-primary-light: #e8f5ed;
+    --color-primary-dark: #1f4e38;
+    --color-surface: #ffffff;
+    --color-background: #edf6f0;
+    --color-border: #dceae1;
+    --color-white: #ffffff;
+    --color-text: #1f2d24;
+    --color-text-muted: #758071;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body,
 .C_Lichsuontap_body {
     margin: 0;
     padding: 0;
-    font-family: Arial, Helvetica, sans-serif;
-    background-color: #ffffff;
-    color: #000000;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: var(--color-background);
+    color: var(--color-text);
+    min-height: 100vh;
 }
 
-.C_Lichsuontap_header {
+/* =========================================
+   BỐ CỤC CHUNG
+   ========================================= */
+.sidebar-logo,
+.sidebar-link {
+    display: flex;
+    align-items: center;
+}
+
+.sidebar-icon,
+.activity-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.C_Lichsuontap_header,
+.C_Lichsuontap_chartHeader {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 15px 40px;
-    border-bottom: 2px solid #000000;
-    box-sizing: border-box;
 }
 
-.C_Lichsuontap_logo {
-    margin: 0;
-    font-size: 22px;
-    font-weight: bold;
+/* =========================================
+   SIDEBAR
+   ========================================= */
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 245px;
+    height: 100vh;
+    padding: 26px 16px;
+    background-color: var(--color-white);
+    border-right: 1px solid var(--color-border);
+    display: flex;
+    flex-direction: column;
+    z-index: 1000;
 }
 
-.C_Lichsuontap_filterBtn {
-    padding: 8px 18px;
-    background-color: #ffffff;
-    border: 1.5px solid #000000;
-    font-size: 13px;
-    font-weight: 500;
+.sidebar-logo {
+    gap: 8px;
+    margin: 0 0 32px 10px;
+    color: var(--color-primary-dark);
+    font-size: 24px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    text-decoration: none;
+}
+
+.logo-badge { font-size: 22px; }
+
+.sidebar-nav {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex: 1;
+}
+
+.sidebar-link {
+    position: relative;
+    gap: 14px;
+    width: 100%;
+    min-height: 48px;
+    padding: 0 16px;
+    color: var(--color-text-muted);
+    text-decoration: none;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 600;
+    transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.sidebar-icon { width: 22px; height: 22px; }
+
+.sidebar-link:hover {
+    background-color: var(--color-background);
+    color: var(--color-primary);
+    transform: translateX(3px);
+}
+
+.sidebar-link.active {
+    background-color: var(--color-primary-light);
+    color: var(--color-primary-dark);
+    font-weight: 700;
+}
+
+.sidebar-link.active::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 20%;
+    bottom: 20%;
+    width: 4px;
+    background-color: var(--color-primary);
+    border-radius: 0 4px 4px 0;
+}
+
+.sidebar-bottom {
+    margin-top: auto;
+    padding-top: 15px;
+    border-top: 1px solid var(--color-border);
+}
+
+.sidebar-logout:hover {
+    color: #c62828 !important;
+    background-color: #ffebee !important;
+}
+
+/* =========================================
+   CONTENT & HEADER
+   ========================================= */
+.page-content {
+    margin-left: 245px;
+    min-height: 100vh;
+}
+
+.C_Lichsuontap_header {
+    padding: 18px 40px;
+    background-color: var(--color-white);
+    border-bottom: 1px solid var(--color-border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.C_Lichsuontap_logo { margin: 0; font-size: 22px; font-weight: 700; }
+
+.C_Lichsuontap_filterSelect {
+    height: 42px;
+    padding: 0 32px 0 16px;
+    border: 1px solid var(--color-border);
+    border-radius: 20px;
+    background-color: var(--color-white);
+    color: var(--color-text);
+    font-size: 14px;
+    font-weight: 600;
     cursor: pointer;
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.C_Lichsuontap_filterBtn:hover {
-    background-color: #f0f0f0;
+.C_Lichsuontap_filterSelect:focus {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px var(--color-primary-light);
 }
 
 .C_Lichsuontap_main {
-    max-width: 960px;
+    max-width: 980px;
     margin: 0 auto;
-    padding: 25px 30px 40px 30px;
-    box-sizing: border-box;
+    padding: 32px 30px 60px;
+}
+
+/* =========================================
+   BARS CHART CARD
+   ========================================= */
+.C_Lichsuontap_chartCard,
+.C_Lichsuontap_tableCard {
+    background-color: var(--color-white);
+    border: 1px solid var(--color-border);
+    border-radius: 20px;
+    box-shadow: 0 4px 16px rgba(31, 45, 36, 0.04);
 }
 
 .C_Lichsuontap_chartCard {
-    border: 1.5px solid #000000;
-    padding: 20px 25px 25px 25px;
-    margin-bottom: 25px;
-    background-color: #ffffff;
-    box-sizing: border-box;
+    padding: 26px 30px 20px;
+    margin-bottom: 28px;
 }
 
-.C_Lichsuontap_chartTitle {
-    margin: 0 0 20px 0;
+.C_Lichsuontap_chartHeader { margin-bottom: 24px; }
+.C_Lichsuontap_chartTitle { margin: 0; font-size: 18px; font-weight: 700; }
+
+.C_Lichsuontap_totalBadge {
     font-size: 13px;
-    font-weight: 500;
-    color: #333333;
+    padding: 5px 12px;
+    background-color: var(--color-primary-light);
+    color: var(--color-primary-dark);
+    border-radius: 12px;
+    font-weight: 700;
 }
 
-.C_Lichsuontap_chartArea {
-    width: 100%;
-    padding-left: 20px;
-}
+.C_Lichsuontap_chartArea { width: 100%; padding-top: 10px; }
 
 .C_Lichsuontap_barsContainer {
     display: flex;
     align-items: flex-end;
-    gap: 35px;
-    height: 150px;
-    border-bottom: 1.5px solid #000000;
-    box-sizing: border-box;
+    justify-content: space-around;
+    height: 180px;
+    border-bottom: 1px solid var(--color-border);
+    padding-bottom: 2px;
+}
+
+.C_Lichsuontap_barGroup {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100%;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.C_Lichsuontap_barWrapper {
+    height: 140px;
+    display: flex;
+    align-items: flex-end;
 }
 
 .C_Lichsuontap_bar {
-    width: 48px;
-    background-color: #d9d9d9;
-    border: 1.5px solid #000000;
-    border-bottom: none;
-    box-sizing: border-box;
+    position: relative;
+    width: 44px;
+    background-color: var(--color-primary-light);
+    border: 1px solid var(--color-primary);
+    border-radius: 8px 8px 0 0;
+    cursor: pointer;
+    transition: all 0.3s ease;
 }
 
-.C_Lichsuontap_tableSection {
-    width: 100%;
+.C_Lichsuontap_bar:hover {
+    background-color: var(--color-primary);
+    transform: scaleY(1.04);
 }
+
+.C_Lichsuontap_bar::after {
+    content: attr(data-count);
+    position: absolute;
+    top: -30px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: var(--color-primary-dark);
+    color: var(--color-white);
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 6px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease, top 0.2s ease;
+}
+
+.C_Lichsuontap_bar:hover::after { opacity: 1; top: -36px; }
+.C_Lichsuontap_barLabel { font-size: 13px; font-weight: 600; color: var(--color-text-muted); }
+
+/* =========================================
+   TABLE
+   ========================================= */
+.C_Lichsuontap_tableCard {
+    padding: 24px 30px;
+}
+
+.C_Lichsuontap_tableHeader { margin-bottom: 18px; }
+.C_Lichsuontap_sectionTitle { font-size: 18px; font-weight: 700; margin: 0; }
+.C_Lichsuontap_tableResponsive { width: 100%; overflow-x: auto; }
 
 .C_Lichsuontap_table {
     width: 100%;
-    border-collapse: collapse;
-    border: 1.5px solid #000000;
-    background-color: #ffffff;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.C_Lichsuontap_th,
+.C_Lichsuontap_td {
+    border-bottom: 1px solid var(--color-border);
+    padding: 16px;
+    font-size: 14px;
 }
 
 .C_Lichsuontap_th {
-    border-bottom: 1.5px solid #000000;
-    padding: 14px 20px;
+    padding: 14px 16px;
     text-align: left;
-    font-size: 14px;
-    font-weight: bold;
-}
-
-.C_Lichsuontap_td {
-    border-bottom: 1.5px solid #000000;
-    padding: 14px 20px;
     font-size: 13px;
-    color: #000000;
+    font-weight: 700;
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
-.C_Lichsuontap_emptyRow .C_Lichsuontap_td {
-    height: 38px;
-    border-bottom: none;
+.C_Lichsuontap_td { transition: background-color 0.2s ease; }
+.C_Lichsuontap_table tbody tr:hover td { background-color: #f7faf8; }
+.C_Lichsuontap_table tbody tr:last-child td { border-bottom: none; }
+
+/* Badges */
+.activity-badge {
+    padding: 4px 8px;
+    font-size: 11px;
+    font-weight: 700;
+    border-radius: 6px;
+    margin-right: 8px;
+}
+
+.activity-quiz      { background-color: #FFF1E4; color: #C75A24; border: 1px solid #F6D2B5; }
+.activity-flashcard { background-color: var(--color-primary-light); color: var(--color-primary-dark); }
+.result-tag         { font-weight: 700; color: var(--color-primary-dark); }
+.time-text          { color: var(--color-text-muted); font-size: 13px; }
+
+@media (max-width: 860px) {
+    .sidebar { width: 76px; padding: 20px 10px; }
+    .sidebar-logo span:last-child, .sidebar-link span:last-child { display: none; }
+    .page-content { margin-left: 76px; }
+    .C_Lichsuontap_bar { width: 30px; }
 }
