@@ -7,7 +7,7 @@ $link = mysqli_connect(
     "db",
     "webuser",
     "webpass123",
-    "db_LexiLoop"
+    "hoc_ngoai_ngu"
 );
 
 // Kiểm tra kết nối
