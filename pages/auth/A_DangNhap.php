@@ -1,44 +1,68 @@
 <?php
+// MỚI -phương thức phù hợp và tránh được vài trường hợp có thể cải thiện thêm !!!
 require_once($_SERVER['DOCUMENT_ROOT'] . "/Connect.php");
 session_start();
 
 $loi = "";
 
-if($_SERVER['REQUEST_METHOD'] == 'POST') 
-{
-    $email    = $_POST['A_DangNhap_Email'];
-    $password = $_POST['A_DangNhap_password'];
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
-    if(empty($email) || empty($password)) 
-    {
-        $loi = "Vui lòng nhập đầy đủ thông tin đăng nhập.";
-    }
-    else
-    {
-        $sql = "SELECT userID, password_hash, full_name FROM Users WHERE email='$email'";
-        $result = mysqli_query($link, $sql);
+	$email    = trim($_POST['A_DangNhap_Email'] ?? '');
+	$password = $_POST['A_DangNhap_password'] ?? '';
 
-        if(mysqli_num_rows($result) == 0) {
-            $loi = "Email chưa được đăng ký.";
-        } else {
-            $row = mysqli_fetch_assoc($result);
+	if (empty($email) || empty($password)) {
 
-            if(!password_verify($password, $row['password_hash'])) {
-                $loi = "Sai mật khẩu.";
-            } else {
-                $_SESSION['user_id']   = $row['userID'];
-                $_SESSION['full_name'] = $row['full_name'];
+		$loi = "Vui lòng nhập đầy đủ thông tin đăng nhập.";
+	} else {
 
-                header("Location: A_Caidattaikhoan.php");
-                exit();
-            }
-        }
-        mysqli_close($link);
-    }
+		$sql = "
+            SELECT userID, password_hash, full_name
+            FROM Users
+            WHERE email = ?
+            AND status = 'active'
+        ";
+
+		$stmt = mysqli_prepare($link, $sql);
+
+		mysqli_stmt_bind_param($stmt, "s", $email);
+
+		mysqli_stmt_execute($stmt);
+
+		$result = mysqli_stmt_get_result($stmt);
+
+		if (mysqli_num_rows($result) == 0) {
+
+			$loi = "Email hoặc mật khẩu không chính xác.";
+		} else {
+
+			$row = mysqli_fetch_assoc($result);
+
+			if (!password_verify($password, $row['password_hash'])) {
+
+				$loi = "Email hoặc mật khẩu không chính xác.";
+			} else {
+
+				// Tạo session mới sau khi đăng nhập thành công
+				session_regenerate_id(true);
+
+				$_SESSION['user_id']   = $row['userID'];
+				$_SESSION['full_name'] = $row['full_name'];
+
+				// Chuyển đến Dashboard
+				header("Location: ../user/C_Dashboard_user.php?login=success");
+				exit();
+			}
+		}
+
+		mysqli_stmt_close($stmt);
+		mysqli_close($link);
+	}
 }
+
 ?>
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
 	<meta charset="UTF-8">
 	<link rel="stylesheet" type="text/css" href="/CSS/Style.css">
@@ -74,15 +98,11 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 				<label>hoặc</label> <br />
 				<input type="button" name="A_DangNhap_TaoTaiKhoan" id="A_DangNhap_TaoTaiKhoan" value="Tạo tài khoản" />
 			</div>
-
-			<script>
-				$(document).ready(function () {
-					$('#A_DangNhap_TaoTaiKhoan').click(function () {
-						window.location.href = "A_DangKy.php";
-					});
-				});
-			</script>
 		</div>
 	</fieldset>
+
+	<script src="../../JS/jquery-4.0.0.min.js"></script>
+	<script src="../../JS/auth.js"></script>
 </body>
+
 </html>

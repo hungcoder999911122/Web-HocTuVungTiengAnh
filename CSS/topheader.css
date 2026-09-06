@@ -1,0 +1,115 @@
+/* Component top header dùng chung cho Guest và User. */
+.top-header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 76px;
+    padding: 0 24px;
+    background-color: var(--color-white, #ffffff);
+    border-bottom: 1px solid var(--color-border, #dfe5df);
+}
+
+.top-header-context {
+    min-width: 0;
+}
+
+.top-header-title {
+    margin: 0;
+    color: var(--color-primary-dark, #496447);
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.top-header-act {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.top-header-btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+}
+
+.top-header-account {
+    position: relative;
+}
+
+.top-header-account-summary {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    list-style: none;
+}
+
+.top-header-account-summary::-webkit-details-marker {
+    display: none;
+}
+
+.top-header-avatar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    border: 1px solid #cdd9cc;
+    border-radius: 50%;
+    background-color: var(--color-primary-light, #e8f0e7);
+    color: var(--color-primary-dark, #496447);
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.top-header-user-name {
+    max-width: 180px;
+    overflow: hidden;
+    color: var(--color-text, #243024);
+    font-size: 14px;
+    font-weight: 600;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.top-header-account-menu {
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    display: grid;
+    min-width: 150px;
+    padding: 8px;
+    border: 1px solid var(--color-border, #dfe5df);
+    border-radius: 10px;
+    background-color: var(--color-white, #ffffff);
+    box-shadow: 0 10px 24px rgba(31, 45, 36, 0.12);
+}
+
+.top-header-account-menu a {
+    padding: 10px 12px;
+    border-radius: 6px;
+    color: var(--color-text, #243024);
+    font-size: 14px;
+    text-decoration: none;
+}
+
+.top-header-account-menu a:hover {
+    background-color: var(--color-primary-light, #e8f0e7);
+}
+
+@media (max-width: 767px) {
+    .top-header {
+        min-height: 64px;
+        padding: 0 16px;
+    }
+
+    .top-header-title {
+        font-size: 18px;
+    }
+
+    .top-header-user-name {
+        display: none;
+    }
+}

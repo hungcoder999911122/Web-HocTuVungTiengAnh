@@ -1,413 +1,704 @@
-/* =========================================
-   DESIGN TOKENS
-   ========================================= */
-:root {
-    --color-primary: #2d7a56;
-    --color-primary-light: #e8f5ed;
-    --color-primary-dark: #1f4e38;
-    --color-surface: #ffffff;
-    --color-background: #edf6f0;
-    --color-border: #dceae1;
-    --color-white: #ffffff;
-    --color-text: #1f2d24;
-    --color-text-muted: #758071;
-}
+/* =========================================================
+   C_DASHBOARD_USER.CSS
+   LexiLoop - Dashboard người dùng
+   ========================================================= */
 
-*, *::before, *::after {
-    box-sizing: border-box;
-}
 
-body,
+/* =========================================================
+   1. RESET CƠ BẢN
+   ========================================================= */
+
 .C_Dashboard_user_body {
     margin: 0;
     padding: 0;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    background-color: var(--color-background) !important;
-    color: var(--color-text);
-    min-height: 100vh;
+
+    font-family: Arial, Helvetica, sans-serif;
+
+    background-color: #f8faf8;
+    color: #263026;
+
+    box-sizing: border-box;
 }
 
-/* =========================================
-   BỐ CỤC CHUNG
-   ========================================= */
-.C_Dashboard_user_header,
-.section-header-flex,
-.C_Dashboard_user_historyRow {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+.C_Dashboard_user_body *,
+.C_Dashboard_user_body *::before,
+.C_Dashboard_user_body *::after {
+    box-sizing: border-box;
 }
 
-.sidebar-logo,
-.sidebar-link,
-.C_Dashboard_user_userInfo,
-.history-left {
-    display: flex;
-    align-items: center;
-}
 
-.sidebar-icon,
-.C_Dashboard_user_avatarCircle {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.C_Dashboard_user_welcomeSub,
-.C_Dashboard_user_statLabel,
-.C_Dashboard_user_actionNote,
-.C_Dashboard_user_historyTime {
-    color: var(--color-text-muted);
-}
-
-/* =========================================
-   SIDEBAR
-   ========================================= */
-.sidebar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 245px;
-    height: 100vh;
-    padding: 26px 16px;
-    background-color: var(--color-white);
-    border-right: 1px solid var(--color-border);
-    display: flex;
-    flex-direction: column;
-    z-index: 1000;
-}
-
-.sidebar-logo {
-    gap: 8px;
-    margin: 0 0 32px 10px;
-    color: var(--color-primary-dark);
-    font-size: 24px;
-    font-weight: 800;
-    letter-spacing: -0.5px;
-    text-decoration: none;
-}
-
-.logo-badge {
-    font-size: 22px;
-}
-
-.sidebar-nav {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    flex: 1;
-}
-
-.sidebar-link {
-    position: relative;
-    gap: 14px;
-    width: 100%;
-    min-height: 48px;
-    padding: 0 16px;
-    color: var(--color-text-muted);
-    text-decoration: none;
-    border-radius: 12px;
-    font-size: 15px;
-    font-weight: 600;
-    transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
-}
-
-.sidebar-icon {
-    width: 22px;
-    height: 22px;
-}
-
-.sidebar-link:hover {
-    background-color: var(--color-background);
-    color: var(--color-primary);
-    transform: translateX(3px);
-}
-
-.sidebar-link.active {
-    background-color: var(--color-primary-light);
-    color: var(--color-primary-dark);
-    font-weight: 700;
-}
-
-.sidebar-link.active::before {
-    content: "";
-    position: absolute;
-    left: 0;
-    top: 20%;
-    bottom: 20%;
-    width: 4px;
-    background-color: var(--color-primary);
-    border-radius: 0 4px 4px 0;
-}
-
-.sidebar-bottom {
-    margin-top: auto;
-    padding-top: 15px;
-    border-top: 1px solid var(--color-border);
-}
-
-.sidebar-logout:hover {
-    color: #c62828 !important;
-    background-color: #ffebee !important;
-}
-
-/* =========================================
-   PAGE CONTENT & HEADER
-   ========================================= */
-.page-content {
-    margin-left: 245px;
-    min-height: 100vh;
-    background-color: var(--color-background);
-}
+/* =========================================================
+   2. HEADER
+   ========================================================= */
 
 .C_Dashboard_user_header {
-    padding: 16px 40px;
-    background-color: var(--color-white);
-    border-bottom: 1px solid var(--color-border);
+    width: calc(100% - 245px);
+    margin-left: 245px;
+
+    min-height: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 0 32px;
+
+    background-color: #ffffff;
+    border-bottom: 1px solid #dfe5df;
+
     position: sticky;
     top: 0;
     z-index: 100;
 }
 
-.C_Dashboard_user_logo {
-    margin: 0;
-    font-size: 22px;
-    font-weight: 700;
-    color: var(--color-text);
+/* Header dùng chung nằm ngoài layoutWrapper nên cần chừa vị trí cho sidebar cố định. */
+.C_Dashboard_user_body > .top-header {
+    width: calc(100% - 245px);
+    margin-left: 245px;
+    box-sizing: border-box;
 }
 
-.C_Dashboard_user_userInfo {
-    gap: 14px;
+
+/* Logo */
+
+.C_Dashboard_user_logo {
+    margin: 0;
+
+    font-size: 24px;
+    font-weight: 700;
+
+    color: var(--color-primary-dark, #496447);
 }
+
+
+/* User information */
+
+.C_Dashboard_user_userInfo {
+    display: flex;
+    align-items: center;
+
+    gap: 12px;
+}
+
 
 .C_Dashboard_user_greeting {
     font-size: 14px;
-    font-weight: 600;
+    font-weight: 500;
+
+    color: #4f5a4f;
 }
+
+
+/* Avatar */
 
 .C_Dashboard_user_avatarCircle {
-    width: 40px;
-    height: 40px;
-    border: 2px solid var(--color-primary);
+    width: 38px;
+    height: 38px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
     border-radius: 50%;
-    font-size: 14px;
-    font-weight: 800;
-    color: var(--color-primary-dark);
-    background-color: var(--color-primary-light);
-    text-decoration: none;
-    transition: transform 0.2s ease;
-}
 
-.C_Dashboard_user_avatarCircle:hover {
-    transform: scale(1.05);
-}
+    background-color: var(--color-primary-light, #e8f0e7);
+    color: var(--color-primary-dark, #496447);
 
-.C_Dashboard_user_mainContent {
-    max-width: 1100px;
-    margin: 0 auto;
-    padding: 32px 36px 60px;
-}
+    border: 1px solid #cdd9cc;
 
-/* =========================================
-   WELCOME & STATS GRID
-   ========================================= */
-.C_Dashboard_user_welcomeSection,
-.C_Dashboard_user_actionsSection {
-    margin-bottom: 36px;
-}
-
-.C_Dashboard_user_welcomeTitle {
-    margin: 0 0 8px;
-    font-size: 24px;
-    font-weight: 800;
-}
-
-.C_Dashboard_user_welcomeSub {
-    margin: 0 0 24px;
-    font-size: 15px;
-}
-
-.highlight-text {
-    color: var(--color-primary-dark);
+    font-size: 13px;
     font-weight: 700;
 }
+
+
+/* =========================================================
+   3. LAYOUT SIDEBAR + MAIN
+   ========================================================= */
+
+.C_Dashboard_user_layoutWrapper {
+    display: flex;
+
+    width: 100%;
+    min-height: calc(100vh - 70px);
+}
+
+
+/*
+   Sidebar được quản lý bởi CSS dùng chung.
+
+   Dashboard chỉ đảm bảo sidebar không bị co lại
+   khi phần main có nhiều nội dung.
+*/
+
+.C_Dashboard_user_layoutWrapper .sidebar {
+    flex-shrink: 0;
+}
+
+
+/* =========================================================
+   4. MAIN CONTENT
+   ========================================================= */
+
+.C_Dashboard_user_mainContent {
+    width: calc(100% - 245px);
+    margin-left: 245px;
+
+    min-width: 0;
+
+    padding: 32px 40px 50px;
+
+    background-color: #f8faf8;
+}
+
+
+/* =========================================================
+   5. WELCOME SECTION
+   ========================================================= */
+
+.C_Dashboard_user_welcomeSection {
+    margin-bottom: 28px;
+}
+
+
+.C_Dashboard_user_welcomeTitle {
+    margin: 0 0 7px;
+
+    font-size: 24px;
+    line-height: 1.3;
+
+    font-weight: 700;
+
+    color: #263026;
+}
+
+
+.C_Dashboard_user_welcomeSub {
+    margin: 0;
+
+    font-size: 14px;
+    line-height: 1.5;
+
+    color: #6b756b;
+}
+
+
+/* =========================================================
+   6. 4 STAT CARDS
+   ========================================================= */
 
 .C_Dashboard_user_statsGrid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 18px;
+
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+
+    gap: 16px;
+
+    margin-top: 22px;
 }
 
-/* Khung Card */
-.C_Dashboard_user_statCard,
-.C_Dashboard_user_actionCard {
-    background-color: var(--color-white);
-    border: 1px solid var(--color-border);
+
+.C_Dashboard_user_statCard {
+    min-height: 105px;
+
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+
+    padding: 18px 20px;
+
+    background-color: #ffffff;
+
+    border: 1px solid #dfe5df;
+    border-radius: 12px;
+
+    transition:
+        transform 0.2s ease,
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
 }
 
-.C_Dashboard_user_statCard {
-    border-radius: 18px;
-    padding: 20px;
-    min-height: 105px;
-    box-shadow: 0 4px 16px rgba(31, 45, 36, 0.04);
+
+.C_Dashboard_user_statCard:hover {
+    transform: translateY(-2px);
+
+    border-color: #cbd8ca;
+
+    box-shadow: 0 5px 16px rgba(50, 70, 50, 0.06);
 }
 
-.statCard-alert {
-    background-color: #FFFDF9;
-    border-color: #F6D2B5;
-}
 
 .C_Dashboard_user_statLabel {
     font-size: 13px;
-    font-weight: 600;
+    line-height: 1.4;
+
+    color: #687268;
 }
+
 
 .C_Dashboard_user_statVal {
-    font-size: 26px;
-    font-weight: 800;
-    color: var(--color-primary-dark);
+    font-size: 25px;
+    line-height: 1;
+
+    font-weight: 700;
+
+    color: var(--color-primary-dark, #496447);
 }
 
-.stat-streak { color: #e65100; }
-.stat-orange { color: #C75A24; }
 
-/* =========================================
-   ACTIONS GRID
-   ========================================= */
+/* =========================================================
+   7. TIÊU ĐỀ CÁC SECTION
+   ========================================================= */
+
 .C_Dashboard_user_sectionHeading {
+    margin: 0 0 13px;
+
+    font-size: 16px;
+    line-height: 1.4;
+
+    font-weight: 700;
+
+    color: #303930;
+}
+
+
+/* =========================================================
+   8. ÔN TẬP HÔM NAY
+   ========================================================= */
+
+.C_Dashboard_user_reviewSection {
+    margin-bottom: 28px;
+}
+
+
+.C_Dashboard_user_reviewCard {
+    min-height: 82px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 20px;
+
+    padding: 16px 20px;
+
+    background-color: #ffffff;
+
+    border: 1px solid #dfe5df;
+    border-radius: 12px;
+}
+
+
+.C_Dashboard_user_reviewInfo {
+    min-width: 0;
+}
+
+
+.C_Dashboard_user_reviewText {
+    font-size: 14px;
+    line-height: 1.5;
+
+    color: #414a41;
+}
+
+
+/* Nút ÔN TẬP NGAY */
+
+.C_Dashboard_user_reviewButton {
+    flex-shrink: 0;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-width: 125px;
+    min-height: 40px;
+
+    padding: 0 18px;
+
+    border-radius: 8px;
+
+    background-color: var(--color-primary-dark, #496447);
+    color: #ffffff;
+
+    text-decoration: none;
+
+    font-size: 12px;
+    font-weight: 700;
+
+    transition:
+        background-color 0.2s ease,
+        transform 0.2s ease;
+}
+
+
+.C_Dashboard_user_reviewButton:hover {
+    background-color: var(--color-primary, #607b5d);
+
+    transform: translateY(-1px);
+}
+
+
+/* =========================================================
+   9. BIỂU ĐỒ 7 NGÀY
+   ========================================================= */
+
+.C_Dashboard_user_progressSection {
+    margin-bottom: 28px;
+}
+
+
+.C_Dashboard_user_chartContainer {
+    position: relative;
+
+    width: 100%;
+    height: 300px;
+
+    padding: 20px;
+
+    background-color: #ffffff;
+
+    border: 1px solid #dfe5df;
+    border-radius: 12px;
+}
+
+
+/*
+   Canvas sẽ được JS/Chart.js sử dụng sau này.
+*/
+
+.C_Dashboard_user_chartContainer canvas {
+    display: block;
+
+    width: 100% !important;
+    height: 100% !important;
+}
+
+
+/* =========================================================
+   10. MỤC TIÊU HÔM NAY
+   ========================================================= */
+
+.C_Dashboard_user_targetSection {
+    margin-bottom: 28px;
+}
+
+
+.C_Dashboard_user_targetCard {
+    padding: 20px;
+
+    background-color: #ffffff;
+
+    border: 1px solid #dfe5df;
+    border-radius: 12px;
+}
+
+
+.C_Dashboard_user_targetValue {
+    margin-bottom: 14px;
+
     font-size: 18px;
     font-weight: 700;
-    margin: 0 0 16px;
+
+    color: #303930;
 }
 
-.C_Dashboard_user_actionsGrid {
-    display: grid;
-    grid-template-columns: repeat(6, 1fr);
-    gap: 14px;
+
+/* Thanh progress */
+
+.C_Dashboard_user_targetProgress {
+    width: 100%;
+    height: 10px;
+
+    overflow: hidden;
+
+    background-color: #edf1ed;
+
+    border-radius: 999px;
 }
 
-.C_Dashboard_user_actionCard {
-    border-radius: 16px;
-    padding: 18px 14px;
-    min-height: 125px;
-    text-decoration: none;
-    color: var(--color-text);
-    box-shadow: 0 4px 12px rgba(31, 45, 36, 0.03);
-    transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+
+.C_Dashboard_user_targetProgressBar {
+    height: 100%;
+
+    min-width: 0;
+
+    background-color: var(--color-primary, #607b5d);
+
+    border-radius: inherit;
+
+    transition: width 0.4s ease;
 }
 
-.C_Dashboard_user_actionCard:hover {
-    transform: translateY(-3px);
-    border-color: var(--color-primary);
-    box-shadow: 0 8px 20px rgba(31, 45, 36, 0.08);
-}
 
-.action-icon {
-    font-size: 24px;
-}
+.C_Dashboard_user_targetNote {
+    margin: 11px 0 0;
 
-.C_Dashboard_user_actionTitle {
-    font-size: 14px;
-    font-weight: 700;
-    margin-top: 6px;
-}
-
-.C_Dashboard_user_actionNote {
-    font-size: 12px;
-}
-
-/* =========================================
-   LỊCH SỬ HỌC GẦN ĐÂY
-   ========================================= */
-.section-header-flex {
-    margin-bottom: 16px;
-}
-
-.link-view-all {
     font-size: 13px;
-    font-weight: 600;
-    color: var(--color-primary);
-    text-decoration: none;
+    line-height: 1.5;
+
+    color: #6b756b;
 }
 
-.link-view-all:hover {
-    text-decoration: underline;
+
+/* =========================================================
+   11. HOẠT ĐỘNG GẦN ĐÂY
+   ========================================================= */
+
+.C_Dashboard_user_historySection {
+    margin-bottom: 10px;
 }
+
 
 .C_Dashboard_user_historyTable {
-    background-color: var(--color-white);
-    border: 1px solid var(--color-border);
-    border-radius: 18px;
     overflow: hidden;
-    box-shadow: 0 4px 16px rgba(31, 45, 36, 0.04);
+
+    background-color: #ffffff;
+
+    border: 1px solid #dfe5df;
+    border-radius: 12px;
 }
+
 
 .C_Dashboard_user_historyRow {
-    padding: 16px 20px;
-    border-bottom: 1px solid var(--color-border);
-    font-size: 14px;
-    transition: background-color 0.2s ease;
+    min-height: 58px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 20px;
+
+    padding: 12px 20px;
+
+    border-bottom: 1px solid #edf0ed;
 }
 
-.C_Dashboard_user_historyRow:hover {
-    background-color: #f7faf8;
-}
 
 .C_Dashboard_user_historyRow:last-child {
     border-bottom: none;
 }
 
-.history-left {
-    gap: 12px;
-}
-
-.history-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-}
-
-.dot-quiz      { background-color: #C75A24; }
-.dot-flashcard { background-color: var(--color-primary); }
-.dot-vocab     { background-color: #1976d2; }
 
 .C_Dashboard_user_historyText {
-    font-weight: 600;
+    min-width: 0;
+
+    font-size: 13px;
+    line-height: 1.5;
+
+    color: #414a41;
 }
+
 
 .C_Dashboard_user_historyTime {
-    font-size: 13px;
+    flex-shrink: 0;
+
+    font-size: 12px;
+
+    color: #899189;
 }
 
-/* =========================================
-   8. RESPONSIVE
-   ========================================= */
-@media (max-width: 1024px) {
-    .C_Dashboard_user_actionsGrid {
-        grid-template-columns: repeat(3, 1fr);
+
+/* =========================================================
+   12. TABLET
+   768px - 1023px
+   ========================================================= */
+
+@media (max-width: 1023px) {
+
+    .C_Dashboard_user_header {
+        padding: 0 24px;
     }
+
+
+    .C_Dashboard_user_mainContent {
+        padding: 28px 28px 45px;
+    }
+
+
+    /* 4 card → 2 x 2 */
+
     .C_Dashboard_user_statsGrid {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
+
+
+    .C_Dashboard_user_chartContainer {
+        height: 280px;
+    }
+
 }
 
-@media (max-width: 860px) {
-    .sidebar {
-        width: 76px;
-        padding: 20px 10px;
+
+/* =========================================================
+   13. MOBILE
+   Dưới 768px
+   ========================================================= */
+
+@media (max-width: 767px) {
+
+    .C_Dashboard_user_body > .top-header {
+        width: 100%;
+        margin-left: 0;
     }
-    .sidebar-logo span:last-child,
-    .sidebar-link span:last-child {
+
+    /* Header */
+
+    .C_Dashboard_user_header {
+        min-height: 64px;
+
+        padding: 0 16px;
+    }
+
+
+    .C_Dashboard_user_logo {
+        font-size: 20px;
+    }
+
+
+    .C_Dashboard_user_greeting {
         display: none;
     }
-    .page-content {
-        margin-left: 76px;
+
+
+    .C_Dashboard_user_avatarCircle {
+        width: 36px;
+        height: 36px;
     }
-    .C_Dashboard_user_actionsGrid {
-        grid-template-columns: repeat(2, 1fr);
+
+
+    /* Layout */
+
+    .C_Dashboard_user_layoutWrapper {
+        display: block;
     }
+
+
+    /*
+       Sidebar responsive sẽ do CSS sidebar chung
+       xử lý.
+    */
+
+
+    /* Main */
+
+    .C_Dashboard_user_mainContent {
+        width: 100%;
+
+        padding: 24px 16px 40px;
+    }
+
+
+    /* Welcome */
+
+    .C_Dashboard_user_welcomeTitle {
+        font-size: 21px;
+    }
+
+
+    .C_Dashboard_user_welcomeSub {
+        font-size: 13px;
+    }
+
+
+    /* Stats */
+
+    .C_Dashboard_user_statsGrid {
+        grid-template-columns: 1fr;
+
+        gap: 10px;
+
+        margin-top: 18px;
+    }
+
+
+    .C_Dashboard_user_statCard {
+        min-height: 88px;
+
+        padding: 15px 17px;
+    }
+
+
+    .C_Dashboard_user_statVal {
+        font-size: 23px;
+    }
+
+
+    /* Review */
+
+    .C_Dashboard_user_reviewCard {
+        align-items: stretch;
+        flex-direction: column;
+
+        gap: 14px;
+
+        padding: 16px;
+    }
+
+
+    .C_Dashboard_user_reviewButton {
+        width: 100%;
+    }
+
+
+    /* Chart */
+
+    .C_Dashboard_user_chartContainer {
+        height: 240px;
+
+        padding: 12px;
+    }
+
+
+    /* Target */
+
+    .C_Dashboard_user_targetCard {
+        padding: 17px;
+    }
+
+
+    .C_Dashboard_user_targetValue {
+        font-size: 17px;
+    }
+
+
+    /* History */
+
+    .C_Dashboard_user_historyRow {
+        align-items: flex-start;
+        flex-direction: column;
+
+        gap: 4px;
+
+        padding: 13px 16px;
+    }
+
+
+    .C_Dashboard_user_historyTime {
+        font-size: 11px;
+    }
+
+}
+
+
+/* =========================================================
+   14. MOBILE NHỎ
+   Dưới 480px
+   ========================================================= */
+
+@media (max-width: 479px) {
+
+    .C_Dashboard_user_mainContent {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+
+
+    .C_Dashboard_user_sectionHeading {
+        font-size: 15px;
+    }
+
+
+    .C_Dashboard_user_chartContainer {
+        height: 220px;
+    }
+
 }
