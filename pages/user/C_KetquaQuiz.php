@@ -1,39 +1,154 @@
 <?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
 require_once($_SERVER['DOCUMENT_ROOT'] . "/Connect.php");
 
-/* =========================================================================
-   [KHU VỰC XỬ LÝ DATABASE THEO QUY TẮC CỦA LEADER]
-   - Leader lưu ý: Khi kết nối DB phải lấy đúng y chang tên cột trong CSDL.
-   - Dưới đây là dữ liệu mẫu để hiển thị giao diện.
-   - Khi kết nối DB thật, bạn nhận dữ liệu từ Session hoặc câu lệnh INSERT kết quả:
-     $id_user = $_SESSION['user_id'];
-     $sql = "INSERT INTO ket_qua_quiz (id_nguoidung, diem_so, tong_cau, thoi_gian_lam, ngay_thi) 
-             VALUES (?, ?, ?, ?, NOW())";
-   ========================================================================= */
+// Lấy trực tiếp ID tài khoản từ Session
+$user_id = $_SESSION['user_id'] 
+    ?? $_SESSION['userID'] 
+    ?? $_SESSION['id'] 
+    ?? $_SESSION['user']['userID'] 
+    ?? $_SESSION['user']['id'] 
+    ?? 2; // Dự phòng user 2 khi mở test link trực tiếp
 
-// Dữ liệu mẫu ban đầu (sẽ được JS cập nhật nếu có dữ liệu từ bài Quiz vừa làm)
-$diem_so     = 8;
-$tong_cau    = 10;
-$thoi_gian   = "3:45";
-$do_chinh_xac = round(($diem_so / $tong_cau) * 100) . "%";
+// Khởi tạo các giá trị mặc định
+$diem_so      = 0;
+$tong_cau     = 10;
+$thoi_gian    = "0:00";
+$cau_sai      = [];
+$quiz_result_id = isset($_GET['id']) ? intval($_GET['id']) : (isset($_GET['quiz_id']) ? intval($_GET['quiz_id']) : 0);
 
-// Đánh giá xếp loại
-if ($diem_so >= 9) {
+// Hàm định dạng số giây thành "Phút:Giây"
+if (!function_exists('dinhDangThoiGianLam')) {
+    function dinhDangThoiGianLam($seconds) {
+        $seconds = max(0, intval($seconds));
+        $m = floor($seconds / 60);
+        $s = $seconds % 60;
+        return sprintf("%d:%02d", $m, $s);
+    }
+}
+
+try {
+    if (isset($link) && $link) {
+        // Quét danh sách bảng thực tế tránh lỗi phân biệt hoa/thường trên Linux
+        $tables_res = @mysqli_query($link, "SHOW TABLES");
+        $db_tables = [];
+        if ($tables_res) {
+            while ($tbl_row = mysqli_fetch_array($tables_res)) {
+                $db_tables[strtolower($tbl_row[0])] = $tbl_row[0];
+            }
+        }
+
+        $tbl_quiz   = isset($db_tables['quiz_results']) ? "`" . $db_tables['quiz_results'] . "`" : "`quiz_results`";
+        $tbl_topics = isset($db_tables['topics']) ? "`" . $db_tables['topics'] . "`" : "`Topics`";
+
+        // --- XỬ LÝ LƯU KẾT QUẢ NẾU CÓ DỮ LIỆU SUBMIT TỪ TRANG QUIZ (POST) ---
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($db_tables['quiz_results'])) {
+            $p_correct = isset($_POST['correct_answers']) ? intval($_POST['correct_answers']) : (isset($_POST['diem_so']) ? intval($_POST['diem_so']) : null);
+            $p_total   = isset($_POST['total_questions']) ? intval($_POST['total_questions']) : (isset($_POST['tong_cau']) ? intval($_POST['tong_cau']) : 10);
+            $p_topic   = isset($_POST['topic_id']) ? intval($_POST['topic_id']) : (isset($_POST['id_chude']) ? intval($_POST['id_chude']) : 1);
+            $p_seconds = isset($_POST['duration_seconds']) ? intval($_POST['duration_seconds']) : (isset($_POST['thoi_gian_giay']) ? intval($_POST['thoi_gian_giay']) : 120);
+
+            if ($p_correct !== null && $p_total > 0) {
+                $sql_ins = "
+                    INSERT INTO $tbl_quiz (user_id, topic_id, total_questions, correct_answers, started_at, finished_at) 
+                    VALUES (?, ?, ?, ?, DATE_SUB(NOW(), INTERVAL ? SECOND), NOW())
+                ";
+                if ($stmt_ins = @mysqli_prepare($link, $sql_ins)) {
+                    mysqli_stmt_bind_param($stmt_ins, "iiiii", $user_id, $p_topic, $p_total, $p_correct, $p_seconds);
+                    if (mysqli_stmt_execute($stmt_ins)) {
+                        $quiz_result_id = mysqli_insert_id($link);
+                    }
+                    mysqli_stmt_close($stmt_ins);
+                }
+
+                // Nhận danh sách câu sai nếu từ giao diện gửi lên
+                if (!empty($_POST['cau_sai'])) {
+                    $cau_sai = is_array($_POST['cau_sai']) ? $_POST['cau_sai'] : json_decode($_POST['cau_sai'], true);
+                }
+            }
+        }
+
+        // --- TRUY VẤN KẾT QUẢ BÀI QUIZ TỪ CSDL ---
+        if (isset($db_tables['quiz_results'])) {
+            if ($quiz_result_id > 0) {
+                // Truy vấn theo ID cụ thể
+                $sql_get = "
+                    SELECT 
+                        correct_answers, 
+                        total_questions, 
+                        TIMESTAMPDIFF(SECOND, started_at, finished_at) AS thoi_gian_giay 
+                    FROM $tbl_quiz 
+                    WHERE id = ? AND user_id = ? 
+                    LIMIT 1
+                ";
+                if ($stmt_get = @mysqli_prepare($link, $sql_get)) {
+                    mysqli_stmt_bind_param($stmt_get, "ii", $quiz_result_id, $user_id);
+                    mysqli_stmt_execute($stmt_get);
+                    $res = mysqli_stmt_get_result($stmt_get);
+                    if ($row = mysqli_fetch_assoc($res)) {
+                        $diem_so   = (int)$row['correct_answers'];
+                        $tong_cau  = (int)$row['total_questions'];
+                        $thoi_gian = dinhDangThoiGianLam($row['thoi_gian_giay'] ?? 180);
+                    }
+                    mysqli_stmt_close($stmt_get);
+                }
+            } else {
+                // Lấy kết quả bài thi gần nhất của người dùng
+                $sql_latest = "
+                    SELECT 
+                        correct_answers, 
+                        total_questions, 
+                        TIMESTAMPDIFF(SECOND, started_at, finished_at) AS thoi_gian_giay 
+                    FROM $tbl_quiz 
+                    WHERE user_id = ? 
+                    ORDER BY COALESCE(finished_at, started_at) DESC, id DESC 
+                    LIMIT 1
+                ";
+                if ($stmt_lat = @mysqli_prepare($link, $sql_latest)) {
+                    mysqli_stmt_bind_param($stmt_lat, "i", $user_id);
+                    mysqli_stmt_execute($stmt_lat);
+                    $res = mysqli_stmt_get_result($stmt_lat);
+                    if ($row = mysqli_fetch_assoc($res)) {
+                        $diem_so   = (int)$row['correct_answers'];
+                        $tong_cau  = (int)$row['total_questions'];
+                        $thoi_gian = dinhDangThoiGianLam($row['thoi_gian_giay'] ?? 180);
+                    }
+                    mysqli_stmt_close($stmt_lat);
+                }
+            }
+        }
+    }
+} catch (\Throwable $e) {
+    error_log("Lỗi Kết quả Quiz: " . $e->getMessage());
+}
+
+// --- TÍNH TOÁN TỶ LỆ VÀ XẾP LOẠI ---
+$phan_tram = ($tong_cau > 0) ? round(($diem_so / $tong_cau) * 100) : 0;
+$do_chinh_xac = $phan_tram . "%";
+
+if ($phan_tram >= 90) {
     $xep_hang = "Xuất sắc";
     $feedback = "Tuyệt vời! Bạn nắm từ vựng rất vững!";
-} elseif ($diem_so >= 7) {
+} elseif ($phan_tram >= 70) {
     $xep_hang = "Khá";
     $feedback = "Bạn làm rất tốt! Cố gắng phát huy nhé!";
+} elseif ($phan_tram >= 50) {
+    $xep_hang = "Trung bình";
+    $feedback = "Khá ổn! Hãy ôn tập thêm để cải thiện phản xạ nhé!";
 } else {
-    $xep_hang = "Cần cố gắng";
+    $xep_hang = "Yếu";
     $feedback = "Hãy ôn lại các từ chưa nhớ và thử lại nhé!";
 }
 
-$cau_sai = [
-    ["cau" => 3, "tu" => "Software", "nghia_dung" => "Phần mềm"],
-    ["cau" => 7, "tu" => "Meeting", "nghia_dung" => "Cuộc họp"]
-];
+// Nếu đúng 100% thì danh sách câu sai là rỗng
+if ($diem_so >= $tong_cau) {
+    $cau_sai = [];
+}
 ?>
+
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -44,7 +159,7 @@ $cau_sai = [
 </head>
 <body class="C_KetquaQuiz_body">
 
-    <!-- Header -->
+    <!-- Header Focus Mode -->
     <header class="C_KetquaQuiz_header">
         <h1 class="C_KetquaQuiz_logo">Kết quả Quiz</h1>
         <button type="button" id="C_KetquaQuiz_btnDong" class="C_KetquaQuiz_btnClose" title="Đóng">

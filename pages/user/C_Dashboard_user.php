@@ -1,45 +1,241 @@
 <?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
 require_once($_SERVER['DOCUMENT_ROOT'] . "/Connect.php");
 
-/* =========================================================================
-   [KHU VỰC TRUY VẤN CSDL THEO QUY TẮC CỦA LEADER]
-   - Leader lưu ý: Khi kết nối DB phải lấy đúng y chang tên cột trong CSDL.
-   - Dưới đây là các biến mẫu lưu thông tin tổng quan của người dùng.
-   - Khi kết nối DB thật, bạn thay bằng các truy vấn SELECT tương ứng:
-     $user_id = $_SESSION['user_id'] ?? 1;
-     $sql_user = "SELECT ho_ten, chuoi_ngay FROM nguoi_dung WHERE id = ?";
-   ========================================================================= */
+// Kiểm tra session đăng nhập
+$user_id = $_SESSION['user_id'] 
+    ?? $_SESSION['userID'] 
+    ?? $_SESSION['id'] 
+    ?? $_SESSION['user']['userID'] 
+    ?? $_SESSION['user']['id'] 
+    ?? null;
 
-$user_name       = "Nguyễn An";
-$chuoi_ngay      = 12; // Streak
-$tong_tu_hoc     = 356;
-$tu_can_on_tap   = 24;
-$diem_quiz_tb    = "82%";
+$user_email = $_SESSION['email'] 
+    ?? $_SESSION['user']['email'] 
+    ?? null;
 
-// Danh sách lịch sử học tập gần đây
-$lich_su_gan_day = [
-    [
-        "hanh_dong" => "Hoàn thành Quiz \"Du lịch\"",
-        "loai"      => "quiz",
-        "thoi_gian" => "Hôm nay, 09:15"
-    ],
-    [
-        "hanh_dong" => "Học 20 thẻ FlashCard \"Công nghệ\"",
-        "loai"      => "flashcard",
-        "thoi_gian" => "Hôm qua, 20:40"
-    ],
-    [
-        "hanh_dong" => "Thêm 5 từ vựng mới vào bộ sưu tập",
-        "loai"      => "vocab",
-        "thoi_gian" => "2 ngày trước"
-    ],
-    [
-        "hanh_dong" => "Hoàn thành Quiz \"Ẩm thực\"",
-        "loai"      => "quiz",
-        "thoi_gian" => "3 ngày trước"
-    ]
-];
+// NẾU CHƯA ĐĂNG NHẬP: Chuyển hướng ngay về trang Đăng nhập và dừng thực thi
+if (empty($user_id) && empty($user_email)) {
+    header("Location: ../auth/A_DangNhap.php");
+    exit();
+}
+
+// Lấy tên trực tiếp từ session nếu lúc đăng nhập đã lưu sẵn
+$user_name = $_SESSION['full_name'] 
+    ?? $_SESSION['user_name'] 
+    ?? $_SESSION['name'] 
+    ?? $_SESSION['user']['full_name'] 
+    ?? $_SESSION['user']['name'] 
+    ?? '';
+
+// Khởi tạo các biến thống kê mặc định
+$chuoi_ngay      = 0;
+$tong_tu_hoc     = 0;
+$tu_can_on_tap   = 0;
+$diem_quiz_tb    = "0%";
+$lich_su_gan_day = [];
+
+// Hàm định dạng mốc thời gian
+if (!function_exists('dinhDangThoiGian')) {
+    function dinhDangThoiGian($datetime_str) {
+        if (!$datetime_str) return '';
+        $time = strtotime($datetime_str);
+        $now = time();
+        $diff = $now - $time;
+        
+        $date = date('Y-m-d', $time);
+        $today = date('Y-m-d', $now);
+        $yesterday = date('Y-m-d', strtotime('-1 day', $now));
+
+        if ($date === $today) {
+            return "Hôm nay, " . date('H:i', $time);
+        } elseif ($date === $yesterday) {
+            return "Hôm qua, " . date('H:i', $time);
+        } elseif ($diff > 0 && $diff < 7 * 86400) {
+            $days = floor($diff / 86400);
+            return ($days > 0 ? $days : 1) . " ngày trước";
+        } else {
+            return date('d/m/Y H:i', $time);
+        }
+    }
+}
+
+if (isset($link) && $link) {
+    // Quét danh sách bảng thực tế trong Database để tránh lỗi phân biệt hoa/thường trên Linux
+    $tables_res = @mysqli_query($link, "SHOW TABLES");
+    $db_tables = [];
+    if ($tables_res) {
+        while ($tbl_row = mysqli_fetch_array($tables_res)) {
+            $db_tables[strtolower($tbl_row[0])] = $tbl_row[0];
+        }
+    }
+
+    $tbl_users    = isset($db_tables['users']) ? "`" . $db_tables['users'] . "`" : "`Users`";
+    $tbl_topics   = isset($db_tables['topics']) ? "`" . $db_tables['topics'] . "`" : "`Topics`";
+    $tbl_sessions = isset($db_tables['learning_sessions']) ? "`" . $db_tables['learning_sessions'] . "`" : "`learning_sessions`";
+    $tbl_progress = isset($db_tables['user_vocab_progress']) ? "`" . $db_tables['user_vocab_progress'] . "`" : "`user_vocab_progress`";
+    $tbl_quiz     = isset($db_tables['quiz_results']) ? "`" . $db_tables['quiz_results'] . "`" : "`quiz_results`";
+
+    // --- 1. LẤY THÔNG TIN NGƯỜI DÙNG TỪ CSDL ---
+    if (isset($db_tables['users'])) {
+        try {
+            $col_id = 'userID';
+            $check_col = @mysqli_query($link, "SHOW COLUMNS FROM $tbl_users LIKE 'userID'");
+            if (!$check_col || mysqli_num_rows($check_col) === 0) {
+                $col_id = 'id';
+            }
+
+            if (!empty($user_id)) {
+                $sql_user = "SELECT `$col_id` AS uid, full_name FROM $tbl_users WHERE `$col_id` = ? LIMIT 1";
+                if ($stmt = @mysqli_prepare($link, $sql_user)) {
+                    mysqli_stmt_bind_param($stmt, "i", $user_id);
+                    mysqli_stmt_execute($stmt);
+                    $res = mysqli_stmt_get_result($stmt);
+                    if ($row = mysqli_fetch_assoc($res)) {
+                        if (!empty($row['full_name'])) {
+                            $user_name = $row['full_name'];
+                        }
+                    } else {
+                        // User ID trong session không tồn tại trong DB -> Đẩy ra đăng nhập
+                        header("Location: ../auth/A_DangNhap.php");
+                        exit();
+                    }
+                    mysqli_stmt_close($stmt);
+                }
+            } elseif (!empty($user_email)) {
+                $sql_user = "SELECT `$col_id` AS uid, full_name FROM $tbl_users WHERE email = ? LIMIT 1";
+                if ($stmt = @mysqli_prepare($link, $sql_user)) {
+                    mysqli_stmt_bind_param($stmt, "s", $user_email);
+                    mysqli_stmt_execute($stmt);
+                    $res = mysqli_stmt_get_result($stmt);
+                    if ($row = mysqli_fetch_assoc($res)) {
+                        $user_id = $row['uid'];
+                        if (!empty($row['full_name'])) {
+                            $user_name = $row['full_name'];
+                        }
+                    } else {
+                        // Email không tồn tại trong DB -> Đẩy ra đăng nhập
+                        header("Location: ../auth/A_DangNhap.php");
+                        exit();
+                    }
+                    mysqli_stmt_close($stmt);
+                }
+            }
+        } catch (\Throwable $e) {}
+    }
+
+    if (empty($user_name)) {
+        $user_name = "Người dùng";
+    }
+
+    // --- LẤY CHUỖI NGÀY HỌC (STREAK) CỦA USER ĐĂNG NHẬP ---
+    if (isset($db_tables['learning_sessions']) && !empty($user_id)) {
+        try {
+            $sql_streak = "SELECT streak_count FROM $tbl_sessions WHERE user_id = ? ORDER BY session_date DESC, id DESC LIMIT 1";
+            if ($stmt = @mysqli_prepare($link, $sql_streak)) {
+                mysqli_stmt_bind_param($stmt, "i", $user_id);
+                mysqli_stmt_execute($stmt);
+                $res = mysqli_stmt_get_result($stmt);
+                if ($row = mysqli_fetch_assoc($res)) {
+                    $chuoi_ngay = (int)($row['streak_count'] ?? 0);
+                }
+                mysqli_stmt_close($stmt);
+            }
+        } catch (\Throwable $e) {}
+    }
+
+    // --- LẤY TỔNG SỐ TỪ ĐÃ HỌC & CẦN ÔN TẬP CỦA USER ĐĂNG NHẬP ---
+    if (isset($db_tables['user_vocab_progress']) && !empty($user_id)) {
+        try {
+            // Tổng từ đang học hoặc đã thuộc
+            $sql_total = "SELECT COUNT(*) AS total FROM $tbl_progress WHERE user_id = ? AND status IN ('learning', 'mastered')";
+            if ($stmt = @mysqli_prepare($link, $sql_total)) {
+                mysqli_stmt_bind_param($stmt, "i", $user_id);
+                mysqli_stmt_execute($stmt);
+                $res = mysqli_stmt_get_result($stmt);
+                if ($row = mysqli_fetch_assoc($res)) {
+                    $tong_tu_hoc = (int)($row['total'] ?? 0);
+                }
+                mysqli_stmt_close($stmt);
+            }
+
+            // Từ đến hạn ôn tập hôm nay
+            $sql_review = "SELECT COUNT(*) AS total FROM $tbl_progress WHERE user_id = ? AND next_review_date <= CURDATE()";
+            if ($stmt = @mysqli_prepare($link, $sql_review)) {
+                mysqli_stmt_bind_param($stmt, "i", $user_id);
+                mysqli_stmt_execute($stmt);
+                $res = mysqli_stmt_get_result($stmt);
+                if ($row = mysqli_fetch_assoc($res)) {
+                    $tu_can_on_tap = (int)($row['total'] ?? 0);
+                }
+                mysqli_stmt_close($stmt);
+            }
+        } catch (\Throwable $e) {}
+    }
+
+    // --- LẤY ĐIỂM QUIZ TRUNG BÌNH CỦA USER ĐĂNG NHẬP ---
+    if (isset($db_tables['quiz_results']) && !empty($user_id)) {
+        try {
+            $sql_quiz = "SELECT AVG(score) AS avg_score FROM $tbl_quiz WHERE user_id = ?";
+            if ($stmt = @mysqli_prepare($link, $sql_quiz)) {
+                mysqli_stmt_bind_param($stmt, "i", $user_id);
+                mysqli_stmt_execute($stmt);
+                $res = mysqli_stmt_get_result($stmt);
+                if ($row = mysqli_fetch_assoc($res)) {
+                    $diem_quiz_tb = $row['avg_score'] !== null ? round($row['avg_score']) . "%" : "0%";
+                }
+                mysqli_stmt_close($stmt);
+            }
+        } catch (\Throwable $e) {}
+    }
+
+    // --- LẤY LỊCH SỬ HOẠT ĐỘNG GẦN ĐÂY CỦA USER ĐĂNG NHẬP ---
+    if (isset($db_tables['quiz_results']) && isset($db_tables['learning_sessions']) && !empty($user_id)) {
+        try {
+            $sql_history = "
+                (
+                    SELECT 
+                        CONCAT('Hoàn thành Quiz \"', COALESCE(t.topicName, 'Tổng hợp'), '\" (', q.correct_answers, '/', q.total_questions, ' câu)') AS hanh_dong,
+                        'quiz' AS loai,
+                        COALESCE(q.finished_at, q.started_at) AS thoi_gian_raw
+                    FROM $tbl_quiz q
+                    LEFT JOIN $tbl_topics t ON q.topic_id = t.topicID
+                    WHERE q.user_id = ?
+                )
+                UNION ALL
+                (
+                    SELECT 
+                        CONCAT('Học ', s.words_studied, ' từ vựng trong phiên') AS hanh_dong,
+                        'flashcard' AS loai,
+                        CAST(CONCAT(s.session_date, ' 12:00:00') AS DATETIME) AS thoi_gian_raw
+                    FROM $tbl_sessions s
+                    WHERE s.user_id = ? AND s.words_studied > 0
+                )
+                ORDER BY thoi_gian_raw DESC
+                LIMIT 4
+            ";
+
+            if ($stmt = @mysqli_prepare($link, $sql_history)) {
+                mysqli_stmt_bind_param($stmt, "ii", $user_id, $user_id);
+                mysqli_stmt_execute($stmt);
+                $res = mysqli_stmt_get_result($stmt);
+                while ($row = mysqli_fetch_assoc($res)) {
+                    $lich_su_gan_day[] = [
+                        "hanh_dong" => $row['hanh_dong'],
+                        "loai"      => $row['loai'],
+                        "thoi_gian" => dinhDangThoiGian($row['thoi_gian_raw'])
+                    ];
+                }
+                mysqli_stmt_close($stmt);
+            }
+        } catch (\Throwable $e) {}
+    }
+}
 ?>
+
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -56,7 +252,7 @@ $lich_su_gan_day = [
     <aside class="sidebar">
         <!-- Logo -->
         <a href="C_Dashboard_user.php" class="sidebar-logo">
-            <span class="logo-badge">🌱</span> LexiLoop
+            <span class="logo-badge">🌿</span> LexiLoop
         </a>
 
         <!-- Danh sách menu chính -->

@@ -1,58 +1,205 @@
 <?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
 require_once($_SERVER['DOCUMENT_ROOT'] . "/Connect.php");
 
-/* =========================================================================
-   [KHU VỰC TRUY VẤN CSDL THEO QUY TẮC CỦA LEADER]
-   - Leader lưu ý: Khi kết nối với DB thì phải lấy đúng y chang tên cột trong CSDL.
-   - Dưới đây là mảng dữ liệu mẫu để bạn chạy thử nghiệm giao diện.
-   - Khi kết nối DB thật, bạn thay bằng câu truy vấn SELECT (Ví dụ):
-     $user_id = $_SESSION['user_id'] ?? 1;
-     $sql = "SELECT * FROM lich_su_on_tap WHERE id_nguoidung = ? ORDER BY thoi_gian DESC";
-   ========================================================================= */
+// Lấy ID người dùng từ Session
+$user_id = $_SESSION['user_id'] 
+    ?? $_SESSION['userID'] 
+    ?? $_SESSION['id'] 
+    ?? $_SESSION['user']['userID'] 
+    ?? $_SESSION['user']['id'] 
+    ?? 2;
 
-// Dữ liệu mẫu số từ ôn tập 7 ngày qua (dùng vẽ biểu đồ cột)
+// Hàm định dạng mốc thời gian
+if (!function_exists('dinhDangThoiGian')) {
+    function dinhDangThoiGian($datetime_str) {
+        if (!$datetime_str) return '';
+        $time = strtotime($datetime_str);
+        $now = time();
+        $diff = $now - $time;
+        
+        $date = date('Y-m-d', $time);
+        $today = date('Y-m-d', $now);
+        $yesterday = date('Y-m-d', strtotime('-1 day', $now));
+
+        if ($date === $today) {
+            return "Hôm nay, " . date('H:i', $time);
+        } elseif ($date === $yesterday) {
+            return "Hôm qua, " . date('H:i', $time);
+        } elseif ($diff > 0 && $diff < 7 * 86400) {
+            $days = floor($diff / 86400);
+            return ($days > 0 ? $days : 1) . " ngày trước";
+        } else {
+            return date('d/m/Y', $time);
+        }
+    }
+}
+
+// Khởi tạo khung biểu đồ 7 ngày mặc định
 $du_lieu_bieu_do = [
-    ["thu" => "T2", "so_tu" => 15, "chieu_cao" => "40%"],
-    ["thu" => "T3", "so_tu" => 35, "chieu_cao" => "65%"],
-    ["thu" => "T4", "so_tu" => 25, "chieu_cao" => "50%"],
-    ["thu" => "T5", "so_tu" => 50, "chieu_cao" => "95%"],
-    ["thu" => "T6", "so_tu" => 28, "chieu_cao" => "55%"],
-    ["thu" => "T7", "so_tu" => 42, "chieu_cao" => "80%"],
-    ["thu" => "CN", "so_tu" => 60, "chieu_cao" => "100%"]
+    ["thu" => "T2", "so_tu" => 0, "chieu_cao" => "0%"],
+    ["thu" => "T3", "so_tu" => 0, "chieu_cao" => "0%"],
+    ["thu" => "T4", "so_tu" => 0, "chieu_cao" => "0%"],
+    ["thu" => "T5", "so_tu" => 0, "chieu_cao" => "0%"],
+    ["thu" => "T6", "so_tu" => 0, "chieu_cao" => "0%"],
+    ["thu" => "T7", "so_tu" => 0, "chieu_cao" => "0%"],
+    ["thu" => "CN", "so_tu" => 0, "chieu_cao" => "0%"]
 ];
 
-// Dữ liệu mẫu bảng lịch sử hoạt động
-$danh_sach_lich_su = [
-    [
-        "id"        => 1,
-        "hoat_dong" => "Làm Quiz \"Du lịch\"",
-        "loai"      => "quiz",
-        "ket_qua"   => "8/10",
-        "thoi_gian" => "Hôm nay, 09:15"
-    ],
-    [
-        "id"        => 2,
-        "hoat_dong" => "Học FlashCard \"Công nghệ\"",
-        "loai"      => "flashcard",
-        "ket_qua"   => "20 thẻ",
-        "thoi_gian" => "Hôm qua, 20:40"
-    ],
-    [
-        "id"        => 3,
-        "hoat_dong" => "Làm Quiz \"Ẩm thực\"",
-        "loai"      => "quiz",
-        "ket_qua"   => "6/10",
-        "thoi_gian" => "2 ngày trước"
-    ],
-    [
-        "id"        => 4,
-        "hoat_dong" => "Học FlashCard \"Du lịch\"",
-        "loai"      => "flashcard",
-        "ket_qua"   => "15 thẻ",
-        "thoi_gian" => "3 ngày trước"
-    ]
-];
+$danh_sach_lich_su = [];
+$tong_tu_tuan = 0; // Biến lưu tổng số từ thực tế của 7 ngày
+
+try {
+    if (isset($link) && $link) {
+        $tables_res = @mysqli_query($link, "SHOW TABLES");
+        $db_tables = [];
+        if ($tables_res) {
+            while ($tbl_row = mysqli_fetch_array($tables_res)) {
+                $db_tables[strtolower($tbl_row[0])] = $tbl_row[0];
+            }
+        }
+
+        $tbl_sessions = isset($db_tables['learning_sessions']) ? "`" . $db_tables['learning_sessions'] . "`" : "`learning_sessions`";
+        $tbl_quiz     = isset($db_tables['quiz_results']) ? "`" . $db_tables['quiz_results'] . "`" : "`quiz_results`";
+        $tbl_topics   = isset($db_tables['topics']) ? "`" . $db_tables['topics'] . "`" : "`Topics`";
+
+        // --- TÍNH TOÁN DỮ LIỆU BIỂU ĐỒ 7 NGÀY ---
+        if (isset($db_tables['learning_sessions'])) {
+            $ref_date = date('Y-m-d');
+            
+            // Tìm ngày học gần nhất
+            $stmt_max = @mysqli_prepare($link, "SELECT MAX(session_date) AS max_d FROM $tbl_sessions WHERE user_id = ?");
+            if ($stmt_max) {
+                mysqli_stmt_bind_param($stmt_max, "i", $user_id);
+                mysqli_stmt_execute($stmt_max);
+                $res_m = mysqli_stmt_get_result($stmt_max);
+                if ($row_m = mysqli_fetch_assoc($res_m)) {
+                    if (!empty($row_m['max_d'])) {
+                        $this_monday = date('Y-m-d', strtotime('monday this week'));
+                        if ($this_monday > $row_m['max_d']) {
+                            $ref_date = $row_m['max_d'];
+                        }
+                    }
+                }
+                mysqli_stmt_close($stmt_max);
+            }
+
+            $monday_ts = strtotime('monday this week', strtotime($ref_date));
+            $chart_days = [
+                0 => ["thu" => "T2", "date" => date('Y-m-d', $monday_ts), "so_tu" => 0],
+                1 => ["thu" => "T3", "date" => date('Y-m-d', strtotime('+1 day', $monday_ts)), "so_tu" => 0],
+                2 => ["thu" => "T4", "date" => date('Y-m-d', strtotime('+2 days', $monday_ts)), "so_tu" => 0],
+                3 => ["thu" => "T5", "date" => date('Y-m-d', strtotime('+3 days', $monday_ts)), "so_tu" => 0],
+                4 => ["thu" => "T6", "date" => date('Y-m-d', strtotime('+4 days', $monday_ts)), "so_tu" => 0],
+                5 => ["thu" => "T7", "date" => date('Y-m-d', strtotime('+5 days', $monday_ts)), "so_tu" => 0],
+                6 => ["thu" => "CN", "date" => date('Y-m-d', strtotime('+6 days', $monday_ts)), "so_tu" => 0],
+            ];
+
+            $start_date = $chart_days[0]['date'];
+            $end_date   = $chart_days[6]['date'];
+
+            $sql_chart = "
+                SELECT session_date, SUM(words_studied) AS total_words 
+                FROM $tbl_sessions 
+                WHERE user_id = ? AND session_date BETWEEN ? AND ? 
+                GROUP BY session_date
+            ";
+            if ($stmt = @mysqli_prepare($link, $sql_chart)) {
+                mysqli_stmt_bind_param($stmt, "iss", $user_id, $start_date, $end_date);
+                mysqli_stmt_execute($stmt);
+                $res = mysqli_stmt_get_result($stmt);
+                $map_words = [];
+                while ($row = mysqli_fetch_assoc($res)) {
+                    $map_words[$row['session_date']] = (int)$row['total_words'];
+                }
+                mysqli_stmt_close($stmt);
+
+                $max_words = 0;
+                foreach ($chart_days as &$d) {
+                    if (isset($map_words[$d['date']])) {
+                        $d['so_tu'] = $map_words[$d['date']];
+                    }
+                    if ($d['so_tu'] > $max_words) {
+                        $max_words = $d['so_tu'];
+                    }
+                }
+                unset($d);
+
+                $calculated_chart = [];
+                foreach ($chart_days as $d) {
+                    $height = "0%";
+                    if ($max_words > 0 && $d['so_tu'] > 0) {
+                        $percent = round(($d['so_tu'] / $max_words) * 100);
+                        $height = max(15, min(100, $percent)) . "%";
+                    }
+                    $calculated_chart[] = [
+                        "thu"       => $d['thu'],
+                        "so_tu"     => $d['so_tu'],
+                        "chieu_cao" => $height
+                    ];
+                }
+                $du_lieu_bieu_do = $calculated_chart;
+            }
+        }
+
+        // Tính tổng số từ thực tế của cả tuần
+        $tong_tu_tuan = array_sum(array_column($du_lieu_bieu_do, 'so_tu'));
+
+        // --- TRUY VẤN LỊCH SỬ HOẠT ĐỘNG ---
+        if (isset($db_tables['quiz_results']) && isset($db_tables['learning_sessions'])) {
+            $sql_history = "
+                (
+                    SELECT 
+                        q.id,
+                        CONCAT('Làm Quiz \"', COALESCE(t.topicName, 'Tổng hợp'), '\"') AS hoat_dong,
+                        'quiz' AS loai,
+                        CONCAT(q.correct_answers, '/', q.total_questions) AS ket_qua,
+                        COALESCE(q.finished_at, q.started_at) AS thoi_gian_raw
+                    FROM $tbl_quiz q
+                    LEFT JOIN $tbl_topics t ON q.topic_id = t.topicID
+                    WHERE q.user_id = ?
+                )
+                UNION ALL
+                (
+                    SELECT 
+                        s.id,
+                        'Học FlashCard' AS hoat_dong,
+                        'flashcard' AS loai,
+                        CONCAT(s.words_studied, ' thẻ') AS ket_qua,
+                        CAST(CONCAT(s.session_date, ' 12:00:00') AS DATETIME) AS thoi_gian_raw
+                    FROM $tbl_sessions s
+                    WHERE s.user_id = ? AND s.words_studied > 0
+                )
+                ORDER BY thoi_gian_raw DESC
+                LIMIT 15
+            ";
+
+            if ($stmt = @mysqli_prepare($link, $sql_history)) {
+                mysqli_stmt_bind_param($stmt, "ii", $user_id, $user_id);
+                mysqli_stmt_execute($stmt);
+                $res = mysqli_stmt_get_result($stmt);
+                $idx = 1;
+                while ($row = mysqli_fetch_assoc($res)) {
+                    $danh_sach_lich_su[] = [
+                        "id"        => $idx++,
+                        "hoat_dong" => $row['hoat_dong'],
+                        "loai"      => $row['loai'],
+                        "ket_qua"   => $row['ket_qua'],
+                        "thoi_gian" => dinhDangThoiGian($row['thoi_gian_raw'])
+                    ];
+                }
+                mysqli_stmt_close($stmt);
+            }
+        }
+    }
+} catch (\Throwable $e) {
+    error_log("Lỗi Lịch sử ôn tập: " . $e->getMessage());
+}
 ?>
+
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -69,7 +216,7 @@ $danh_sach_lich_su = [
     <aside class="sidebar">
         <!-- Logo -->
         <a href="C_Dashboard_user.php" class="sidebar-logo">
-            <span class="logo-badge">🌱</span> LexiLoop
+            <span class="logo-badge">🌿</span> LexiLoop
         </a>
 
         <!-- Danh sách menu -->
@@ -133,7 +280,6 @@ $danh_sach_lich_su = [
         <header class="C_Lichsuontap_header">
             <h1 class="C_Lichsuontap_logo">Lịch sử ôn tập</h1>
             
-            <!-- Bộ lọc thời gian -->
             <div class="C_Lichsuontap_filterWrapper">
                 <select id="C_Lichsuontap_filterSelect" class="C_Lichsuontap_filterSelect">
                     <option value="7">7 ngày qua</option>
@@ -149,7 +295,7 @@ $danh_sach_lich_su = [
             <section class="C_Lichsuontap_chartCard">
                 <div class="C_Lichsuontap_chartHeader">
                     <h2 class="C_Lichsuontap_chartTitle">Số từ ôn tập trong 7 ngày qua</h2>
-                    <span class="C_Lichsuontap_totalBadge">Tổng: <strong>250 từ</strong></span>
+                    <span class="C_Lichsuontap_totalBadge">Tổng: <strong><?php echo $tong_tu_tuan; ?> từ</strong></span>
                 </div>
                 
                 <div class="C_Lichsuontap_chartArea">
@@ -185,22 +331,30 @@ $danh_sach_lich_su = [
                             </tr>
                         </thead>
                         <tbody>
-                            <?php foreach ($danh_sach_lich_su as $row): ?>
+                            <?php if (empty($danh_sach_lich_su)): ?>
                                 <tr>
-                                    <td class="C_Lichsuontap_td">
-                                        <span class="activity-badge activity-<?php echo $row['loai']; ?>">
-                                            <?php echo ($row['loai'] === 'quiz') ? 'Quiz' : 'Flashcard'; ?>
-                                        </span>
-                                        <strong><?php echo htmlspecialchars($row['hoat_dong']); ?></strong>
-                                    </td>
-                                    <td class="C_Lichsuontap_td">
-                                        <span class="result-tag"><?php echo htmlspecialchars($row['ket_qua']); ?></span>
-                                    </td>
-                                    <td class="C_Lichsuontap_td time-text">
-                                        <?php echo htmlspecialchars($row['thoi_gian']); ?>
+                                    <td colspan="3" style="text-align: center; color: #888; padding: 25px 0;">
+                                        Chưa có hoạt động ôn tập hoặc làm bài Quiz nào.
                                     </td>
                                 </tr>
-                            <?php endforeach; ?>
+                            <?php else: ?>
+                                <?php foreach ($danh_sach_lich_su as $row): ?>
+                                    <tr>
+                                        <td class="C_Lichsuontap_td">
+                                            <span class="activity-badge activity-<?php echo $row['loai']; ?>">
+                                                <?php echo ($row['loai'] === 'quiz') ? 'Quiz' : 'Flashcard'; ?>
+                                            </span>
+                                            <strong><?php echo htmlspecialchars($row['hoat_dong']); ?></strong>
+                                        </td>
+                                        <td class="C_Lichsuontap_td">
+                                            <span class="result-tag"><?php echo htmlspecialchars($row['ket_qua']); ?></span>
+                                        </td>
+                                        <td class="C_Lichsuontap_td time-text">
+                                            <?php echo htmlspecialchars($row['thoi_gian']); ?>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
                         </tbody>
                     </table>
                 </div>
