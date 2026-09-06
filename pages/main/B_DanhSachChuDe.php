@@ -1,6 +1,11 @@
 <?php
 require_once '../../Connect.php';
 
+// KIỂM TRA PHIÊN NGƯỜI DÙNG
+session_start();
+
+$isLoggedIn = isset($_SESSION['user_id']);
+
 $sql = "SELECT 
         t.topicID,
         t.topicName,
@@ -32,63 +37,34 @@ if (!$result) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Danh sách các topic & học từ vựng</title>
+    <title>Danh sach chủ đề</title>
 
     <link rel="stylesheet" type="text/css" href="../../CSS/Style.css">
     <link rel="stylesheet" type="text/css" href="../../CSS/B_DanhSachChuDe.css">
+    <link rel="stylesheet" type="text/css" href="../../CSS/topheader.css">
     <link rel="stylesheet" type="text/css" href="../../CSS/responsive.css">
     <!-- <link rel="icon" type="image/x-icon" href="../../favicon.ico"> -->
 </head>
 
 <body>
+
     <!-- SIDEBAR -->
-    <aside class="sidebar">
-        <!-- Logo -->
-        <div class="sidebar-logo">
-            <a href="B_DanhSachChuDe.html" class="logo">
-                🌿LexiLoop
-            </a>
-        </div>
+    <?php
 
-        <nav class="sidebar-nav">
-            <!-- Nội dung thanh sidebar -->
-            <a href="./B_DanhSachChuDe.php" class="sidebar-link active">
-                <span class="icon">|||\</span> Chủ đề
-            </a>
-
-            <!-- Thêm từ -->
-            <a href="#" class="sidebar-link">
-                <span class="icon">+</span> Thêm Từ
-            </a>
-
-            <!-- Quay lại -->
-            <div class="sidebar-bottom">
-                <hr class="">
-                <a href="./B_homepage.html" class="sidebar-link">
-                    <span class="icon">→]</span> Trang chủ
-                </a>
-            </div>
-
-        </nav>
-    </aside>
+    if ($isLoggedIn) {
+        include '../../includes/sidebar_user.php';
+    } else {
+        include '../../includes/sidebar_guest.php';
+    }
+    ?>
 
     <main class="page-content">
-        <!-- TOP BAR -->
-        <header class="top-header">
-            <!-- Các chức năng bên phải -->
-            <div class="top-header-act">
-                <!-- Chế độ sáng / tối -->
-                <button type="button" class="top-header-btn" aria-label="Chế độ sáng tối">🌙</button>
 
-                <!-- Thông báo -->
-                <button type="button" class="top-header-btn" aria-label="Thông báo">🔔</button>
-
-                <!-- Đăng nhập -->
-                <a href="../auth/A_DangNhap.php" class="login-btn">
-                    Đăng nhập
-                </a>
-            </div>
-        </header>
+        <!-- Header dùng chung: tự đổi nội dung theo trạng thái session. -->
+        <?php
+        $headerTitle = 'Chủ đề';
+        include '../../includes/topheader.php';
+        ?>
 
         <section class="topics-header">
             <div class="topics-header-content">

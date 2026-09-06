@@ -1,6 +1,13 @@
 <?php
-
 require_once '../../Connect.php';
+
+// KIỂM TRA PHIÊN NGƯỜI DÙNG
+session_start();
+
+$isLoggedIn = isset($_SESSION['user_id']);
+
+// Xác định trang hiện tại để sidebar tự động active
+$currentPage = basename($_SERVER['PHP_SELF']);
 
 // ==========================================
 // 1. LẤY TOPIC ID TỪ URL
@@ -122,7 +129,7 @@ $vocab_result = mysqli_stmt_get_result($stmt_vocab);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản lý từ vựng</title>
+    <title>Danh sách từ vựng</title>
 
     <!-- Link file CSS dùng chung -->
     <link rel="stylesheet" type="text/css" href="../../CSS/Style.css">
@@ -135,43 +142,23 @@ $vocab_result = mysqli_stmt_get_result($stmt_vocab);
     <div class="layout-wrapper">
 
         <!-- SIDEBAR -->
-        <aside class="sidebar">
-            <!-- LOGO -->
-            <div class="sidebar-logo">
-                <a href="B_DanhSachTuVung.html">🌿LexiLoop</a>
-            </div>
+        <?php
 
-            <nav class="sidebar-nav">
-                <!-- Thêm class 'active' cho trang đang được chọn -->
-                <a href="./B_DanhSachChuDe.php" class="sidebar-link active">
-                    <span class="icon">|||\</span> Chủ đề
-                </a>
+        if ($isLoggedIn) {
+            include '../../includes/sidebar_user.php';
+        } else {
+            include '../../includes/sidebar_guest.php';
+        }
 
-                <a href="#" class="sidebar-link">
-                    <span class="icon">+</span> Thêm Từ
-                </a>
-
-            </nav>
-
-            <!-- BOTTOM LINK -->
-            <div class="sidebar-bottom">
-                <hr class="">
-                <a href="./B_DanhSachChuDe.php" class="sidebar-link">
-                    <span class="icon">→]</span> Quay về
-                </a>
-            </div>
-        </aside>
+        ?>
 
         <!-- MAIN CONTENT -->
         <main class="main-content">
-            <header class="top-header">
-                <div class="top-header-act">
-                    <button class="top-header-btn" type="button" aria-label="Thông báo">🔔</button>
-                    <button class="top-header-btn" type="button" aria-label="Chế độ sáng tối">🌙</button>
-
-                    <a href="../auth/A_DangNhap.php " class="login-btn">Đăng nhập</a>
-                </div>
-            </header>
+            <!-- Header dùng chung: tự đổi nội dung theo trạng thái session. -->
+            <?php
+            $headerTitle = 'Chủ đề';
+            include '../../includes/topheader.php';
+            ?>
 
             <div class="content-area">
 
