@@ -1,12 +1,13 @@
 <?php
-require_once($_SERVER['DOCUMENT_ROOT'] . "/Connect.php");
-session_start();
-
-//Kiểm tra đăng nhập TRƯỚC TIÊN, trước cả xử lý form
-if(!isset($_SESSION['user_id'])) {
-    header("Location: /pages/auth/A_DangNhap.php");
-    exit();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
 }
+
+require_once($_SERVER['DOCUMENT_ROOT'] . "/Connect.php");
+
+// auth_guard.php đã xác thực session trước khi trang sử dụng user_id.
+$isLoggedIn = isset($_SESSION['user_id']);
+$user_id = $isLoggedIn ? (int) $_SESSION['user_id'] : null;
 
 $loi = "";
 

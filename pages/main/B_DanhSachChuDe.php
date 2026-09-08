@@ -1,5 +1,5 @@
 <?php
-require_once '../../Connect.php';
+require_once($_SERVER['DOCUMENT_ROOT'] . "/Connect.php");
 
 // KIỂM TRA PHIÊN NGƯỜI DÙNG
 session_start();
@@ -37,12 +37,13 @@ if (!$result) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Danh sach chủ đề</title>
+    <title>Danh sách chủ đề</title>
 
     <link rel="stylesheet" type="text/css" href="../../CSS/Style.css">
     <link rel="stylesheet" type="text/css" href="../../CSS/B_DanhSachChuDe.css">
-    <link rel="stylesheet" type="text/css" href="../../CSS/topheader.css">
+    <link rel="stylesheet" href="../../CSS/topheader.css">
     <link rel="stylesheet" type="text/css" href="../../CSS/responsive.css">
+    <link rel="stylesheet" href="../../CSS/auth-required.css">
     <!-- <link rel="icon" type="image/x-icon" href="../../favicon.ico"> -->
 </head>
 
@@ -143,10 +144,23 @@ if (!$result) {
                             <!-- 2 NÚT HÀNH ĐỘNG -->
                             <div class="topic-actions">
 
-                                <!-- Nút Học từ mới -->
+                                <!-- =========================================
+                                    NÚT HỌC TỪ MỚI
+                                    - User: đi thẳng đến Flashcard.
+                                    - Guest: mở modal yêu cầu đăng nhập.
+                                ========================================= -->
                                 <a
                                     class="topic-action topic-action-learn"
-                                    href="./B_HocTuMoi.php?topicID=<?= $topic['topicID'] ?>">
+                                    href="<?= $isLoggedIn
+                                                ? '../user/C_HocFlashcard.php?topic_id=' . (int) $topic['topicID']
+                                                : '../auth/A_DangNhap.php' ?>"
+
+                                    <?php if (!$isLoggedIn): ?>
+                                    data-requires-auth
+                                    data-feature-title=""
+                                    data-feature-benefits="Lưu tiến độ học tập|Tạo lịch ôn SRS cá nhân|Theo dõi kết quả từng chủ đề"
+                                    <?php endif; ?>>
+
                                     <span class="topic-action-number">
                                         <?= $topic['word_count'] ?>
                                     </span>
@@ -156,13 +170,28 @@ if (!$result) {
                                     </span>
                                 </a>
 
-                                <!-- Nút Ôn tập -->
+                                <!-- =========================================
+                                    NÚT ÔN TẬP
+                                    - User: đi đến Flashcard ở chế độ review.
+                                    - Guest: mở modal yêu cầu đăng nhập.
+                                    
+                                    Dùng C_HocFlashcard.php?mode=review vì file này
+                                    đã có auth_guard.php và truy vấn đúng user_id.
+                                ========================================= -->
                                 <a
                                     class="topic-action topic-action-review"
-                                    href="./B_OnTap.php?topicID=<?= $topic['topicID'] ?>">
+                                    href="<?= $isLoggedIn
+                                                ? '../user/C_HocFlashcard.php?mode=review'
+                                                : '../auth/A_DangNhap.php' ?>"
+
+                                    <?php if (!$isLoggedIn): ?>
+                                    data-requires-auth
+                                    data-feature-title=""
+                                    data-feature-benefits="Ôn từ đến hạn theo lịch SRS|Lưu kết quả ôn tập|Cải thiện trí nhớ lâu dài"
+                                    <?php endif; ?>>
+
                                     <span class="topic-action-number">
                                         0
-                                        <!-- Cần đổ dữ liệu php vào từ thuật tính toán SRS đê hiện thị ôn tập -->
                                     </span>
 
                                     <span class="topic-action-label">
@@ -202,7 +231,8 @@ if (!$result) {
 
     <script src="../../JS/jquery-4.0.0.min.js"></script>
     <script src="../../JS/B_DanhSachChuDe.js"></script>
-
+    <script src="../../JS/auth.js"></script>
+    <script src="../../JS/auth-required.js"></script>
 </body>
 
 </html>

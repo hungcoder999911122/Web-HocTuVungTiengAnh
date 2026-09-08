@@ -1,17 +1,14 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
-
+require_once '../../includes/auth_guard.php';
 require_once($_SERVER['DOCUMENT_ROOT'] . "/Connect.php");
 
-// Lấy ID tài khoản đang đăng nhập từ Session
-$user_id = $_SESSION['user_id'] 
-    ?? $_SESSION['userID'] 
-    ?? $_SESSION['id'] 
-    ?? $_SESSION['user']['userID'] 
-    ?? $_SESSION['user']['id'] 
-    ?? 2; // Dự phòng khi test trực tiếp
+/*
+ * auth_guard.php đã chuyển guest về đăng nhập.
+ * Vì vậy biến này luôn là ID của tài khoản thật.
+ */
+
+$user_id = (int) $_SESSION['user_id'];
+
 
 // Khởi tạo các biến mặc định
 $tu_can_on_tap  = 0;

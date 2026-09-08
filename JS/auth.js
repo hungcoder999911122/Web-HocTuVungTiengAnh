@@ -17,10 +17,15 @@
  * - JavaScript KHÔNG xóa Session.
  * ============================================================
  */
-
-$(document).ready(function () {
-
-    // ========================================================
+/*
+|--------------------------------------------------------------------------
+| CÁC CHỨC NĂNG CŨ PHỤ THUỘC JQUERY
+|--------------------------------------------------------------------------
+| Login/Register vẫn dùng jQuery nên chỉ chạy khi trang đã nạp jQuery.
+*/
+if (window.jQuery) {
+    $(document).ready(function () {
+            // ========================================================
     // 1. XỬ LÝ FORM ĐĂNG NHẬP
     // ========================================================
 
@@ -180,79 +185,36 @@ $(document).ready(function () {
 
         window.location.href = "A_DangKy.php";
 
+        });
     });
+}
 
+/*
+|--------------------------------------------------------------------------
+| XÁC NHẬN ĐĂNG XUẤT DÙNG CHUNG
+|--------------------------------------------------------------------------
+| Không dùng jQuery để mọi trang đều hoạt động, kể cả trang không nạp jQuery.
+|
+| data-action="logout" giúp sidebar, menu avatar hoặc menu mobile
+| dùng cùng một logic, không phụ thuộc class CSS hay vị trí HTML.
+*/
+document.addEventListener("click", (event) => {
+    const logoutLink = event.target.closest('[data-action="logout"]');
 
-    // ========================================================
-    // 4. XÁC NHẬN TRƯỚC KHI ĐĂNG XUẤT
-    // ========================================================
+    // Click không thuộc nút/link đăng xuất thì không xử lý.
+    if (!logoutLink) {
+        return;
+    }
 
-    /*
-     * Bắt sự kiện click vào nút Đăng xuất.
-     *
-     * HTML hiện tại:
-     *
-     * <a href="../auth/A_DangXuat.php" class="sidebar-link">
-     *
-     * Nếu không xử lý JavaScript:
-     * -> Người dùng click
-     * -> Trình duyệt đi thẳng đến A_DangXuat.php
-     * -> Session bị xóa ngay.
-     *
-     * Vì vậy ở đây ta dùng preventDefault()
-     * để tạm thời chặn hành động chuyển trang.
-     */
-    $('.sidebar-link[href="../auth/A_DangXuat.php"]').click(function (event) {
+    // Tạm chặn việc chuyển trang để hỏi xác nhận.
+    event.preventDefault();
 
-        // Chặn chuyển sang A_DangXuat.php ngay lập tức
-        event.preventDefault();
+    const isConfirmed = window.confirm(
+        "Bạn có chắc chắn muốn đăng xuất tài khoản không?"
+    );
 
-
-        /*
-         * Hiển thị hộp thoại xác nhận.
-         *
-         * OK     -> confirm() trả về true
-         * Hủy    -> confirm() trả về false
-         */
-        var xacNhan = confirm('Bạn có chắc chắn muốn đăng xuất không?');
-
-
-        // ----------------------------------------------------
-        // Người dùng chọn OK
-        // ----------------------------------------------------
-
-        if (xacNhan) {
-
-            /*
-             * Cho phép trình duyệt chuyển đến đúng URL
-             * của thẻ <a>.
-             *
-             * Không tự xóa Session bằng JavaScript.
-             *
-             * A_DangXuat.php sẽ chịu trách nhiệm:
-             * - session_start()
-             * - $_SESSION = []
-             * - session_destroy()
-             */
-            window.location.href = $(this).attr('href');
-
-        }
-
-
-        // ----------------------------------------------------
-        // Người dùng chọn Hủy
-        // ----------------------------------------------------
-
-        /*
-         * Nếu chọn Hủy:
-         *
-         * xacNhan = false
-         *
-         * Không làm gì thêm.
-         *
-         * Người dùng vẫn ở trang hiện tại
-         * và Session vẫn còn.
-         */
-    });
-
+    // Người dùng chọn OK: chuyển đến đúng link A_DangXuat.php.
+    if (isConfirmed) {
+        window.location.assign(logoutLink.href);
+    }
 });

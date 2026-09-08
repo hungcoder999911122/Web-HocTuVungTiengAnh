@@ -1,17 +1,10 @@
 /* =========================================
    DESIGN TOKENS
    ========================================= */
-:root {
-    --color-primary: #2d7a56;
-    --color-primary-light: #e8f5ed;
-    --color-primary-dark: #1f4e38;
-    --color-surface: #ffffff;
-    --color-background: #edf6f0;
-    --color-border: #dceae1;
-    --color-white: #ffffff;
-    --color-text: #1f2d24;
-    --color-text-muted: #758071;
-}
+/*
+    Màu sắc dùng chung được khai báo tại CSS/Style.css.
+    Không khai báo :root tại file trang để tránh hai trang dùng hai bộ màu khác nhau.
+*/
 
 *, *::before, *::after {
     box-sizing: border-box;
@@ -27,145 +20,10 @@ body,
     min-height: 100vh;
 }
 
-/* =========================================
-   BỐ CỤC CHUNG
-   ========================================= */
-.C_Tuvungcuatoi_header,
-.C_Tuvungcuatoi_formButtons {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.C_Tuvungcuatoi_formButtons {
-    justify-content: flex-end;
-    gap: 12px;
-    margin-top: 20px;
-}
-
-.sidebar-logo,
-.sidebar-link {
-    display: flex;
-    align-items: center;
-}
-
-.sidebar-icon,
-.badge-status,
-.topic-tag {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-}
 
 /* =========================================
-   SIDEBAR
+   CONTENT
    ========================================= */
-.sidebar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 245px;
-    height: 100vh;
-    padding: 26px 16px;
-    background-color: var(--color-white);
-    border-right: 1px solid var(--color-border);
-    display: flex;
-    flex-direction: column;
-    z-index: 1000;
-}
-
-.sidebar-logo {
-    gap: 8px;
-    margin: 0 0 32px 10px;
-    color: var(--color-primary-dark);
-    font-size: 24px;
-    font-weight: 800;
-    letter-spacing: -0.5px;
-    text-decoration: none;
-}
-
-.logo-badge { font-size: 22px; }
-
-.sidebar-nav {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    flex: 1;
-}
-
-.sidebar-link {
-    position: relative;
-    gap: 14px;
-    width: 100%;
-    min-height: 48px;
-    padding: 0 16px;
-    color: var(--color-text-muted);
-    text-decoration: none;
-    border-radius: 12px;
-    font-size: 15px;
-    font-weight: 600;
-    transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
-}
-
-.sidebar-icon { width: 22px; height: 22px; }
-
-.sidebar-link:hover {
-    background-color: var(--color-background);
-    color: var(--color-primary);
-    transform: translateX(3px);
-}
-
-.sidebar-link.active {
-    background-color: var(--color-primary-light);
-    color: var(--color-primary-dark);
-    font-weight: 700;
-}
-
-.sidebar-link.active::before {
-    content: "";
-    position: absolute;
-    left: 0;
-    top: 20%;
-    bottom: 20%;
-    width: 4px;
-    background-color: var(--color-primary);
-    border-radius: 0 4px 4px 0;
-}
-
-.sidebar-bottom {
-    margin-top: auto;
-    padding-top: 15px;
-    border-top: 1px solid var(--color-border);
-}
-
-.sidebar-logout:hover {
-    color: #c62828 !important;
-    background-color: #ffebee !important;
-}
-
-/* =========================================
-   CONTENT & HEADER
-   ========================================= */
-.page-content {
-    margin-left: 245px;
-    min-height: 100vh;
-}
-
-.C_Tuvungcuatoi_header {
-    padding: 16px 40px;
-    background-color: var(--color-white);
-    border-bottom: 1px solid var(--color-border);
-    position: sticky;
-    top: 0;
-    z-index: 100;
-}
-
-.C_Tuvungcuatoi_logo {
-    margin: 0;
-    font-size: 22px;
-    font-weight: 700;
-}
 
 .C_Tuvungcuatoi_btnAddTop {
     padding: 0 22px;
@@ -390,8 +248,8 @@ body,
 
 /* Responsive */
 @media (max-width: 860px) {
-    .sidebar { width: 76px; padding: 20px 10px; }
+    /* .sidebar { width: 76px; padding: 20px 10px; }
     .sidebar-logo span:last-child, .sidebar-link span:last-child { display: none; }
-    .page-content { margin-left: 76px; }
+    .page-content { margin-left: 76px; } */
     .C_Tuvungcuatoi_formRow { grid-template-columns: 1fr; }
 }

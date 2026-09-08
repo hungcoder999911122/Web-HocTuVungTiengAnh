@@ -1,144 +1,320 @@
 document.addEventListener("DOMContentLoaded", () => {
-    // 1. Lấy các phần tử DOM
     const cardBox = document.getElementById("C_HocFlashcard_cardBox");
     const wordText = document.getElementById("C_HocFlashcard_word");
     const hintText = document.getElementById("C_HocFlashcard_hint");
     const badgeR = document.getElementById("C_HocFlashcard_badgeR");
-    const progressText = document.getElementById("C_HocFlashcard_progressText");
-    const progressFill = document.getElementById("C_HocFlashcard_progressFill");
-    const statsText = document.getElementById("C_HocFlashcard_stats");
 
-    const btnPrev = document.getElementById("C_HocFlashcard_btnPrev");
-    const btnNext = document.getElementById("C_HocFlashcard_btnNext");
-    const btnChuaNho = document.getElementById("C_HocFlashcard_btnChuaNho");
-    const btnDaNho = document.getElementById("C_HocFlashcard_btnDaNho");
-    const btnKetThuc = document.getElementById("C_HocFlashcard_btnKetThuc");
+    const pronunciationArea = document.getElementById(
+    "C_HocFlashcard_pronunciationArea"
+    );
+    const pronunciationText = document.getElementById(
+        "C_HocFlashcard_pronunciation"
+    );
+    const audioButton = document.getElementById(
+        "C_HocFlashcard_audioButton"
+    );
+    const audioPlayer = document.getElementById(
+        "C_HocFlashcard_audioPlayer"
+    );
 
-    // Dữ liệu nhận từ PHP
-    const cards = (typeof flashcardsData !== "undefined" && flashcardsData.length > 0)
+    const progressText = document.getElementById(
+        "C_HocFlashcard_progressText"
+    );
+    const progressFill = document.getElementById(
+        "C_HocFlashcard_progressFill"
+    );
+    const statsText = document.getElementById(
+        "C_HocFlashcard_stats"
+    );
+
+    const btnPrev = document.getElementById(
+        "C_HocFlashcard_btnPrev"
+    );
+    const btnNext = document.getElementById(
+        "C_HocFlashcard_btnNext"
+    );
+    const btnChuaNho = document.getElementById(
+        "C_HocFlashcard_btnChuaNho"
+    );
+    const btnDaNho = document.getElementById(
+        "C_HocFlashcard_btnDaNho"
+    );
+    const btnVaoQuiz = document.getElementById(
+        "C_HocFlashcard_btnVaoQuiz"
+    );
+    const btnKetThuc = document.getElementById(
+        "C_HocFlashcard_btnKetThuc"
+    );
+
+    /*
+     * Không tạo dữ liệu giả khi database không trả về từ nào.
+     * Dữ liệu giả có thể khiến người dùng tưởng rằng đang học
+     * một từ thật thuộc chủ đề.
+     */
+    const cards = Array.isArray(flashcardsData)
         ? flashcardsData
-        : [{ id: 1, tu_vung: "Software", nghia: "Phần mềm", is_review: true }];
+        : [];
 
-    // Quản lý trạng thái học của người dùng
+    const sessionConfig = flashcardSessionConfig || {
+        topicId: 0,
+        mode: "new_learning"
+    };
+
     let currentIndex = 0;
     let isFlipped = false;
-    const cardStatus = {}; // Lưu trạng thái theo id hoặc index: 'da_nho' hoặc 'chua_nho'
 
-    // Hàm cập nhật hiển thị thẻ hiện tại
-    function renderCard() {
-        const currentCard = cards[currentIndex];
-        
-        // Cập nhật text tiến độ (Thẻ X/Tổng)
-        progressText.textContent = `Thẻ ${currentIndex + 1}/${cards.length}`;
-        
-        // Cập nhật thanh % tiến độ học
-        const percentage = ((currentIndex + 1) / cards.length) * 100;
-        progressFill.style.width = `${percentage}%`;
+    /*
+     * Lưu một trạng thái duy nhất cho mỗi từ:
+     *
+     * {
+     *   15: "da_nho",
+     *   16: "chua_nho"
+     * }
+     *
+     * Nếu người dùng đổi ý, giá trị cũ bị thay thế chứ không
+     * bị cộng thêm vào thống kê.
+     */
+    const cardStatuses = {};
 
-        // Reset trạng thái lật về mặt trước
-        isFlipped = false;
-        cardBox.classList.remove("is-flipped");
-        wordText.textContent = currentCard.tu_vung;
-        hintText.textContent = "Nhấn để xem nghĩa";
+    function getCurrentCard() {
+        return cards[currentIndex];
+    }
 
-        // Huy hiệu Review 'R'
-        if (currentCard.is_review) {
-            badgeR.style.display = "flex";
+    function renderEmptyState() {
+        wordText.textContent = "Chủ đề này chưa có từ vựng";
+        hintText.textContent = "Hãy quay lại và chọn chủ đề khác.";
+
+        pronunciationText.textContent = "";
+        audioButton.hidden = true;
+
+        progressText.textContent = "Thẻ 0/0";
+        progressFill.style.width = "0%";
+
+        btnPrev.disabled = true;
+        btnNext.disabled = true;
+        btnChuaNho.disabled = true;
+        btnDaNho.disabled = true;
+        btnVaoQuiz.disabled = true;
+    }
+
+    function renderPronunciation(card) {
+        const pronunciation = card.phien_am?.trim();
+
+        pronunciationText.textContent = pronunciation || "Chưa có phiên âm";
+
+        const audioUrl = card.audio_url?.trim();
+
+        if (audioUrl) {
+            audioButton.hidden = false;
+            audioPlayer.src = audioUrl;
         } else {
-            badgeR.style.display = "none";
+            audioButton.hidden = true;
+            audioPlayer.removeAttribute("src");
+        }
+    }
+
+    function renderAssessmentButtons(cardId) {
+        const currentStatus = cardStatuses[cardId] || null;
+
+        const isRemembered = currentStatus === "da_nho";
+        const isNotRemembered = currentStatus === "chua_nho";
+
+        btnDaNho.classList.toggle(
+            "C_HocFlashcard_btnSelected",
+            isRemembered
+        );
+
+        btnChuaNho.classList.toggle(
+            "C_HocFlashcard_btnSelected",
+            isNotRemembered
+        );
+
+        btnDaNho.setAttribute("aria-pressed", String(isRemembered));
+        btnChuaNho.setAttribute("aria-pressed", String(isNotRemembered));
+    }
+
+    function renderCard() {
+        if (cards.length === 0) {
+            renderEmptyState();
+            return;
         }
 
-        // Bật/tắt nút điều hướng Prev/Next
-        btnPrev.disabled = (currentIndex === 0);
-        btnNext.disabled = (currentIndex === cards.length - 1);
+        const currentCard = getCurrentCard();
 
-        // Cập nhật thống kê footer
+        isFlipped = false;
+        cardBox.classList.remove("is-flipped");
+
+        wordText.textContent = currentCard.tu_vung;
+        hintText.textContent = "Nhấn vào thẻ để xem nghĩa";
+
+        progressText.textContent =
+            `Thẻ ${currentIndex + 1}/${cards.length}`;
+
+        const progressPercent =
+            ((currentIndex + 1) / cards.length) * 100;
+
+        progressFill.style.width = `${progressPercent}%`;
+
+        badgeR.style.display = currentCard.is_review
+            ? "flex"
+            : "none";
+
+        renderPronunciation(currentCard);
+        renderAssessmentButtons(currentCard.id);
+
+        btnPrev.disabled = currentIndex === 0;
+        btnNext.disabled = currentIndex === cards.length - 1;
+
         renderStats();
     }
 
-    // Hàm cập nhật footer thống kê
-    function renderStats() {
-        let daNhoCount = 0;
-        let chuaNhoCount = 0;
+    function getStatistics() {
+        let rememberedCount = 0;
+        let notRememberedCount = 0;
 
-        Object.values(cardStatus).forEach(status => {
-            if (status === "da_nho") daNhoCount++;
-            if (status === "chua_nho") chuaNhoCount++;
+        Object.values(cardStatuses).forEach((status) => {
+            if (status === "da_nho") {
+                rememberedCount++;
+            }
+
+            if (status === "chua_nho") {
+                notRememberedCount++;
+            }
         });
 
-        const daHocCount = daNhoCount + chuaNhoCount;
-        statsText.innerHTML = `Đã học: <strong>${daHocCount}</strong> &nbsp;&bull;&nbsp; Đã nhớ: <strong>${daNhoCount}</strong> &nbsp;&bull;&nbsp; Chưa nhớ: <strong>${chuaNhoCount}</strong>`;
+        return {
+            rememberedCount,
+            notRememberedCount,
+            assessedCount: rememberedCount + notRememberedCount
+        };
     }
 
-    // 2. Click lật thẻ (Từ vựng <-> Nghĩa)
-    cardBox.addEventListener("click", () => {
-        isFlipped = !isFlipped;
-        const currentCard = cards[currentIndex];
+    function renderStats() {
+        const statistics = getStatistics();
 
-        if (isFlipped) {
-            cardBox.classList.add("is-flipped");
-            wordText.textContent = currentCard.nghia;
-            hintText.textContent = "Nhấn để xem từ tiếng Anh";
-        } else {
-            cardBox.classList.remove("is-flipped");
-            wordText.textContent = currentCard.tu_vung;
-            hintText.textContent = "Nhấn để xem nghĩa";
+        statsText.innerHTML = `
+            Đã đánh giá: <strong>${statistics.assessedCount}</strong>
+            &nbsp;&bull;&nbsp;
+            Đã nhớ: <strong>${statistics.rememberedCount}</strong>
+            &nbsp;&bull;&nbsp;
+            Chưa nhớ: <strong>${statistics.notRememberedCount}</strong>
+        `;
+
+        const isAllCardsAssessed =
+            cards.length > 0 &&
+            statistics.assessedCount === cards.length;
+
+        btnVaoQuiz.disabled = !isAllCardsAssessed;
+
+        btnVaoQuiz.textContent = isAllCardsAssessed
+            ? "Bắt đầu Quiz"
+            : "Hoàn thành đánh giá để làm Quiz";
+    }
+
+    function setCardStatus(status) {
+        const currentCard = getCurrentCard();
+
+        if (!currentCard) {
+            return;
         }
+
+        /*
+         * Gán đè trạng thái cũ. Đây là điểm giúp tránh việc
+         * bấm nhiều lần dẫn đến thống kê sai.
+         */
+        cardStatuses[currentCard.id] = status;
+
+        renderAssessmentButtons(currentCard.id);
+        renderStats();
+    }
+
+    function moveToCard(nextIndex) {
+        if (nextIndex < 0 || nextIndex >= cards.length) {
+            return;
+        }
+
+        currentIndex = nextIndex;
+        renderCard();
+    }
+
+cardBox.addEventListener("click", () => {
+    const currentCard = getCurrentCard();
+
+    if (!currentCard) {
+        return;
+    }
+
+    isFlipped = !isFlipped;
+
+    cardBox.classList.toggle("is-flipped", isFlipped);
+
+    if (isFlipped) {
+        wordText.textContent = currentCard.nghia;
+        hintText.textContent = "Nhấn vào thẻ để xem từ tiếng Anh";
+
+        pronunciationArea.hidden = true;
+    } else {
+        wordText.textContent = currentCard.tu_vung;
+        hintText.textContent = "Nhấn vào thẻ để xem nghĩa";
+
+        pronunciationArea.hidden = false;
+    }
+});
+
+    audioButton.addEventListener("click", () => {
+        audioPlayer.currentTime = 0;
+        audioPlayer.play().catch(() => {
+            alert("Không thể phát audio của từ này.");
+        });
     });
 
-    // 3. Xử lý khi nhấn nút Đã nhớ / Chưa nhớ
-    function handleAssessment(status) {
-        /* =================================================================
-           [GHI CHÚ ĐỒNG BỘ CSDL THEO LEADER]
-           - Tại đây bạn có thể dùng fetch() gửi $_POST đến 1 file xử lý PHP
-           - Ví dụ:
-             fetch('LuuTienDo.php', {
-                 method: 'POST',
-                 headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-                 body: `id_tuvung=${cards[currentIndex].id}&trang_thai=${status}`
-             });
-           ================================================================= */
-        const cardId = cards[currentIndex].id || currentIndex;
-        cardStatus[cardId] = status;
+    btnDaNho.addEventListener("click", () => {
+        setCardStatus("da_nho");
+    });
 
-        if (currentIndex < cards.length - 1) {
-            currentIndex++;
-            renderCard();
-        } else {
-            renderStats();
-            setTimeout(() => {
-                alert("🎉 Bạn đã hoàn thành toàn bộ thẻ trong phiên học này!");
-            }, 100);
-        }
-    }
+    btnChuaNho.addEventListener("click", () => {
+        setCardStatus("chua_nho");
+    });
 
-    btnChuaNho.addEventListener("click", () => handleAssessment("chua_nho"));
-    btnDaNho.addEventListener("click", () => handleAssessment("da_nho"));
-
-    // 4. Nút chuyển từ trước / sau
     btnPrev.addEventListener("click", () => {
-        if (currentIndex > 0) {
-            currentIndex--;
-            renderCard();
-        }
+        moveToCard(currentIndex - 1);
     });
 
     btnNext.addEventListener("click", () => {
-        if (currentIndex < cards.length - 1) {
-            currentIndex++;
-            renderCard();
-        }
+        moveToCard(currentIndex + 1);
     });
 
-    // 5. Nút kết thúc sớm
     btnKetThuc.addEventListener("click", () => {
-        const confirmEnd = confirm("Bạn có chắc chắn muốn kết thúc phiên học này sớm không?");
-        if (confirmEnd) {
-            /* Leader rule: Đổi đuôi liên kết sang .php */
-            window.location.href = "B_DanhSachChuDe.php";
+        const shouldEnd = confirm(
+            "Bạn có chắc chắn muốn kết thúc phiên học này?"
+        );
+
+        if (shouldEnd) {
+            /*
+             * File B_DanhSachChuDe.php nằm trong pages/main,
+             * không nằm trong pages/user.
+             */
+            window.location.href = "../main/B_DanhSachChuDe.php";
         }
     });
 
-    // Bắt đầu khởi tạo thẻ đầu tiên
+    btnVaoQuiz.addEventListener("click", () => {
+        /*
+         * Chưa chuyển sang Quiz ngay ở bước này.
+         * Bước tiếp theo sẽ gọi save_flashcard_session.php,
+         * lưu phiên học và nhận learning_session_id từ PHP.
+         */
+        console.log({
+            topicId: sessionConfig.topicId,
+            mode: sessionConfig.mode,
+            cardStatuses
+        });
+
+        alert(
+            "Flashcard đã sẵn sàng. Bước tiếp theo sẽ lưu phiên học " +
+            "và chuyển đúng danh sách từ sang Quiz."
+        );
+    });
+
     renderCard();
 });

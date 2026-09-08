@@ -3,32 +3,29 @@ document.addEventListener("DOMContentLoaded", () => {
     const filterSelect = document.getElementById("C_Lichsuontap_filterSelect");
     const tableBody = document.querySelector("#C_Lichsuontap_table tbody");
 
-    if (filterSelect) {
-        // Sự kiện khi người dùng chọn mốc thời gian lọc
-        filterSelect.addEventListener("change", (e) => {
-            const selectedRange = e.target.value;
-            console.log(`Đang lọc dữ liệu theo mốc: ${selectedRange} ngày`);
+if (filterSelect) {
+    filterSelect.addEventListener("change", (event) => {
+        /*
+         * URL hiện tại, ví dụ:
+         * http://localhost/pages/user/C_Lichsuontap.php?range=7
+         */
+        const currentUrl = new URL(window.location.href);
 
-            /* =================================================================
-               [GHI CHÚ KẾT NỐI THEO QUY TRÌNH LEADER]
-               Tại đây bạn có thể dùng fetch/AJAX để tải lại dữ liệu từ PHP:
-               
-               fetch(`C_Lichsuontap.php?range=${selectedRange}`)
-                   .then(res => res.json())
-                   .then(data => {
-                       // Cập nhật lại biểu đồ và các hàng trong bảng
-                   });
-               ================================================================= */
-            
-            // Hiệu ứng mờ nhẹ để báo hiệu đang lọc
-            if (tableBody) {
-                tableBody.style.opacity = "0.5";
-                setTimeout(() => {
-                    tableBody.style.opacity = "1";
-                }, 250);
-            }
-        });
-    }
+        /*
+         * Cập nhật query string theo giá trị user chọn.
+         * PHP sẽ nhận được $_GET['range'].
+         */
+        currentUrl.searchParams.set("range", event.target.value);
+
+        /*
+         * Tải lại trang để PHP truy vấn và render dữ liệu mới.
+         *
+         * Cách này đơn giản hơn AJAX, dễ kiểm tra,
+         * hoạt động tốt với nút Back/Forward của trình duyệt.
+         */
+        window.location.assign(currentUrl.toString());
+    });
+}
 
     // 2. Tương tác với các cột biểu đồ
     const bars = document.querySelectorAll(".C_Lichsuontap_bar");
