@@ -1,23 +1,14 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
-
+require_once '../../includes/auth_guard.php';
 require_once($_SERVER['DOCUMENT_ROOT'] . "/Connect.php");
+
+// auth_guard.php đã xác thực session trước khi trang sử dụng user_id.
+$user_id = (int) $_SESSION['user_id'];
 
 // Đồng bộ biến kết nối DB
 if (isset($link) && !isset($conn)) {
     $conn = $link;
 }
-
-// Lấy ID người dùng từ Session
-$user_id = $_SESSION['user_id'] 
-    ?? $_SESSION['userID'] 
-    ?? $_SESSION['id'] 
-    ?? $_SESSION['user']['userID'] 
-    ?? $_SESSION['user']['id'] 
-    ?? 2; // Dự phòng khi test mở link trực tiếp
-
 // Lấy ID chủ đề từ URL
 $id_chu_de = isset($_GET['id']) ? intval($_GET['id']) : (isset($_GET['topic_id']) ? intval($_GET['topic_id']) : 1);
 if ($id_chu_de <= 0) {
@@ -143,17 +134,29 @@ try {
 
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Học FlashCard - LexiLoop</title>
+    <link rel="stylesheet" href="../../CSS/Style.css">
     <link rel="stylesheet" href="../../CSS/C_HocFlashcard.css">
+
+    <link rel="stylesheet" href="../../CSS/responsive.css">
+    <!-- <link rel="stylesheet" href="../../CSS/topheader.css"> -->
 </head>
+
 <body class="C_HocFlashcard_body">
 
     <!-- Header -->
     <header class="C_HocFlashcard_header">
-        <h1 class="C_HocFlashcard_logo">Học FlashCard</h1>
+
+        <h1 class="C_HocFlashcard_logo">
+            <?php echo $mode === 'review'
+                ? 'Ôn tập Flashcard'
+                : 'Học từ mới: ' . htmlspecialchars($ten_chu_de); ?>
+        </h1>
+
         <span class="C_HocFlashcard_progressText" id="C_HocFlashcard_progressText">Thẻ 1/5</span>
     </header>
 
@@ -174,8 +177,33 @@ try {
             <div class="C_HocFlashcard_cardBox" id="C_HocFlashcard_cardBox">
                 <!-- Badge R (Ôn tập - Review) -->
                 <div class="C_HocFlashcard_badgeR" id="C_HocFlashcard_badgeR" title="Thẻ cần ôn tập">R</div>
-                
+
                 <h2 class="C_HocFlashcard_word" id="C_HocFlashcard_word">Software</h2>
+
+                <!-- Thông tin phát âm đặt bên dưới Flashcard -->
+                <div
+                    class="C_HocFlashcard_pronunciationArea"
+                    id="C_HocFlashcard_pronunciationArea">
+
+                    <p
+                        class="C_HocFlashcard_pronunciation"
+                        id="C_HocFlashcard_pronunciation">
+                        /.../
+                    </p>
+
+                    <button
+                        type="button"
+                        class="C_HocFlashcard_audioButton"
+                        id="C_HocFlashcard_audioButton"
+                        hidden>
+                        🔊 Nghe phát âm
+                    </button>
+
+                    <audio
+                        id="C_HocFlashcard_audioPlayer"
+                        preload="none">
+                    </audio>
+                </div>
                 <p class="C_HocFlashcard_hint" id="C_HocFlashcard_hint">Nhấn để xem nghĩa</p>
             </div>
 
@@ -184,11 +212,23 @@ try {
         </div>
 
         <!-- 2 Nút Đánh Giá -->
+        <!-- aria-pressed giúp trình duyệt và công cụ hỗ trợ biết trạng thái nút đang được chọn. Đúng chuẩn accessibility. -->
         <div class="C_HocFlashcard_btnGroup">
-            <button type="button" id="C_HocFlashcard_btnChuaNho" class="C_HocFlashcard_btn C_HocFlashcard_btnWhite">
+            <button
+                type="button"
+                id="C_HocFlashcard_btnChuaNho"
+                class="C_HocFlashcard_btn C_HocFlashcard_btnWhite"
+                data-status="chua_nho"
+                aria-pressed="false">
                 Chưa nhớ
             </button>
-            <button type="button" id="C_HocFlashcard_btnDaNho" class="C_HocFlashcard_btn C_HocFlashcard_btnGray">
+
+            <button
+                type="button"
+                id="C_HocFlashcard_btnDaNho"
+                class="C_HocFlashcard_btn C_HocFlashcard_btnGray"
+                data-status="da_nho"
+                aria-pressed="false">
                 Đã nhớ
             </button>
         </div>
@@ -198,17 +238,54 @@ try {
     <footer class="C_HocFlashcard_footerWrapper">
         <div class="C_HocFlashcard_footerBox">
             <div class="C_HocFlashcard_stats" id="C_HocFlashcard_stats">
-                Đã học: 0 &nbsp;&bull;&nbsp; Đã nhớ: 0 &nbsp;&bull;&nbsp; Chưa nhớ: 0
+                Đã học: 0 &bull; Đã nhớ: 0 &bull; Chưa nhớ: 0
             </div>
-            <button type="button" id="C_HocFlashcard_btnKetThuc" class="C_HocFlashcard_btnKetThuc">
+
+            <button
+                type="button"
+                id="C_HocFlashcard_btnVaoQuiz"
+                class="C_HocFlashcard_btnQuiz"
+                disabled>
+                Hoàn thành đánh giá để làm Quiz
+            </button>
+
+            <button
+                type="button"
+                id="C_HocFlashcard_btnKetThuc"
+                class="C_HocFlashcard_btnKetThuc">
                 Kết thúc sớm
             </button>
         </div>
     </footer>
 
     <script>
-        const flashcardsData = <?php echo json_encode($danh_sach_tu, JSON_UNESCAPED_UNICODE); ?>;
+        /*
+         * Dữ liệu thẻ được PHP lấy từ database.
+         * JavaScript chỉ dùng để hiển thị giao diện.
+         */
+        const flashcardsData = <?php
+                                echo json_encode(
+                                    $danh_sach_tu,
+                                    JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP
+                                );
+                                ?>;
+
+        /*
+         * Metadata của phiên học.
+         * topicId sẽ được dùng khi lưu phiên học và tạo Quiz.
+         */
+        const flashcardSessionConfig = <?php
+                                        echo json_encode(
+                                            [
+                                                'topicId' => $id_chu_de,
+                                                'topicName' => $ten_chu_de,
+                                                'mode' => $mode === 'review' ? 'review' : 'new_learning'
+                                            ],
+                                            JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP
+                                        );
+                                        ?>;
     </script>
     <script src="../../JS/C_HocFlashcard.js"></script>
 </body>
+
 </html>

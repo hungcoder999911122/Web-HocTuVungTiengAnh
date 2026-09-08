@@ -20,14 +20,14 @@ services:
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: root123
-      MYSQL_DATABASE: hoc_ngoai_ngu
+      MYSQL_DATABASE: db_LexiLoop
       MYSQL_USER: webuser
       MYSQL_PASSWORD: webpass123
     ports:
-      - "3307:3306"
+      - "3308:3306"
     volumes:
       - db_data:/var/lib/mysql
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./data/db_LexiLoop.sql:/docker-entrypoint-initdb.d/init.sql
   # phpMyAdmin - giao diện quản lý MySQL qua web (không bắt buộc, nhưng rất tiện)
   phpmyadmin:
     image: phpmyadmin/phpmyadmin

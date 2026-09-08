@@ -1,5 +1,5 @@
 <?php
-require_once '../../Connect.php';
+require_once($_SERVER['DOCUMENT_ROOT'] . "/Connect.php");
 
 // KIỂM TRA PHIÊN NGƯỜI DÙNG
 session_start();
@@ -133,6 +133,7 @@ $vocab_result = mysqli_stmt_get_result($stmt_vocab);
 
     <!-- Link file CSS dùng chung -->
     <link rel="stylesheet" type="text/css" href="../../CSS/Style.css">
+    <link rel="stylesheet" type="text/css" href="../../CSS/topheader.css">
     <link rel="stylesheet" type="text/css" href="../../CSS/B_DanhSachTuVung.css">
     <link rel="stylesheet" type="text/css" href="../../CSS/responsive.css">
     <!-- <link rel="icon" type="image/x-icon" href="../../favicon.ico"> -->
@@ -293,6 +294,7 @@ $vocab_result = mysqli_stmt_get_result($stmt_vocab);
 
     <script src="../../JS/jquery-4.0.0.min.js"></script>
     <script src="../../JS/B_DanhSachTuVung.js"></script>
+    <script src="../../JS/auth.js"></script>
 
 </body>
 

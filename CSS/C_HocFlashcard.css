@@ -1,17 +1,7 @@
 /* =========================================
    DESIGN TOKENS
    ========================================= */
-:root {
-    --color-primary: #2d7a56;
-    --color-primary-light: #e8f5ed;
-    --color-primary-dark: #1f4e38;
-    --color-surface: #ffffff;
-    --color-background: #edf6f0;
-    --color-border: #dceae1;
-    --color-white: #ffffff;
-    --color-text: #1f2d24;
-    --color-text-muted: #758071;
-}
+
 
 *, *::before, *::after { box-sizing: border-box; }
 
@@ -191,6 +181,57 @@ body,
     padding: 0 20px;
 }
 
+/* Thông tin phát âm nằm trong Flashcard */
+.C_HocFlashcard_pronunciationArea {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 14px;
+}
+
+.C_HocFlashcard_pronunciation {
+    margin: 0;
+    color: var(--color-text-muted);
+    font-size: 17px;
+    font-style: italic;
+    font-weight: 600;
+}
+
+.C_HocFlashcard_audioButton {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    margin: 0;
+    padding: 6px 12px;
+
+    border: 1px solid var(--color-border);
+    border-radius: 999px;
+
+    background-color: var(--color-primary-light);
+    color: var(--color-primary-dark);
+
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.C_HocFlashcard_audioButton:hover {
+    background-color: var(--color-primary);
+    border-color: var(--color-primary);
+    color: var(--color-white);
+}
+
+/*
+ * Bắt buộc có rule này.
+ * Nếu không, display: inline-flex phía trên có thể ghi đè
+ * thuộc tính hidden của HTML.
+ */
+.C_HocFlashcard_audioButton[hidden] {
+    display: none;
+}
+
 .C_HocFlashcard_hint {
     margin: 0;
     font-size: 14px;
@@ -280,4 +321,61 @@ body,
     background-color: #ffebee;
     border-color: #ffcdd2;
     color: #c62828;
+}
+
+.C_HocFlashcard_btnQuiz{
+    padding: 8px 18px;
+    background-color: var(--color-white);
+    border: 1px solid var(--color-border);
+    border-radius: 20px;
+    color: var(--color-text);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.C_HocFlashcard_btnQuiz:hover{
+    background-color: #d0f7e6;
+    border-color: #d0f3dd;
+    color: #3fdc7e;
+}
+
+/* 
+* RESPONISVE
+*/
+
+@media (max-width: 640px) {
+    .C_HocFlashcard_header {
+        padding: 14px 16px;
+    }
+
+    .C_HocFlashcard_logo {
+        font-size: 18px;
+    }
+
+    .C_HocFlashcard_cardArea {
+        gap: 10px;
+    }
+
+    .C_HocFlashcard_cardBox {
+        width: min(100%, 300px);
+        height: 250px;
+    }
+
+    .C_HocFlashcard_navBtn {
+        width: 38px;
+        height: 38px;
+        flex: 0 0 38px;
+    }
+
+    .C_HocFlashcard_word {
+        font-size: 28px;
+    }
+
+    .C_HocFlashcard_footerBox {
+        flex-wrap: wrap;
+        gap: 10px;
+        padding: 14px;
+    }
 }

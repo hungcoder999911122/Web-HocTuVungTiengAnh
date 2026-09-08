@@ -1,17 +1,10 @@
 /* =========================================
    DESIGN TOKENS
    ========================================= */
-:root {
-    --color-primary: #2d7a56;
-    --color-primary-light: #e8f5ed;
-    --color-primary-dark: #1f4e38;
-    --color-surface: #ffffff;
-    --color-background: #edf6f0;
-    --color-border: #dceae1;
-    --color-white: #ffffff;
-    --color-text: #1f2d24;
-    --color-text-muted: #758071;
-}
+/*
+    Màu sắc dùng chung được khai báo tại CSS/Style.css.
+    Không khai báo :root tại file trang để tránh hai trang dùng hai bộ màu khác nhau.
+*/
 
 *, *::before, *::after { box-sizing: border-box; }
 
@@ -132,23 +125,12 @@ body,
 }
 
 /* =========================================
-   CONTENT & HEADER
+   CONTENT
    ========================================= */
 .page-content {
     margin-left: 245px;
     min-height: 100vh;
 }
-
-.C_Hosocanhan_header {
-    padding: 20px 40px;
-    background-color: var(--color-white);
-    border-bottom: 1px solid var(--color-border);
-    position: sticky;
-    top: 0;
-    z-index: 100;
-}
-
-.C_Hosocanhan_logo { margin: 0; font-size: 22px; font-weight: 700; }
 
 .C_Hosocanhan_main {
     max-width: 980px;

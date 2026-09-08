@@ -865,30 +865,73 @@ COMMIT;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 
--- Chạy MỘT LẦN trong phpMyAdmin, sau khi đã chọn database hoc_ngoai_ngu.
--- Không chạy lại data/db_LexiLoop.sql và không xóa dữ liệu hiện có.
+/* ==========================================================
+   BỔ SUNG DỮ LIỆU CHO LUỒNG HỌC FLASHCARD - QUIZ - SRS
+   Chạy một lần trên database hoc_ngoai_ngu.
+   ========================================================== */
 
-ALTER TABLE learning_sessions
-    ADD COLUMN topic_id INT NULL AFTER user_id,
-    ADD COLUMN session_type ENUM('new_learning', 'review') NOT NULL DEFAULT 'new_learning' AFTER topic_id,
-    ADD KEY idx_learning_sessions_user_date (user_id, session_date),
-    ADD KEY idx_learning_sessions_topic (topic_id),
-    ADD CONSTRAINT fk_learning_sessions_topic
-        FOREIGN KEY (topic_id) REFERENCES Topics(topicID) ON DELETE SET NULL;
 
+/* ----------------------------------------------------------
+   1. Lưu chi tiết từng câu trả lời trong một lần làm Quiz.
+
+   Vì quiz được sinh từ vocabulary, không cần tạo bảng câu hỏi
+   tĩnh. Bảng này lưu kết quả thực tế để:
+   - hiển thị lại câu sai;
+   - cập nhật SRS theo từng từ;
+   - phục vụ lịch sử học tập.
+   ---------------------------------------------------------- */
 CREATE TABLE quiz_answer_details (
     id INT NOT NULL AUTO_INCREMENT,
     quiz_result_id INT NOT NULL,
     vocabulary_id INT NOT NULL,
-    selected_answer VARCHAR(255) NULL,
-    correct_answer VARCHAR(255) NOT NULL,
-    is_correct TINYINT(1) NOT NULL,
+
+    question_order INT NOT NULL,
+
+    selected_answer TEXT NULL,
+    correct_answer TEXT NOT NULL,
+
+    is_correct TINYINT(1) NOT NULL DEFAULT 0,
     response_time_ms INT NULL,
+
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
     PRIMARY KEY (id),
+
     UNIQUE KEY uq_quiz_vocab (quiz_result_id, vocabulary_id),
-    KEY idx_quiz_answer_vocab (vocabulary_id),
-    CONSTRAINT fk_quiz_answer_result
-        FOREIGN KEY (quiz_result_id) REFERENCES quiz_results(id) ON DELETE CASCADE,
-    CONSTRAINT fk_quiz_answer_vocabulary
-        FOREIGN KEY (vocabulary_id) REFERENCES vocabulary(id) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+    KEY idx_quiz_result_id (quiz_result_id),
+    KEY idx_vocabulary_id (vocabulary_id),
+
+    CONSTRAINT fk_quiz_answer_details_result
+        FOREIGN KEY (quiz_result_id)
+        REFERENCES quiz_results(id)
+        ON DELETE CASCADE,
+
+    CONSTRAINT fk_quiz_answer_details_vocabulary
+        FOREIGN KEY (vocabulary_id)
+        REFERENCES vocabulary(id)
+        ON DELETE CASCADE
+) ENGINE=InnoDB
+  DEFAULT CHARSET=utf8mb4
+  COLLATE=utf8mb4_0900_ai_ci;
+
+
+/* ----------------------------------------------------------
+   2. Bổ sung ngữ cảnh cho phiên Flashcard.
+
+   topic_id: phiên học thuộc chủ đề nào.
+   session_type: học từ mới hay ôn tập.
+   started_at / finished_at: tính thời lượng chính xác.
+   ---------------------------------------------------------- */
+ALTER TABLE learning_sessions
+    ADD COLUMN topic_id INT NULL AFTER user_id,
+    ADD COLUMN session_type ENUM('new_learning', 'review')
+        NOT NULL DEFAULT 'new_learning' AFTER topic_id,
+    ADD COLUMN started_at DATETIME NULL AFTER streak_count,
+    ADD COLUMN finished_at DATETIME NULL AFTER started_at,
+    ADD KEY idx_learning_sessions_user_date (user_id, session_date),
+    ADD KEY idx_learning_sessions_topic (topic_id),
+    ADD CONSTRAINT fk_learning_sessions_topic
+        FOREIGN KEY (topic_id)
+        REFERENCES Topics(topicID)
+        ON DELETE SET NULL;

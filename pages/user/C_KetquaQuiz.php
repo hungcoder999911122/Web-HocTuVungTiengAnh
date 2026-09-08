@@ -1,17 +1,9 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
-
+require_once '../../includes/auth_guard.php';
 require_once($_SERVER['DOCUMENT_ROOT'] . "/Connect.php");
 
-// Lấy trực tiếp ID tài khoản từ Session
-$user_id = $_SESSION['user_id'] 
-    ?? $_SESSION['userID'] 
-    ?? $_SESSION['id'] 
-    ?? $_SESSION['user']['userID'] 
-    ?? $_SESSION['user']['id'] 
-    ?? 2; // Dự phòng user 2 khi mở test link trực tiếp
+// auth_guard.php đã xác thực session trước khi trang sử dụng user_id.
+$user_id = (int) $_SESSION['user_id'];
 
 // Khởi tạo các giá trị mặc định
 $diem_so      = 0;
@@ -22,7 +14,8 @@ $quiz_result_id = isset($_GET['id']) ? intval($_GET['id']) : (isset($_GET['quiz_
 
 // Hàm định dạng số giây thành "Phút:Giây"
 if (!function_exists('dinhDangThoiGianLam')) {
-    function dinhDangThoiGianLam($seconds) {
+    function dinhDangThoiGianLam($seconds)
+    {
         $seconds = max(0, intval($seconds));
         $m = floor($seconds / 60);
         $s = $seconds % 60;
@@ -48,6 +41,11 @@ try {
         if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($db_tables['quiz_results'])) {
             $p_correct = isset($_POST['correct_answers']) ? intval($_POST['correct_answers']) : (isset($_POST['diem_so']) ? intval($_POST['diem_so']) : null);
             $p_total   = isset($_POST['total_questions']) ? intval($_POST['total_questions']) : (isset($_POST['tong_cau']) ? intval($_POST['tong_cau']) : 10);
+
+            // Không cho số câu đúng âm hoặc lớn hơn tổng số câu.
+            $p_total = max(1, $p_total);
+            $p_correct = max(0, min($p_correct ?? 0, $p_total));
+            
             $p_topic   = isset($_POST['topic_id']) ? intval($_POST['topic_id']) : (isset($_POST['id_chude']) ? intval($_POST['id_chude']) : 1);
             $p_seconds = isset($_POST['duration_seconds']) ? intval($_POST['duration_seconds']) : (isset($_POST['thoi_gian_giay']) ? intval($_POST['thoi_gian_giay']) : 120);
 
@@ -151,12 +149,14 @@ if ($diem_so >= $tong_cau) {
 
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kết quả Quiz - LexiLoop</title>
     <link rel="stylesheet" href="../../CSS/C_KetquaQuiz.css">
 </head>
+
 <body class="C_KetquaQuiz_body">
 
     <!-- Header Focus Mode -->
@@ -168,7 +168,7 @@ if ($diem_so >= $tong_cau) {
     </header>
 
     <main class="C_KetquaQuiz_main">
-        
+
         <!-- Vòng tròn hiển thị điểm -->
         <div class="C_KetquaQuiz_scoreCircle" id="C_KetquaQuiz_scoreCircle">
             <span class="C_KetquaQuiz_scoreText" id="C_KetquaQuiz_scoreText">
@@ -218,7 +218,7 @@ if ($diem_so >= $tong_cau) {
                 <span class="wrong-icon">⚠️</span>
                 <span><strong>Câu cần xem lại:</strong> Câu 3 (Software), Câu 7 (Meeting) - <em>Nhấn để xem chi tiết</em></span>
             </div>
-            
+
             <div class="C_KetquaQuiz_wrongDetail" id="C_KetquaQuiz_wrongDetail" style="display: none;">
                 <ul>
                     <?php foreach ($cau_sai as $item): ?>
@@ -232,4 +232,5 @@ if ($diem_so >= $tong_cau) {
 
     <script src="../../JS/C_KetquaQuiz.js"></script>
 </body>
+
 </html>

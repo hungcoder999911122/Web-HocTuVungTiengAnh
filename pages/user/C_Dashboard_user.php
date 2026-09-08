@@ -3,32 +3,22 @@
 // =====================================================
 // 1. KẾT NỐI DATABASE
 // =====================================================
-require_once '../../Connect.php';
-
-
 // =====================================================
 // 2. KHỞI ĐỘNG SESSION
 // =====================================================
-session_start();
-
-
 // =====================================================
 // 3. KIỂM TRA ĐĂNG NHẬP
 // =====================================================
-if (!isset($_SESSION['user_id'])) {
-    header("Location: ../auth/A_DangNhap.php");
-    exit;
-}
 
+require_once '../../includes/auth_guard.php';
+require_once($_SERVER['DOCUMENT_ROOT'] . "/Connect.php");
 
-// =====================================================
-// 4. LẤY USER ID TỪ SESSION
-// =====================================================
-$userId = $_SESSION['user_id'];
-
+// auth_guard.php đã chắc chắn user_id tồn tại.
+// Ép kiểu int giúp dữ liệu truyền vào truy vấn nhất quán.
+$userId = (int) $_SESSION['user_id'];
 
 // =====================================================
-// 5. LẤY THÔNG TIN USER
+// LẤY THÔNG TIN USER
 // =====================================================
 $sqlUser = "
     SELECT
@@ -287,8 +277,9 @@ while ($row = mysqli_fetch_assoc($resultRecentQuiz)) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - LexiLoop</title>
-    <link rel="stylesheet" href="../../CSS/C_Dashboard_user.css">
     <link rel="stylesheet" href="../../CSS/Style.css">
+    <link rel="stylesheet" href="../../CSS/C_Dashboard_user.css">
+
     <link rel="stylesheet" href="../../CSS/topheader.css">
     <link rel="stylesheet" href="../../CSS/responsive.css">
 </head>
@@ -303,12 +294,12 @@ while ($row = mysqli_fetch_assoc($resultRecentQuiz)) {
 
     <!-- SIDEBAR -->
     <?php include '../../includes/sidebar_user.php'; ?>
-    
+
     <div class="C_Dashboard_user_layoutWrapper">
 
 
         <main class="C_Dashboard_user_mainContent">
-            
+
             <!-- Phần chào mừng & 4 thẻ thống kê -->
             <section class="C_Dashboard_user_welcomeSection">
                 <h2 class="C_Dashboard_user_welcomeTitle">Chào mừng trở lại!</h2>
@@ -492,6 +483,7 @@ while ($row = mysqli_fetch_assoc($resultRecentQuiz)) {
         </main>
     </div>
     <script src="../../JS/jquery-4.0.0.min.js"></script>
+    <script src="../../JS/auth.js"></script>
 </body>
 
 </html>
