@@ -1,5 +1,5 @@
 $(function () {
-  // Tim kiem theo ten hoac email
+  // Tim kiem theo ten hoac email (loc tren du lieu da render tu PHP)
   $("#D_Quanlynguoidung_OTimKiem").on("keyup", function () {
     var tuKhoa = $(this).val().toLowerCase();
 
@@ -29,21 +29,6 @@ $(function () {
     D_Quanlynguoidung_ApDungBoLoc,
   );
 
-  // Khoa / mo khoa tai khoan
-  $(".D_Quanlynguoidung_NutKhoa").on("click", function () {
-    var $dong = $(this).closest("tr");
-    var $oTrangThai = $dong.find(".D_Quanlynguoidung_OTrangThai");
-
-    var dangKhoa = $dong.attr("data-trangthai") === "da_khoa";
-
-    if (dangKhoa) {
-      $dong.attr("data-trangthai", "hoat_dong");
-      $oTrangThai.text("Hoạt động");
-      $(this).text("Khóa").removeClass("D_Quanlynguoidung_DangKhoa");
-    } else {
-      $dong.attr("data-trangthai", "da_khoa");
-      $oTrangThai.text("Đã khóa");
-      $(this).text("Mở khóa").addClass("D_Quanlynguoidung_DangKhoa");
-    }
-  });
+  // Ghi chu: nut Khoa / Mo khoa gio la nut submit cua 1 <form> rieng,
+  // du lieu duoc cap nhat that trong bang Users qua D_Quanlynguoidung.php
 });

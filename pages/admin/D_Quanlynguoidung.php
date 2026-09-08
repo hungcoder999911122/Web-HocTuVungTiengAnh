@@ -1,3 +1,48 @@
+<?php
+// 1. Them code ket noi vao dau file
+session_start();
+require_once($_SERVER['DOCUMENT_ROOT'] . "/Connect.php");
+/** @var mysqli $link Ket noi CSDL duoc tao trong Connect.php */
+
+$thongBao = "";
+$loaiThongBao = "";
+
+// ============================================================
+// 4. Quy trinh lam PHP
+// ============================================================
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+
+    // ---- B1: Gan bien PHP voi name trong html (dung ten cot DB) ----
+    $hanhDong    = $_POST["hanhdong"] ?? "";
+    $userID      = isset($_POST["userID"]) ? (int) $_POST["userID"] : 0;
+    $trangThaiHT = $_POST["status"] ?? "";
+
+    if ($hanhDong === "doitrangthai" && $userID > 0) {
+
+        // ---- B2: Kiem tra du lieu hop le ----
+        $trangThaiMoi = ($trangThaiHT === "active") ? "locked" : "active";
+
+        // ---- B5: Thao tac update database ----
+        $sql = "UPDATE Users SET status = ? WHERE userID = ?";
+        $stmt = mysqli_prepare($link, $sql);
+        mysqli_stmt_bind_param($stmt, "si", $trangThaiMoi, $userID);
+
+        // ---- B6: Thanh cong -> tiep tuc, that bai -> tam dung ----
+        if (mysqli_stmt_execute($stmt)) {
+            $thongBao = $trangThaiMoi === "locked" ? "Đã khóa tài khoản." : "Đã mở khóa tài khoản.";
+            $loaiThongBao = "thanhcong";
+        } else {
+            $thongBao = "Có lỗi xảy ra: " . mysqli_error($link);
+            $loaiThongBao = "loi";
+        }
+        mysqli_stmt_close($stmt);
+    }
+}
+
+// ---- B5: SELECT du lieu de hien thi ra bang ----
+$sqlDanhSach = "SELECT userID, full_name, email, role, status FROM Users ORDER BY created_at DESC";
+$ketQuaDanhSach = mysqli_query($link, $sqlDanhSach);
+?>
 <!doctype html>
 <html lang="vi">
   <head>
@@ -64,6 +109,13 @@
             />
           </div>
 
+          <?php if ($thongBao !== ""): ?>
+            <!-- 7. Hien thi thong bao ra giao dien -->
+            <p class="D_Quanlynguoidung_ThongBao D_Quanlynguoidung_ThongBao_<?php echo $loaiThongBao; ?>">
+              <?php echo htmlspecialchars($thongBao); ?>
+            </p>
+          <?php endif; ?>
+
           <div class="D_Quanlynguoidung_HangLoc">
             <select
               id="D_Quanlynguoidung_LocVaiTro"
@@ -94,61 +146,28 @@
               </tr>
             </thead>
             <tbody id="D_Quanlynguoidung_ThanBang">
-              <tr data-vaitro="user" data-trangthai="hoat_dong">
-                <td>Nguyễn Văn A</td>
-                <td>a@mail.com</td>
-                <td>User</td>
-                <td class="D_Quanlynguoidung_OTrangThai">Hoạt động</td>
-                <td>
-                  <button class="D_Quanlynguoidung_NutKhoa" type="button">
-                    Khóa
-                  </button>
-                </td>
-              </tr>
-              <tr data-vaitro="user" data-trangthai="da_khoa">
-                <td>Trần Thị B</td>
-                <td>b@mail.com</td>
-                <td>User</td>
-                <td class="D_Quanlynguoidung_OTrangThai">Đã khóa</td>
-                <td>
-                  <button class="D_Quanlynguoidung_NutKhoa" type="button">
-                    Mở khóa
-                  </button>
-                </td>
-              </tr>
-              <tr data-vaitro="user" data-trangthai="hoat_dong">
-                <td>Lê Văn C</td>
-                <td>c@mail.com</td>
-                <td>User</td>
-                <td class="D_Quanlynguoidung_OTrangThai">Hoạt động</td>
-                <td>
-                  <button class="D_Quanlynguoidung_NutKhoa" type="button">
-                    Khóa
-                  </button>
-                </td>
-              </tr>
-              <tr data-vaitro="admin" data-trangthai="hoat_dong">
-                <td>Phạm Thị D</td>
-                <td>d@mail.com</td>
-                <td>Admin</td>
-                <td class="D_Quanlynguoidung_OTrangThai">Hoạt động</td>
-                <td>
-                  <button class="D_Quanlynguoidung_NutKhoa" type="button">
-                    Khóa
-                  </button>
-                </td>
-              </tr>
-              <tr data-vaitro="user" data-trangthai="hoat_dong">
-                <td>Võ Văn E</td>
-                <td>e@mail.com</td>
-                <td>User</td>
-                <td class="D_Quanlynguoidung_OTrangThai">Hoạt động</td>
-                <td>
-                  <button class="D_Quanlynguoidung_NutKhoa" type="button">
-                    Khóa
-                  </button>
-                </td>
-              </tr>
+              <?php while ($hang = mysqli_fetch_assoc($ketQuaDanhSach)):
+                  $trangThaiData = $hang["status"] === "active" ? "hoat_dong" : "da_khoa";
+                  $trangThaiHienThi = $hang["status"] === "active" ? "Hoạt động" : "Đã khóa";
+                  $textNut = $hang["status"] === "active" ? "Khóa" : "Mở khóa";
+              ?>
+                <tr data-vaitro="<?php echo htmlspecialchars($hang["role"]); ?>" data-trangthai="<?php echo $trangThaiData; ?>">
+                  <td><?php echo htmlspecialchars($hang["full_name"] ?? ""); ?></td>
+                  <td><?php echo htmlspecialchars($hang["email"]); ?></td>
+                  <td><?php echo ucfirst(htmlspecialchars($hang["role"])); ?></td>
+                  <td class="D_Quanlynguoidung_OTrangThai"><?php echo $trangThaiHienThi; ?></td>
+                  <td>
+                    <form method="post" action="D_Quanlynguoidung.php" style="display:inline">
+                      <input type="hidden" name="hanhdong" value="doitrangthai" />
+                      <input type="hidden" name="userID" value="<?php echo (int) $hang["userID"]; ?>" />
+                      <input type="hidden" name="status" value="<?php echo htmlspecialchars($hang["status"]); ?>" />
+                      <button class="D_Quanlynguoidung_NutKhoa" type="submit">
+                        <?php echo $textNut; ?>
+                      </button>
+                    </form>
+                  </td>
+                </tr>
+              <?php endwhile; ?>
             </tbody>
           </table>
 
