@@ -37,17 +37,14 @@ function isSidebarActive(string $pageName, string $currentPage): string
             class="sidebar-link <?= isSidebarActive('C_Dashboard_user.php', $currentPage) ?>">
             <span class="sidebar-icon" aria-hidden="true">
 
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2"
-                    stroke-linecap="round" stroke-linejoin="round">
-                    <rect x="3" y="3" width="7" height="9"></rect>
-                    <rect x="14" y="3" width="7" height="5"></rect>
-                    <rect x="14" y="12" width="7" height="9"></rect>
-                    <rect x="3" y="16" width="7" height="5"></rect>
+
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-house">
+                    <path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8" />
+                    <path d="M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
                 </svg>
 
             </span>
-            <span>Dashboard</span>
+            <span> Trang chủ </span>
         </a>
 
         <a
@@ -77,6 +74,22 @@ function isSidebarActive(string $pageName, string $currentPage): string
             class="sidebar-link <?= isSidebarActive('C_Tuvungcuatoi.php', $currentPage) ?>">
             <span class="sidebar-icon" aria-hidden="true">
 
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-folder-heart">
+                    <path d="M10.638 20H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H20a2 2 0 0 1 2 2v3.417" />
+                    <path d="M14.62 18.8A2.25 2.25 0 1 1 18 15.836a2.25 2.25 0 1 1 3.38 2.966l-2.626 2.856a.998.998 0 0 1-1.507 0z" />
+                </svg>
+
+            </span>
+            <span>Bộ từ từ vựng </span>
+        </a>
+
+
+
+        <a
+            href="../user/C_Tuvungcuatoi.php"
+            class="sidebar-link <?= isSidebarActive('C_Tuvungcuatoi.php', $currentPage) ?>">
+            <span class="sidebar-icon" aria-hidden="true">
+
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
                     stroke="currentColor" stroke-width="2"
                     stroke-linecap="round" stroke-linejoin="round">
@@ -89,8 +102,22 @@ function isSidebarActive(string $pageName, string $currentPage): string
                 </svg>
 
             </span>
-            <span>Từ vựng của tôi</span>
+            <span> Từ vựng </span>
         </a>
+
+        <a
+            href="../user/C_Tuvungcuatoi.php"
+            class="sidebar-link <?= isSidebarActive('C_Tuvungcuatoi.php', $currentPage) ?>">
+            <span class="sidebar-icon" aria-hidden="true">
+
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-play">
+                    <path d="M5 5a2 2 0 0 1 3.008-1.728l11.997 6.998a2 2 0 0 1 .003 3.458l-12 7A2 2 0 0 1 5 19z" />
+                </svg>
+
+            </span>
+            <span> Góc rèn luyện </span>
+        </a>
+
 
         <a
             href="../user/C_Lichsuontap.php"
@@ -112,7 +139,7 @@ function isSidebarActive(string $pageName, string $currentPage): string
             href="../user/C_Hosocanhan.php"
             class="sidebar-link <?= isSidebarActive('C_Hosocanhan.php', $currentPage) ?>">
             <span class="sidebar-icon" aria-hidden="true">
-                
+
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
                     stroke="currentColor" stroke-width="2"
                     stroke-linecap="round" stroke-linejoin="round">
