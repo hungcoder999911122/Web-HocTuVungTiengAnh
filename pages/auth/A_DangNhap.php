@@ -58,8 +58,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')
 
 <head>
 	<meta charset="UTF-8">
-	<link rel="stylesheet" type="text/css" href="/CSS/Style.css">
 	<link rel="stylesheet" type="text/css" href="/CSS/A_DangNhap.css">
+        <link rel="stylesheet" type="text/css" href="/CSS/Style.css">
+
 	<script src="/JS/jquery-4.0.0.min.js"></script>
 	<title>Đăng nhập</title>
 </head>

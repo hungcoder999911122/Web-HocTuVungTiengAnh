@@ -57,8 +57,9 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
 <html lang="vi">
 <head>
 	<meta charset="UTF-8">
-	<link rel="stylesheet" type="text/css" href="/CSS/Style.css"> 
-	<link rel="stylesheet" type="text/css" href="/CSS/A_Caidattaikhoan.css"> 
+	<link rel="stylesheet" type="text/css" href="/CSS/A_Caidattaikhoan.css">
+	    <link rel="stylesheet" type="text/css" href="/CSS/Style.css">
+ 
 	<script src="/JS/jquery-4.0.0.min.js"></script> 
 	<title>Cài đặt tài khoản</title>
 </head>
