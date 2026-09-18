@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: db
--- Generation Time: Sep 18, 2026 at 10:46 AM
+-- Generation Time: Sep 13, 2026 at 07:32 AM
 -- Server version: 8.0.46
 -- PHP Version: 8.3.26
 
@@ -18,7 +18,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `db_LexiLoop`
+-- Database: `hoc_ngoai_ngu`
 --
 
 -- --------------------------------------------------------
@@ -26,12 +26,6 @@ SET time_zone = "+00:00";
 --
 -- Table structure for table `favorites`
 --
-
-CREATE DATABASE IF NOT EXISTS `db_LexiLoop`
-DEFAULT CHARACTER SET utf8mb4
-COLLATE utf8mb4_0900_ai_ci;
-
-USE `db_LexiLoop`;
 
 CREATE TABLE `favorites` (
   `id` int NOT NULL,

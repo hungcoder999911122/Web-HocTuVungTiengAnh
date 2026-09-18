@@ -19,6 +19,10 @@ $user_id = $isLoggedIn ? (int) $_SESSION['user_id'] : null;
    - C_Lichsuontap.php?range=all
    ========================================================= */
 $selectedRange = $_GET['range'] ?? '7';
+$historyPage = max(1, filter_var($_GET['page'] ?? 1, FILTER_VALIDATE_INT) ?: 1);
+$historyPerPage = 10;
+$historyTotalItems = 0;
+$historyTotalPages = 1;
 
 $allowedRanges = ['7', '30', 'all'];
 
@@ -37,28 +41,20 @@ if (!function_exists('dinhDangThoiGian')) {
         }
 
         $time = strtotime($datetime_str);
-        $now = time();
-        $diff = $now - $time;
+        return date('H:i, d/m/Y', $time);
+    }
+}
 
-        $date = date('Y-m-d', $time);
-        $today = date('Y-m-d', $now);
-        $yesterday = date('Y-m-d', strtotime('-1 day', $now));
-
-        if ($date === $today) {
-            return 'Hôm nay, ' . date('H:i', $time);
-        }
-
-        if ($date === $yesterday) {
-            return 'Hôm qua, ' . date('H:i', $time);
-        }
-
-        if ($diff > 0 && $diff < 7 * 86400) {
-            $days = floor($diff / 86400);
-
-            return ($days > 0 ? $days : 1) . ' ngày trước';
-        }
-
-        return date('d/m/Y', $time);
+if (!function_exists('dinhDangThoiLuong')) {
+    function dinhDangThoiLuong(int $seconds): string
+    {
+        $seconds = max(0, $seconds);
+        if ($seconds < 60) return $seconds . ' giây';
+        $minutes = intdiv($seconds, 60);
+        $remainingSeconds = $seconds % 60;
+        return $remainingSeconds > 0
+            ? $minutes . ' phút ' . $remainingSeconds . ' giây'
+            : $minutes . ' phút';
     }
 }
 
@@ -175,12 +171,17 @@ if ($isLoggedIn && isset($link) && $link) {
             ? '`' . $db_tables['topics'] . '`'
             : '`Topics`';
 
+        $tbl_sets = isset($db_tables['vocabulary_sets'])
+            ? '`' . $db_tables['vocabulary_sets'] . '`'
+            : '`vocabulary_sets`';
+
         /* =================================================
            6.1. LẤY DỮ LIỆU BIỂU ĐỒ 7 HOẶC 30 NGÀY
            ================================================= */
         if (
             ($selectedRange === '7' || $selectedRange === '30') &&
-            isset($db_tables['learning_sessions'])
+            isset($db_tables['learning_sessions']) &&
+            isset($db_tables['quiz_results'])
         ) {
             /*
              * Chuyển mảng thành map để cập nhật đúng từng ngày.
@@ -193,19 +194,30 @@ if ($isLoggedIn && isset($link) && $link) {
 
             $sqlChart = "
                 SELECT
-                    session_date,
-                    SUM(words_studied) AS total_words
-                FROM $tbl_sessions
-                WHERE user_id = ?
-                  AND session_date BETWEEN ? AND ?
-                GROUP BY session_date
-                ORDER BY session_date ASC
+                    activity_date AS session_date,
+                    SUM(words_count) AS total_words
+                FROM (
+                    SELECT session_date AS activity_date, words_studied AS words_count
+                    FROM $tbl_sessions
+                    WHERE user_id = ? AND words_studied > 0
+
+                    UNION ALL
+
+                    SELECT DATE(COALESCE(finished_at, started_at)) AS activity_date,
+                           total_questions AS words_count
+                    FROM $tbl_quiz
+                    WHERE user_id = ?
+                ) learning_activity
+                WHERE activity_date BETWEEN ? AND ?
+                GROUP BY activity_date
+                ORDER BY activity_date ASC
             ";
 
             if ($stmt = mysqli_prepare($link, $sqlChart)) {
                 mysqli_stmt_bind_param(
                     $stmt,
-                    'iss',
+                    'iiss',
+                    $user_id,
                     $user_id,
                     $chartStartDate,
                     $chartEndDate
@@ -236,23 +248,34 @@ if ($isLoggedIn && isset($link) && $link) {
            ================================================= */
         if (
             $selectedRange === 'all' &&
-            isset($db_tables['learning_sessions'])
+            isset($db_tables['learning_sessions']) &&
+            isset($db_tables['quiz_results'])
         ) {
             $sqlChart = "
                 SELECT
-                    DATE_FORMAT(session_date, '%Y-%m') AS period_key,
-                    DATE_FORMAT(session_date, '%m/%Y') AS period_label,
-                    SUM(words_studied) AS total_words
-                FROM $tbl_sessions
-                WHERE user_id = ?
+                    DATE_FORMAT(activity_date, '%Y-%m') AS period_key,
+                    DATE_FORMAT(activity_date, '%m/%Y') AS period_label,
+                    SUM(words_count) AS total_words
+                FROM (
+                    SELECT session_date AS activity_date, words_studied AS words_count
+                    FROM $tbl_sessions
+                    WHERE user_id = ? AND words_studied > 0
+
+                    UNION ALL
+
+                    SELECT DATE(COALESCE(finished_at, started_at)) AS activity_date,
+                           total_questions AS words_count
+                    FROM $tbl_quiz
+                    WHERE user_id = ?
+                ) learning_activity
                 GROUP BY
-                    DATE_FORMAT(session_date, '%Y-%m'),
-                    DATE_FORMAT(session_date, '%m/%Y')
+                    DATE_FORMAT(activity_date, '%Y-%m'),
+                    DATE_FORMAT(activity_date, '%m/%Y')
                 ORDER BY period_key ASC
             ";
 
             if ($stmt = mysqli_prepare($link, $sqlChart)) {
-                mysqli_stmt_bind_param($stmt, 'i', $user_id);
+                mysqli_stmt_bind_param($stmt, 'ii', $user_id, $user_id);
 
                 mysqli_stmt_execute($stmt);
 
@@ -289,9 +312,8 @@ if ($isLoggedIn && isset($link) && $link) {
                         SELECT
                             q.id,
                             CONCAT(
-                                'Làm Quiz \"',
-                                COALESCE(t.topicName, 'Tổng hợp'),
-                                '\"'
+                                'Quiz - ',
+                                COALESCE(t.topicName, vs.name, 'Ôn tập tổng hợp')
                             ) AS hoat_dong,
                             'quiz' AS loai,
                             CONCAT(
@@ -302,10 +324,14 @@ if ($isLoggedIn && isset($link) && $link) {
                             COALESCE(
                                 q.finished_at,
                                 q.started_at
-                            ) AS thoi_gian_raw
+                            ) AS thoi_gian_raw,
+                            GREATEST(0, TIMESTAMPDIFF(SECOND, q.started_at, q.finished_at)) AS thoi_luong_giay,
+                            1 AS co_gio_chinh_xac
                         FROM $tbl_quiz q
                         LEFT JOIN $tbl_topics t
                             ON q.topic_id = t.topicID
+                        LEFT JOIN $tbl_sets vs
+                            ON q.vocabulary_set_id = vs.id
                         WHERE q.user_id = ?
                     )
 
@@ -314,16 +340,24 @@ if ($isLoggedIn && isset($link) && $link) {
                     (
                         SELECT
                             s.id,
-                            'Học FlashCard' AS hoat_dong,
+                            CONCAT(
+                                'Flashcard - ',
+                                COALESCE(t.topicName, vs.name, 'Ôn tập tổng hợp')
+                            ) AS hoat_dong,
                             'flashcard' AS loai,
                             CONCAT(s.words_studied, ' thẻ') AS ket_qua,
-                            CAST(
-                                CONCAT(
-                                    s.session_date,
-                                    ' 12:00:00'
-                                ) AS DATETIME
-                            ) AS thoi_gian_raw
+                            COALESCE(
+                                s.finished_at,
+                                s.started_at,
+                                CAST(CONCAT(s.session_date, ' 12:00:00') AS DATETIME)
+                            ) AS thoi_gian_raw,
+                            COALESCE(s.duration_seconds, 0) AS thoi_luong_giay,
+                            IF(s.finished_at IS NULL AND s.started_at IS NULL, 0, 1) AS co_gio_chinh_xac
                         FROM $tbl_sessions s
+                        LEFT JOIN $tbl_topics t
+                            ON s.topic_id = t.topicID
+                        LEFT JOIN $tbl_sets vs
+                            ON s.vocabulary_set_id = vs.id
                         WHERE s.user_id = ?
                           AND s.words_studied > 0
                     )
@@ -354,9 +388,8 @@ if ($isLoggedIn && isset($link) && $link) {
                         SELECT
                             q.id,
                             CONCAT(
-                                'Làm Quiz \"',
-                                COALESCE(t.topicName, 'Tổng hợp'),
-                                '\"'
+                                'Quiz - ',
+                                COALESCE(t.topicName, vs.name, 'Ôn tập tổng hợp')
                             ) AS hoat_dong,
                             'quiz' AS loai,
                             CONCAT(
@@ -367,10 +400,14 @@ if ($isLoggedIn && isset($link) && $link) {
                             COALESCE(
                                 q.finished_at,
                                 q.started_at
-                            ) AS thoi_gian_raw
+                            ) AS thoi_gian_raw,
+                            GREATEST(0, TIMESTAMPDIFF(SECOND, q.started_at, q.finished_at)) AS thoi_luong_giay,
+                            1 AS co_gio_chinh_xac
                         FROM $tbl_quiz q
                         LEFT JOIN $tbl_topics t
                             ON q.topic_id = t.topicID
+                        LEFT JOIN $tbl_sets vs
+                            ON q.vocabulary_set_id = vs.id
                         WHERE q.user_id = ?
                           AND DATE(
                               COALESCE(
@@ -385,16 +422,24 @@ if ($isLoggedIn && isset($link) && $link) {
                     (
                         SELECT
                             s.id,
-                            'Học FlashCard' AS hoat_dong,
+                            CONCAT(
+                                'Flashcard - ',
+                                COALESCE(t.topicName, vs.name, 'Ôn tập tổng hợp')
+                            ) AS hoat_dong,
                             'flashcard' AS loai,
                             CONCAT(s.words_studied, ' thẻ') AS ket_qua,
-                            CAST(
-                                CONCAT(
-                                    s.session_date,
-                                    ' 12:00:00'
-                                ) AS DATETIME
-                            ) AS thoi_gian_raw
+                            COALESCE(
+                                s.finished_at,
+                                s.started_at,
+                                CAST(CONCAT(s.session_date, ' 12:00:00') AS DATETIME)
+                            ) AS thoi_gian_raw,
+                            COALESCE(s.duration_seconds, 0) AS thoi_luong_giay,
+                            IF(s.finished_at IS NULL AND s.started_at IS NULL, 0, 1) AS co_gio_chinh_xac
                         FROM $tbl_sessions s
+                        LEFT JOIN $tbl_topics t
+                            ON s.topic_id = t.topicID
+                        LEFT JOIN $tbl_sets vs
+                            ON s.vocabulary_set_id = vs.id
                         WHERE s.user_id = ?
                           AND s.session_date BETWEEN ? AND ?
                           AND s.words_studied > 0
@@ -434,6 +479,23 @@ if ($isLoggedIn && isset($link) && $link) {
                 $row['thoi_gian'] = dinhDangThoiGian(
                     $row['thoi_gian_raw']
                 );
+                if (!(int) ($row['co_gio_chinh_xac'] ?? 0)) {
+                    $row['thoi_gian'] = 'Ngày ' . date('d/m/Y', strtotime($row['thoi_gian_raw']))
+                        . ' (dữ liệu cũ chưa lưu giờ)';
+                }
+                $row['thoi_luong'] = dinhDangThoiLuong((int) ($row['thoi_luong_giay'] ?? 0));
+
+                if ($row['loai'] === 'quiz') {
+                    [$correct, $total] = array_pad(explode('/', $row['ket_qua'], 2), 2, 0);
+                    $correct = (int) $correct;
+                    $total = (int) $total;
+                    $percent = $total > 0 ? (int) round(($correct / $total) * 100) : 0;
+                    $row['ket_qua'] = "Đúng $correct/$total";
+                    // $percent%
+                } else {
+                    $wordTotal = (int) $row['ket_qua'];
+                    $row['ket_qua'] = "Đã học $wordTotal từ";
+                }
             }
 
             unset($row);
@@ -442,6 +504,15 @@ if ($isLoggedIn && isset($link) && $link) {
         error_log('Lỗi Lịch sử ôn tập: ' . $e->getMessage());
     }
 }
+
+// Phân trang sau khi hợp nhất Quiz và Flashcard để giữ đúng thứ tự thời gian.
+$historyTotalItems = count($danh_sach_lich_su);
+$historyTotalPages = max(1, (int) ceil($historyTotalItems / $historyPerPage));
+$historyPage = min($historyPage, $historyTotalPages);
+$historyOffset = ($historyPage - 1) * $historyPerPage;
+$danh_sach_lich_su = array_slice($danh_sach_lich_su, $historyOffset, $historyPerPage);
+$historyFirstVisiblePage = max(1, min($historyPage - 1, $historyTotalPages - 2));
+$historyLastVisiblePage = min($historyTotalPages, $historyFirstVisiblePage + 2);
 
 /* =========================================================
    7. TÍNH TỔNG VÀ CHIỀU CAO CỘT BIỂU ĐỒ
@@ -589,15 +660,14 @@ unset($item);
                 </div>
 
                 <div class="C_Lichsuontap_chartArea">
-                    <div
-                        class="C_Lichsuontap_barsContainer"
-                        <?= count($du_lieu_bieu_do) > 7
-                            ? 'C_Lichsuontap_barsContainer--scrollable'
-                            : '' ?>">
+                    <div class="C_Lichsuontap_barsContainer <?= count($du_lieu_bieu_do) > 7
+                                                                ? 'C_Lichsuontap_barsContainer--scrollable'
+                                                                : '' ?>">
                             
                         <?php foreach ($du_lieu_bieu_do as $item): ?>
                             <div class="C_Lichsuontap_barGroup">
                                 <div class="C_Lichsuontap_barWrapper">
+                                    <span class="C_Lichsuontap_barValue"><?= (int) $item['so_tu'] ?></span>
                                     <div
                                         class="C_Lichsuontap_bar"
                                         style="height: <?= $item['chieu_cao'] ?>;"
@@ -673,7 +743,8 @@ unset($item);
                                         </td>
 
                                         <td class="C_Lichsuontap_td time-text">
-                                            <?= htmlspecialchars($row['thoi_gian']) ?>
+                                            <strong><?= htmlspecialchars($row['thoi_gian']) ?></strong>
+                                            <small>Thời lượng: <?= htmlspecialchars($row['thoi_luong']) ?></small>
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>
@@ -681,6 +752,31 @@ unset($item);
                         </tbody>
                     </table>
                 </div>
+
+                <?php if ($historyTotalPages > 1): ?>
+                    <nav class="C_Lichsuontap_pagination" aria-label="Phân trang lịch sử ôn tập">
+                        <?php if ($historyPage > 1): ?>
+                            <?php $previousQuery = http_build_query(['range' => $selectedRange, 'page' => $historyPage - 1]); ?>
+                            <a href="?<?= htmlspecialchars($previousQuery) ?>" aria-label="Trang trước">&lt;</a>
+                        <?php else: ?>
+                            <span class="is-disabled" aria-hidden="true">&lt;</span>
+                        <?php endif; ?>
+
+                        <?php for ($pageNumber = $historyFirstVisiblePage; $pageNumber <= $historyLastVisiblePage; $pageNumber++): ?>
+                            <?php $pageQuery = http_build_query(['range' => $selectedRange, 'page' => $pageNumber]); ?>
+                            <a href="?<?= htmlspecialchars($pageQuery) ?>"
+                               class="<?= $pageNumber === $historyPage ? 'is-active' : '' ?>"
+                               <?= $pageNumber === $historyPage ? 'aria-current="page"' : '' ?>><?= $pageNumber ?></a>
+                        <?php endfor; ?>
+
+                        <?php if ($historyPage < $historyTotalPages): ?>
+                            <?php $nextQuery = http_build_query(['range' => $selectedRange, 'page' => $historyPage + 1]); ?>
+                            <a href="?<?= htmlspecialchars($nextQuery) ?>" aria-label="Trang sau">&gt;</a>
+                        <?php else: ?>
+                            <span class="is-disabled" aria-hidden="true">&gt;</span>
+                        <?php endif; ?>
+                    </nav>
+                <?php endif; ?>
             </section>
         </main>
     </div>

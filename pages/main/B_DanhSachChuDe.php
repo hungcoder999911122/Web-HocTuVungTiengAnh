@@ -44,6 +44,7 @@ if (!$result) {
     <link rel="stylesheet" href="../../CSS/topheader.css">
     <link rel="stylesheet" type="text/css" href="../../CSS/responsive.css">
     <link rel="stylesheet" href="../../CSS/auth-required.css">
+    <link rel="stylesheet" href="../../CSS/guest-preview.css">
     <!-- <link rel="icon" type="image/x-icon" href="../../favicon.ico"> -->
 </head>
 
@@ -66,6 +67,14 @@ if (!$result) {
         $headerTitle = 'Chủ đề';
         include '../../includes/topheader.php';
         ?>
+
+        <?php if (!$isLoggedIn): ?>
+            <?php
+            $guestInviteTitle = 'Khám phá kho chủ đề miễn phí';
+            $guestInviteMessage = 'Bạn có thể xem chủ đề và danh sách từ vựng công khai. Đăng nhập để học Flashcard, làm Quiz và lưu tiến độ cá nhân.';
+            include '../../includes/guest_invite.php';
+            ?>
+        <?php endif; ?>
 
         <section class="topics-header">
             <div class="topics-header-content">
@@ -146,13 +155,13 @@ if (!$result) {
 
                                 <!-- =========================================
                                     NÚT HỌC TỪ MỚI
-                                    - User: đi thẳng đến Flashcard.
+                                    - User: chọn Flashcard hoặc Quiz tại Góc rèn luyện.
                                     - Guest: mở modal yêu cầu đăng nhập.
                                 ========================================= -->
                                 <a
                                     class="topic-action topic-action-learn"
                                     href="<?= $isLoggedIn
-                                                ? '../user/C_HocFlashcard.php?topic_id=' . (int) $topic['topicID']
+                                                ? '../user/C_Gocrenluyen.php?source=topic&id=' . (int) $topic['topicID']
                                                 : '../auth/A_DangNhap.php' ?>"
 
                                     <?php if (!$isLoggedIn): ?>

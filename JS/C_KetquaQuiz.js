@@ -1,39 +1,14 @@
 document.addEventListener("DOMContentLoaded", () => {
-    // 1. Lấy dữ liệu từ sessionStorage nếu vừa làm bài Quiz xong
-    const storedScore = sessionStorage.getItem("quiz_score");
-    const storedTotal = sessionStorage.getItem("quiz_total");
-
-    const scoreText = document.getElementById("C_KetquaQuiz_scoreText");
-    const statAccuracy = document.getElementById("C_KetquaQuiz_statAccuracy");
-    const statRank = document.getElementById("C_KetquaQuiz_statRank");
-    const feedback = document.getElementById("C_KetquaQuiz_feedback");
-
-    if (storedScore !== null && storedTotal !== null) {
-        const score = parseInt(storedScore, 10);
-        const total = parseInt(storedTotal, 10);
-        const percent = Math.round((score / total) * 100);
-
-        scoreText.textContent = `${score}/${total}`;
-        statAccuracy.textContent = `${percent}%`;
-
-        // Đánh giá xếp loại theo điểm
-        if (percent >= 90) {
-            statRank.textContent = "Xuất sắc";
-            feedback.textContent = "Tuyệt vời! Bạn nắm từ vựng rất xuất sắc! 🌟";
-        } else if (percent >= 70) {
-            statRank.textContent = "Khá";
-            feedback.textContent = "Bạn làm rất tốt! Cố gắng phát huy nhé! 👍";
-        } else {
-            statRank.textContent = "Cần cố gắng";
-            feedback.textContent = "Đừng nản lòng, hãy xem lại câu sai và ôn thêm nhé! 💪";
-        }
-    }
+    // Điểm và câu sai đã được PHP đọc từ MySQL.
+    // JavaScript không ghi đè bằng sessionStorage để tránh hiển thị dữ liệu cũ.
 
     // 2. Nút "Làm lại Quiz" -> Quay lại trang làm Quiz
     const btnLamLai = document.getElementById("C_KetquaQuiz_btnLamLai");
     if (btnLamLai) {
         btnLamLai.addEventListener("click", () => {
-            window.location.href = "C_Quiz.php";
+            window.location.href = typeof quizResultRetryUrl === "string"
+                ? quizResultRetryUrl
+                : "C_Gocrenluyen.php";
         });
     }
 
@@ -41,14 +16,14 @@ document.addEventListener("DOMContentLoaded", () => {
     const btnDashboard = document.getElementById("C_KetquaQuiz_btnDashboard");
     if (btnDashboard) {
         btnDashboard.addEventListener("click", () => {
-            window.location.href = "Dashboard.php";
+            window.location.href = "C_Dashboard_user.php";
         });
     }
 
     const btnDong = document.getElementById("C_KetquaQuiz_btnDong");
     if (btnDong) {
         btnDong.addEventListener("click", () => {
-            window.location.href = "B_DanhSachChuDe.php";
+            window.location.href = "C_Gocrenluyen.php";
         });
     }
 

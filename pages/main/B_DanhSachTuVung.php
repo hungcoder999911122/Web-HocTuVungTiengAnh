@@ -136,6 +136,7 @@ $vocab_result = mysqli_stmt_get_result($stmt_vocab);
     <link rel="stylesheet" type="text/css" href="../../CSS/topheader.css">
     <link rel="stylesheet" type="text/css" href="../../CSS/B_DanhSachTuVung.css">
     <link rel="stylesheet" type="text/css" href="../../CSS/responsive.css">
+    <link rel="stylesheet" type="text/css" href="../../CSS/guest-preview.css">
     <!-- <link rel="icon" type="image/x-icon" href="../../favicon.ico"> -->
 </head>
 
@@ -160,6 +161,14 @@ $vocab_result = mysqli_stmt_get_result($stmt_vocab);
             $headerTitle = 'Chủ đề';
             include '../../includes/topheader.php';
             ?>
+
+            <?php if (!$isLoggedIn): ?>
+                <?php
+                $guestInviteTitle = 'Bạn đang xem danh sách từ công khai';
+                $guestInviteMessage = 'Hãy đăng nhập để đưa chủ đề này vào Góc rèn luyện, học bằng Flashcard và theo dõi kết quả Quiz.';
+                include '../../includes/guest_invite.php';
+                ?>
+            <?php endif; ?>
 
             <div class="content-area">
 

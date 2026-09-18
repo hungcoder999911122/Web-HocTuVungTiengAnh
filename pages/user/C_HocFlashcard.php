@@ -4,18 +4,28 @@ require_once($_SERVER['DOCUMENT_ROOT'] . "/Connect.php");
 
 // auth_guard.php đã xác thực session trước khi trang sử dụng user_id.
 $user_id = (int) $_SESSION['user_id'];
+if (empty($_SESSION['C_learning_csrf'])) {
+    $_SESSION['C_learning_csrf'] = bin2hex(random_bytes(32));
+}
+$source = $_GET['source'] ?? 'topic';
+$source = in_array($source, ['topic', 'set'], true) ? $source : 'topic';
+$source_id = filter_var($_GET['id'] ?? $_GET['topic_id'] ?? 0, FILTER_VALIDATE_INT) ?: 0;
+$limit_option = (string) ($_GET['limit'] ?? '10');
+if (!in_array($limit_option, ['5', '10', '20', 'all'], true)) {
+    $limit_option = '10';
+}
 
 // Đồng bộ biến kết nối DB
 if (isset($link) && !isset($conn)) {
     $conn = $link;
 }
-// Lấy ID chủ đề từ URL
-$id_chu_de = isset($_GET['id']) ? intval($_GET['id']) : (isset($_GET['topic_id']) ? intval($_GET['topic_id']) : 1);
-if ($id_chu_de <= 0) {
-    $id_chu_de = 1;
-}
-
+// Nguồn topic/set bắt buộc có ID hợp lệ; không tự ý rơi sang topic mặc định.
+$id_chu_de = $source === 'topic' ? $source_id : 0;
 $mode = $_GET['mode'] ?? ''; // Chế độ: 'review' (ôn tập) hoặc học theo chủ đề
+if ($mode !== 'review' && $source_id <= 0) {
+    header('Location: C_Gocrenluyen.php');
+    exit;
+}
 $ten_chu_de = ($mode === 'review') ? "Từ vựng cần ôn tập" : "Chủ đề học";
 $danh_sach_tu = [];
 
@@ -33,9 +43,24 @@ try {
         $tbl_vocab    = isset($db_tables['vocabulary']) ? "`" . $db_tables['vocabulary'] . "`" : "`vocabulary`";
         $tbl_topics   = isset($db_tables['topics']) ? "`" . $db_tables['topics'] . "`" : "`Topics`";
         $tbl_progress = isset($db_tables['user_vocab_progress']) ? "`" . $db_tables['user_vocab_progress'] . "`" : "`user_vocab_progress`";
+        $tbl_sets     = isset($db_tables['vocabulary_sets']) ? "`" . $db_tables['vocabulary_sets'] . "`" : "`vocabulary_sets`";
+        $tbl_set_items = isset($db_tables['vocabulary_set_items']) ? "`" . $db_tables['vocabulary_set_items'] . "`" : "`vocabulary_set_items`";
 
         // Lấy tên chủ đề
-        if ($mode !== 'review' && isset($db_tables['topics'])) {
+        if ($mode !== 'review' && $source === 'set') {
+            // Bộ từ cá nhân bắt buộc thuộc tài khoản đang đăng nhập.
+            $sql_set = "SELECT name FROM $tbl_sets WHERE id = ? AND user_id = ? LIMIT 1";
+            $stmt = mysqli_prepare($link, $sql_set);
+            mysqli_stmt_bind_param($stmt, 'ii', $source_id, $user_id);
+            mysqli_stmt_execute($stmt);
+            $set_row = mysqli_fetch_assoc(mysqli_stmt_get_result($stmt));
+            mysqli_stmt_close($stmt);
+            if (!$set_row) {
+                header('Location: C_Gocrenluyen.php');
+                exit;
+            }
+            $ten_chu_de = $set_row['name'];
+        } elseif ($mode !== 'review' && isset($db_tables['topics'])) {
             $sql_topic = "SELECT topicName FROM $tbl_topics WHERE topicID = ? LIMIT 1";
             if ($stmt = @mysqli_prepare($link, $sql_topic)) {
                 mysqli_stmt_bind_param($stmt, "i", $id_chu_de);
@@ -43,6 +68,10 @@ try {
                 $res = mysqli_stmt_get_result($stmt);
                 if ($row = mysqli_fetch_assoc($res)) {
                     $ten_chu_de = $row['topicName'];
+                } else {
+                    mysqli_stmt_close($stmt);
+                    header('Location: C_Gocrenluyen.php');
+                    exit;
                 }
                 mysqli_stmt_close($stmt);
             }
@@ -86,6 +115,37 @@ try {
                     }
                     mysqli_stmt_close($stmt);
                 }
+            } elseif ($source === 'set') {
+                // Chỉ lấy từ thuộc bộ cá nhân đã được kiểm tra quyền sở hữu ở trên.
+                $sql_words = "
+                    SELECT v.id, v.word AS tu_vung, v.meaning AS nghia,
+                           v.pronunciation AS phien_am, v.part_of_speech AS loai_tu,
+                           v.example_sentence AS vi_du, v.audio_url, p.next_review_date
+                    FROM $tbl_set_items vsi
+                    INNER JOIN $tbl_sets vs ON vs.id = vsi.vocabulary_set_id AND vs.user_id = ?
+                    INNER JOIN $tbl_vocab v ON v.id = vsi.vocabulary_id
+                    LEFT JOIN $tbl_progress p ON p.vocabulary_id = v.id AND p.user_id = ?
+                    WHERE vsi.vocabulary_set_id = ?
+                    ORDER BY vsi.display_order ASC, vsi.id ASC
+                ";
+                $stmt = mysqli_prepare($link, $sql_words);
+                mysqli_stmt_bind_param($stmt, 'iii', $user_id, $user_id, $source_id);
+                mysqli_stmt_execute($stmt);
+                $result = mysqli_stmt_get_result($stmt);
+                $today = date('Y-m-d');
+                while ($row = mysqli_fetch_assoc($result)) {
+                    $danh_sach_tu[] = [
+                        'id' => (int) $row['id'],
+                        'tu_vung' => $row['tu_vung'],
+                        'nghia' => $row['nghia'],
+                        'phien_am' => $row['phien_am'] ?? '',
+                        'loai_tu' => $row['loai_tu'] ?? '',
+                        'vi_du' => $row['vi_du'] ?? '',
+                        'audio_url' => $row['audio_url'] ?? '',
+                        'is_review' => !empty($row['next_review_date']) && $row['next_review_date'] <= $today
+                    ];
+                }
+                mysqli_stmt_close($stmt);
             } else {
                 // Chế độ học từ mới theo Chủ đề
                 $sql_words = "
@@ -129,6 +189,10 @@ try {
     }
 } catch (\Throwable $e) {
     error_log("Lỗi Flashcard: " . $e->getMessage());
+}
+
+if ($limit_option !== 'all') {
+    $danh_sach_tu = array_slice($danh_sach_tu, 0, (int) $limit_option);
 }
 ?>
 
@@ -243,14 +307,6 @@ try {
 
             <button
                 type="button"
-                id="C_HocFlashcard_btnVaoQuiz"
-                class="C_HocFlashcard_btnQuiz"
-                disabled>
-                Hoàn thành đánh giá để làm Quiz
-            </button>
-
-            <button
-                type="button"
                 id="C_HocFlashcard_btnKetThuc"
                 class="C_HocFlashcard_btnKetThuc">
                 Kết thúc sớm
@@ -278,6 +334,10 @@ try {
                                         echo json_encode(
                                             [
                                                 'topicId' => $id_chu_de,
+                                                'source' => $mode === 'review' ? 'review' : $source,
+                                                'sourceId' => $source_id,
+                                                'limit' => $limit_option,
+                                                'csrf' => $_SESSION['C_learning_csrf'],
                                                 'topicName' => $ten_chu_de,
                                                 'mode' => $mode === 'review' ? 'review' : 'new_learning'
                                             ],

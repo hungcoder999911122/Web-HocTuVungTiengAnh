@@ -323,24 +323,6 @@ body,
     color: #c62828;
 }
 
-.C_HocFlashcard_btnQuiz{
-    padding: 8px 18px;
-    background-color: var(--color-white);
-    border: 1px solid var(--color-border);
-    border-radius: 20px;
-    color: var(--color-text);
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
-}
-
-.C_HocFlashcard_btnQuiz:hover{
-    background-color: #d0f7e6;
-    border-color: #d0f3dd;
-    color: #3fdc7e;
-}
-
 /* 
 * RESPONISVE
 */

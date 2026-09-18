@@ -16,6 +16,7 @@ if (filterSelect) {
          * PHP sẽ nhận được $_GET['range'].
          */
         currentUrl.searchParams.set("range", event.target.value);
+        currentUrl.searchParams.delete("page");
 
         /*
          * Tải lại trang để PHP truy vấn và render dữ liệu mới.

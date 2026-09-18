@@ -64,6 +64,10 @@ body,
 }
 
 .C_Quiz_progressText { font-size: 15px; font-weight: 700; color: var(--color-primary-dark); }
+.C_Quiz_headerActions { display: flex; align-items: center; gap: 16px; }
+.C_Quiz_exitButton { min-height: 38px; padding: 0 16px; border: 1px solid #e2b8b8; border-radius: 10px; color: #a83a3a; background: #fff7f7; font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; }
+.C_Quiz_exitButton:hover { border-color: #cf7777; background: #ffeded; }
+.C_Quiz_exitButton:disabled { cursor: wait; opacity: .65; }
 
 .C_Quiz_progressBarWrapper {
     max-width: 780px;
@@ -252,5 +256,8 @@ body,
 .C_Quiz_bubble.active { outline: 2px solid var(--color-primary); outline-offset: 2px; font-weight: 800; }
 
 @media (max-width: 600px) {
+    .C_Quiz_header { padding: 14px 16px; }
+    .C_Quiz_headerActions { gap: 9px; }
+    .C_Quiz_exitButton { padding: 0 12px; }
     .C_Quiz_optionsGrid { grid-template-columns: 1fr; }
 }

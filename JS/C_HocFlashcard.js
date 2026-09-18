@@ -39,9 +39,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const btnDaNho = document.getElementById(
         "C_HocFlashcard_btnDaNho"
     );
-    const btnVaoQuiz = document.getElementById(
-        "C_HocFlashcard_btnVaoQuiz"
-    );
     const btnKetThuc = document.getElementById(
         "C_HocFlashcard_btnKetThuc"
     );
@@ -51,7 +48,7 @@ document.addEventListener("DOMContentLoaded", () => {
      * Dữ liệu giả có thể khiến người dùng tưởng rằng đang học
      * một từ thật thuộc chủ đề.
      */
-    const cards = Array.isArray(flashcardsData)
+    let cards = Array.isArray(flashcardsData)
         ? flashcardsData
         : [];
 
@@ -62,6 +59,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
     let currentIndex = 0;
     let isFlipped = false;
+    let sessionStartedAt = Date.now();
+    let previousDurationSeconds = 0;
+    let isSaving = false;
+    let isAssessing = false;
+    let isCompleting = false;
+    let hasCompletedSession = false;
+    let checkpointQueue = Promise.resolve();
 
     /*
      * Lưu một trạng thái duy nhất cho mỗi từ:
@@ -75,6 +79,92 @@ document.addEventListener("DOMContentLoaded", () => {
      * bị cộng thêm vào thống kê.
      */
     const cardStatuses = {};
+
+    async function attemptRequest(action, state = null) {
+        const response = await fetch("../api/learning_attempt.php", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                action,
+                activity: "flashcard",
+                csrf: sessionConfig.csrf,
+                source: sessionConfig.source,
+                sourceId: sessionConfig.sourceId,
+                limit: sessionConfig.limit || "10",
+                state
+            })
+        });
+        const result = await response.json();
+        if (!response.ok || !result.success) {
+            throw new Error(result.message || "Không thể lưu phiên Flashcard.");
+        }
+        return result;
+    }
+
+    function getElapsedSeconds() {
+        return previousDurationSeconds + Math.round((Date.now() - sessionStartedAt) / 1000);
+    }
+
+    function getAttemptState() {
+        return {
+            currentIndex,
+            cardStatuses,
+            cardIds: cards.map((card) => Number(card.id)),
+            durationSeconds: getElapsedSeconds()
+        };
+    }
+
+    function saveCheckpoint() {
+        if (cards.length === 0) return true;
+        const snapshot = JSON.parse(JSON.stringify(getAttemptState()));
+        checkpointQueue = checkpointQueue
+            .catch(() => undefined)
+            .then(() => attemptRequest("save", snapshot));
+        return checkpointQueue.then(() => true).catch((error) => {
+            console.error(error);
+            return false;
+        });
+    }
+
+    function saveCheckpointOnExit() {
+        if (cards.length === 0 || isCompleting) return;
+        const payload = JSON.stringify({
+            action: "save",
+            activity: "flashcard",
+            csrf: sessionConfig.csrf,
+            source: sessionConfig.source,
+            sourceId: sessionConfig.sourceId,
+            limit: sessionConfig.limit || "10",
+            state: getAttemptState()
+        });
+        navigator.sendBeacon("../api/learning_attempt.php", new Blob([payload], { type: "application/json" }));
+    }
+
+    async function restoreAttempt() {
+        if (cards.length === 0) return;
+        try {
+            const result = await attemptRequest("load");
+            const state = result.attempt?.state;
+            if (state && Array.isArray(state.cardIds)) {
+                const cardsById = new Map(cards.map((card) => [Number(card.id), card]));
+                const restoredCards = state.cardIds.map((id) => cardsById.get(Number(id))).filter(Boolean);
+                const restoredIds = new Set(restoredCards.map((card) => Number(card.id)));
+                cards = restoredCards.concat(cards.filter((card) => !restoredIds.has(Number(card.id))));
+                const validIds = new Set(cards.map((card) => String(card.id)));
+                Object.entries(state.cardStatuses || {}).forEach(([id, status]) => {
+                    if (validIds.has(String(id))) cardStatuses[id] = status;
+                });
+                currentIndex = Math.min(Math.max(0, Number(state.currentIndex) || 0), cards.length - 1);
+                previousDurationSeconds = Math.max(0, Number(state.durationSeconds) || 0);
+                sessionStartedAt = Date.now();
+            } else {
+                await saveCheckpoint();
+            }
+        } catch (error) {
+            // Nếu migration chưa chạy, người dùng vẫn học được nhưng chưa thể resume.
+            console.error(error);
+        }
+    }
 
     function getCurrentCard() {
         return cards[currentIndex];
@@ -94,7 +184,6 @@ document.addEventListener("DOMContentLoaded", () => {
         btnNext.disabled = true;
         btnChuaNho.disabled = true;
         btnDaNho.disabled = true;
-        btnVaoQuiz.disabled = true;
     }
 
     function renderPronunciation(card) {
@@ -150,11 +239,6 @@ document.addEventListener("DOMContentLoaded", () => {
         progressText.textContent =
             `Thẻ ${currentIndex + 1}/${cards.length}`;
 
-        const progressPercent =
-            ((currentIndex + 1) / cards.length) * 100;
-
-        progressFill.style.width = `${progressPercent}%`;
-
         badgeR.style.display = currentCard.is_review
             ? "flex"
             : "none";
@@ -164,6 +248,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
         btnPrev.disabled = currentIndex === 0;
         btnNext.disabled = currentIndex === cards.length - 1;
+        btnChuaNho.disabled = false;
+        btnDaNho.disabled = false;
 
         renderStats();
     }
@@ -200,15 +286,14 @@ document.addEventListener("DOMContentLoaded", () => {
             Chưa nhớ: <strong>${statistics.notRememberedCount}</strong>
         `;
 
-        const isAllCardsAssessed =
-            cards.length > 0 &&
-            statistics.assessedCount === cards.length;
+        const progressPercent = cards.length > 0
+            ? (statistics.rememberedCount / cards.length) * 100
+            : 0;
+        progressFill.style.width = `${progressPercent}%`;
 
-        btnVaoQuiz.disabled = !isAllCardsAssessed;
-
-        btnVaoQuiz.textContent = isAllCardsAssessed
-            ? "Bắt đầu Quiz"
-            : "Hoàn thành đánh giá để làm Quiz";
+        if (statistics.rememberedCount === cards.length) {
+            statsText.insertAdjacentText("beforeend", " • Hoàn thành 100%");
+        }
     }
 
     function setCardStatus(status) {
@@ -235,6 +320,54 @@ document.addEventListener("DOMContentLoaded", () => {
 
         currentIndex = nextIndex;
         renderCard();
+    }
+
+    async function saveProgress(isFinal = true) {
+        if (Object.keys(cardStatuses).length === 0) return true;
+        if (isSaving) return false;
+        isSaving = true;
+        try {
+            const response = await fetch("../api/save_flashcard_progress.php", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    csrf: sessionConfig.csrf,
+                    source: sessionConfig.source,
+                    sourceId: sessionConfig.sourceId,
+                    durationSeconds: getElapsedSeconds(),
+                    isFinal,
+                    statuses: cardStatuses
+                })
+            });
+            const result = await response.json();
+            if (!response.ok || !result.success) throw new Error(result.message || "Không thể lưu tiến trình.");
+            return true;
+        } catch (error) {
+            alert(error.message);
+            return false;
+        } finally {
+            isSaving = false;
+        }
+    }
+
+    async function completeFlashcardIfFinished() {
+        // Chỉ "Đã nhớ" mới tạo tiến độ. Còn một thẻ "Chưa nhớ" thì phiên
+        // vẫn phải giữ in_progress để người dùng quay lại học tiếp.
+        if (hasCompletedSession || getStatistics().rememberedCount !== cards.length) return;
+
+        hasCompletedSession = true;
+        isCompleting = true;
+        await checkpointQueue.catch(console.error);
+        const saved = await saveProgress(true);
+        if (!saved) {
+            hasCompletedSession = false;
+            isCompleting = false;
+            return;
+        }
+        await attemptRequest("complete").catch(console.error);
+        btnDaNho.disabled = true;
+        btnChuaNho.disabled = true;
+        btnKetThuc.textContent = "Hoàn tất phiên học";
     }
 
 cardBox.addEventListener("click", () => {
@@ -268,53 +401,74 @@ cardBox.addEventListener("click", () => {
         });
     });
 
-    btnDaNho.addEventListener("click", () => {
-        setCardStatus("da_nho");
+    btnDaNho.addEventListener("click", async () => {
+        if (isAssessing) return;
+        isAssessing = true;
+        try {
+            setCardStatus("da_nho");
+            // Đánh giá xong một thẻ thì chuyển ngay sang thẻ tiếp theo.
+            if (currentIndex < cards.length - 1) moveToCard(currentIndex + 1);
+            await saveCheckpoint();
+            await completeFlashcardIfFinished();
+        } finally {
+            isAssessing = false;
+        }
     });
 
-    btnChuaNho.addEventListener("click", () => {
-        setCardStatus("chua_nho");
+    btnChuaNho.addEventListener("click", async () => {
+        if (isAssessing) return;
+        isAssessing = true;
+        try {
+            setCardStatus("chua_nho");
+            if (currentIndex < cards.length - 1) moveToCard(currentIndex + 1);
+            await saveCheckpoint();
+            await completeFlashcardIfFinished();
+        } finally {
+            isAssessing = false;
+        }
     });
 
-    btnPrev.addEventListener("click", () => {
+    btnPrev.addEventListener("click", async () => {
         moveToCard(currentIndex - 1);
+        await saveCheckpoint();
     });
 
-    btnNext.addEventListener("click", () => {
+    btnNext.addEventListener("click", async () => {
         moveToCard(currentIndex + 1);
+        await saveCheckpoint();
     });
 
-    btnKetThuc.addEventListener("click", () => {
+    btnKetThuc.addEventListener("click", async () => {
         const shouldEnd = confirm(
             "Bạn có chắc chắn muốn kết thúc phiên học này?"
         );
 
         if (shouldEnd) {
-            /*
-             * File B_DanhSachChuDe.php nằm trong pages/main,
-             * không nằm trong pages/user.
-             */
-            window.location.href = "../main/B_DanhSachChuDe.php";
+            // Kết thúc sớm: vừa giữ checkpoint để học tiếp, vừa cập nhật ngay
+            // số từ Đã nhớ/Chưa nhớ cho khu vực thống kê.
+            if (!hasCompletedSession) {
+                await saveCheckpoint();
+                const saved = await saveProgress(false);
+                if (!saved) return;
+            }
+            if (sessionConfig.source === "review") {
+                window.location.href = "C_Ontaphomnay.php";
+                return;
+            }
+            const sourceQuery = new URLSearchParams({
+                source: sessionConfig.source || "topic",
+                id: sessionConfig.sourceId || sessionConfig.topicId,
+                limit: sessionConfig.limit || "10"
+            });
+            window.location.href = `C_Gocrenluyen.php?${sourceQuery.toString()}`;
         }
     });
 
-    btnVaoQuiz.addEventListener("click", () => {
-        /*
-         * Chưa chuyển sang Quiz ngay ở bước này.
-         * Bước tiếp theo sẽ gọi save_flashcard_session.php,
-         * lưu phiên học và nhận learning_session_id từ PHP.
-         */
-        console.log({
-            topicId: sessionConfig.topicId,
-            mode: sessionConfig.mode,
-            cardStatuses
-        });
+    window.addEventListener("pagehide", saveCheckpointOnExit);
 
-        alert(
-            "Flashcard đã sẵn sàng. Bước tiếp theo sẽ lưu phiên học " +
-            "và chuyển đúng danh sách từ sang Quiz."
-        );
-    });
-
-    renderCard();
+    btnPrev.disabled = true;
+    btnNext.disabled = true;
+    btnChuaNho.disabled = true;
+    btnDaNho.disabled = true;
+    restoreAttempt().finally(renderCard);
 });

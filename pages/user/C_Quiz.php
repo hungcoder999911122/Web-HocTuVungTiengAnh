@@ -1,60 +1,28 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
-
+require_once '../../includes/auth_guard.php';
 require_once($_SERVER['DOCUMENT_ROOT'] . "/Connect.php");
 
-// Lấy trực tiếp ID tài khoản từ Session
-$user_id = $_SESSION['user_id'] 
-    ?? $_SESSION['userID'] 
-    ?? $_SESSION['id'] 
-    ?? $_SESSION['user']['userID'] 
-    ?? $_SESSION['user']['id'] 
-    ?? 2; // Dự phòng user 2 khi mở link test trực tiếp
-
-// Lấy ID chủ đề từ URL
-$id_chu_de = isset($_GET['id']) ? intval($_GET['id']) : (isset($_GET['topic_id']) ? intval($_GET['topic_id']) : 4);
-if ($id_chu_de <= 0) {
-    $id_chu_de = 4;
+$user_id = (int) $_SESSION['user_id'];
+if (empty($_SESSION['C_learning_csrf'])) {
+    $_SESSION['C_learning_csrf'] = bin2hex(random_bytes(32));
+}
+$source = $_GET['source'] ?? 'topic';
+$source = in_array($source, ['topic', 'set', 'review'], true) ? $source : 'topic';
+$source_id = filter_var($_GET['id'] ?? $_GET['topic_id'] ?? 0, FILTER_VALIDATE_INT) ?: 0;
+$limit_option = (string) ($_GET['limit'] ?? '10');
+if (!in_array($limit_option, ['5', '10', '20', 'all'], true)) {
+    $limit_option = '10';
 }
 
-$ten_chu_de = "Du lịch";
-$danh_sach_cau_hoi = [];
+// Topic/set phải có ID thật; review dùng danh sách đến hạn của người dùng.
+$id_chu_de = $source === 'topic' ? $source_id : 0;
+if ($source !== 'review' && $source_id <= 0) {
+    header('Location: C_Gocrenluyen.php');
+    exit;
+}
 
-// Dữ liệu dự phòng nếu database chưa có dữ liệu
-$du_lieu_du_phong = [
-    [
-        "id"          => 1,
-        "tu_vung"     => "Airport",
-        "dap_an"      => ["A. Sân bay", "B. Bến xe", "C. Nhà ga", "D. Bến tàu"],
-        "dap_an_dung" => 0
-    ],
-    [
-        "id"          => 2,
-        "tu_vung"     => "Passport",
-        "dap_an"      => ["A. Vé máy bay", "B. Hộ chiếu", "C. Giấy phép lái xe", "D. Thẻ căn cước"],
-        "dap_an_dung" => 1
-    ],
-    [
-        "id"          => 3,
-        "tu_vung"     => "Luggage",
-        "dap_an"      => ["A. Khách sạn", "B. Bản đồ du lịch", "C. Hành lý", "D. Chuyến bay"],
-        "dap_an_dung" => 2
-    ],
-    [
-        "id"          => 4,
-        "tu_vung"     => "Ticket",
-        "dap_an"      => ["A. Vé đi lại", "B. Hộ chiếu", "C. Hướng dẫn viên", "D. Hành lý"],
-        "dap_an_dung" => 0
-    ],
-    [
-        "id"          => 5,
-        "tu_vung"     => "Flight",
-        "dap_an"      => ["A. Đường cao tốc", "B. Nhà chờ", "C. Tàu hoả", "D. Chuyến bay"],
-        "dap_an_dung" => 3
-    ]
-];
+$ten_chu_de = $source === 'review' ? 'Từ vựng cần ôn tập' : 'Nguồn học';
+$danh_sach_cau_hoi = [];
 
 try {
     if (isset($link) && $link) {
@@ -69,9 +37,23 @@ try {
 
         $tbl_vocab  = isset($db_tables['vocabulary']) ? "`" . $db_tables['vocabulary'] . "`" : "`vocabulary`";
         $tbl_topics = isset($db_tables['topics']) ? "`" . $db_tables['topics'] . "`" : "`Topics`";
+        $tbl_sets = isset($db_tables['vocabulary_sets']) ? "`" . $db_tables['vocabulary_sets'] . "`" : "`vocabulary_sets`";
+        $tbl_set_items = isset($db_tables['vocabulary_set_items']) ? "`" . $db_tables['vocabulary_set_items'] . "`" : "`vocabulary_set_items`";
+        $tbl_progress = isset($db_tables['user_vocab_progress']) ? "`" . $db_tables['user_vocab_progress'] . "`" : "`user_vocab_progress`";
 
         // Lấy tên chủ đề
-        if (isset($db_tables['topics'])) {
+        if ($source === 'set') {
+            $stmt_set = mysqli_prepare($link, "SELECT name FROM $tbl_sets WHERE id = ? AND user_id = ? LIMIT 1");
+            mysqli_stmt_bind_param($stmt_set, 'ii', $source_id, $user_id);
+            mysqli_stmt_execute($stmt_set);
+            $set_row = mysqli_fetch_assoc(mysqli_stmt_get_result($stmt_set));
+            mysqli_stmt_close($stmt_set);
+            if (!$set_row) {
+                header('Location: C_Gocrenluyen.php');
+                exit;
+            }
+            $ten_chu_de = $set_row['name'];
+        } elseif ($source === 'topic' && isset($db_tables['topics'])) {
             $stmt_topic = @mysqli_prepare($link, "SELECT topicName FROM $tbl_topics WHERE topicID = ? LIMIT 1");
             if ($stmt_topic) {
                 mysqli_stmt_bind_param($stmt_topic, "i", $id_chu_de);
@@ -79,6 +61,10 @@ try {
                 $res_t = mysqli_stmt_get_result($stmt_topic);
                 if ($row_t = mysqli_fetch_assoc($res_t)) {
                     $ten_chu_de = $row_t['topicName'];
+                } else {
+                    mysqli_stmt_close($stmt_topic);
+                    header('Location: C_Gocrenluyen.php');
+                    exit;
                 }
                 mysqli_stmt_close($stmt_topic);
             }
@@ -88,9 +74,30 @@ try {
         if (isset($db_tables['vocabulary'])) {
             // Lấy danh sách từ vựng thuộc chủ đề này (tối đa 10 câu)
             $topic_words = [];
-            $stmt_w = @mysqli_prepare($link, "SELECT id, word, meaning FROM $tbl_vocab WHERE topic_id = ? ORDER BY RAND() LIMIT 10");
+            if ($source === 'set') {
+                $word_sql = "SELECT v.id, v.word, v.meaning
+                   FROM $tbl_set_items vsi
+                   INNER JOIN $tbl_sets vs ON vs.id = vsi.vocabulary_set_id AND vs.user_id = ?
+                   INNER JOIN $tbl_vocab v ON v.id = vsi.vocabulary_id
+                   WHERE vsi.vocabulary_set_id = ? ORDER BY RAND()";
+            } elseif ($source === 'review') {
+                $word_sql = "SELECT v.id, v.word, v.meaning
+                    FROM $tbl_vocab v
+                    INNER JOIN $tbl_progress p ON p.vocabulary_id = v.id
+                    WHERE p.user_id = ? AND p.next_review_date <= CURDATE()
+                    ORDER BY p.next_review_date ASC";
+            } else {
+                $word_sql = "SELECT id, word, meaning FROM $tbl_vocab WHERE topic_id = ? ORDER BY RAND()";
+            }
+            $stmt_w = mysqli_prepare($link, $word_sql);
             if ($stmt_w) {
-                mysqli_stmt_bind_param($stmt_w, "i", $id_chu_de);
+                if ($source === 'set') {
+                    mysqli_stmt_bind_param($stmt_w, 'ii', $user_id, $source_id);
+                } elseif ($source === 'review') {
+                    mysqli_stmt_bind_param($stmt_w, 'i', $user_id);
+                } else {
+                    mysqli_stmt_bind_param($stmt_w, 'i', $id_chu_de);
+                }
                 mysqli_stmt_execute($stmt_w);
                 $res_w = mysqli_stmt_get_result($stmt_w);
                 while ($rw = mysqli_fetch_assoc($res_w)) {
@@ -101,7 +108,7 @@ try {
 
             // Lấy kho đáp án sai (các nghĩa của từ ở chủ đề khác)
             $distractor_pool = [];
-            $res_pool = @mysqli_query($link, "SELECT DISTINCT meaning FROM $tbl_vocab WHERE topic_id != $id_chu_de ORDER BY RAND() LIMIT 30");
+            $res_pool = @mysqli_query($link, "SELECT DISTINCT meaning FROM $tbl_vocab ORDER BY RAND() LIMIT 40");
             if ($res_pool) {
                 while ($rp = mysqli_fetch_assoc($res_pool)) {
                     $distractor_pool[] = trim($rp['meaning']);
@@ -162,10 +169,10 @@ try {
     error_log("Lỗi tạo Quiz: " . $e->getMessage());
 }
 
-// Nếu CSDL chưa có từ vựng thì dùng mảng câu hỏi dự phòng
-if (empty($danh_sach_cau_hoi)) {
-    $danh_sach_cau_hoi = $du_lieu_du_phong;
+if ($limit_option !== 'all') {
+    $danh_sach_cau_hoi = array_slice($danh_sach_cau_hoi, 0, (int) $limit_option);
 }
+
 ?>
 
 <!DOCTYPE html>
@@ -181,13 +188,16 @@ if (empty($danh_sach_cau_hoi)) {
     <!-- Header -->
     <header class="C_Quiz_header">
         <h1 class="C_Quiz_logo">Quiz: <?php echo htmlspecialchars($ten_chu_de); ?></h1>
-        <span class="C_Quiz_progressText" id="C_Quiz_progressText">Câu 1/<?php echo count($danh_sach_cau_hoi); ?></span>
+        <div class="C_Quiz_headerActions">
+            <span class="C_Quiz_progressText" id="C_Quiz_progressText">Câu 1/<?php echo count($danh_sach_cau_hoi); ?></span>
+            <button type="button" class="C_Quiz_exitButton" id="C_Quiz_btnThoat">Thoát</button>
+        </div>
     </header>
 
     <!-- Thanh tiến độ Quiz -->
     <div class="C_Quiz_progressBarWrapper">
         <div class="C_Quiz_progressBar">
-            <div class="C_Quiz_progressFill" id="C_Quiz_progressFill" style="width: 20%;"></div>
+            <div class="C_Quiz_progressFill" id="C_Quiz_progressFill" style="width: 0%;"></div>
         </div>
     </div>
 
@@ -233,6 +243,12 @@ if (empty($danh_sach_cau_hoi)) {
 
     <script>
         const quizQuestions = <?php echo json_encode($danh_sach_cau_hoi, JSON_UNESCAPED_UNICODE); ?>;
+        const quizSessionConfig = <?= json_encode([
+                                        'csrf' => $_SESSION['C_learning_csrf'],
+                                        'source' => $source,
+                                        'sourceId' => $source_id,
+                                        'limit' => $limit_option
+                                    ], JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP) ?>;
     </script>
     <script src="../../JS/C_Quiz.js"></script>
 </body>
