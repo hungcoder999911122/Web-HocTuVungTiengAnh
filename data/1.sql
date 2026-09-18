@@ -18,7 +18,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `db_LexiLoop`
+-- Database: `hoc_ngoai_ngu`
 --
 
 -- --------------------------------------------------------
@@ -26,12 +26,6 @@ SET time_zone = "+00:00";
 --
 -- Table structure for table `favorites`
 --
-
-CREATE DATABASE IF NOT EXISTS `db_LexiLoop`
-DEFAULT CHARACTER SET utf8mb4
-COLLATE utf8mb4_0900_ai_ci;
-
-USE `db_LexiLoop`;
 
 CREATE TABLE `favorites` (
   `id` int NOT NULL,

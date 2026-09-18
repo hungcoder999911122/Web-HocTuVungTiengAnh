@@ -4,7 +4,7 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 require_once($_SERVER['DOCUMENT_ROOT'] . "/Connect.php");
-// auth_guard.php đã xác thực session trước khi trang sử dụng user_id.
+// Guest được xem giao diện rỗng; mọi truy vấn và thao tác cá nhân đều cần user_id.
 $isLoggedIn = isset($_SESSION['user_id']);
 $user_id = $isLoggedIn ? (int) $_SESSION['user_id'] : null;
 
@@ -646,7 +646,7 @@ try {
                     v.created_by,
                     personal_sets.set_ids,
                     personal_sets.set_names,
-                    COALESCE(t.topicName, 'Chung') AS chu_de,
+                    COALESCE(personal_sets.set_names, 'Chưa phân loại') AS chu_de,
                     COALESCE(p.status, 'new') AS db_status,
                     p.next_review_date
                 FROM $tbl_vocab v
@@ -654,12 +654,8 @@ try {
                 LEFT JOIN $tbl_progress p
                     ON v.id = p.vocabulary_id
                     AND p.user_id = ?
-                /*
-                 * Chỉ lấy liên kết bộ từ của chính người đang đăng nhập.
-                 * GROUP_CONCAT giúp một từ (nếu dữ liệu cũ có nhiều liên kết)
-                 * vẫn chỉ xuất hiện một hàng trong bảng và bộ lọc JS nhận đúng ID.
-                 */
-                LEFT JOIN (
+
+                INNER JOIN (
                     SELECT
                         vsi.vocabulary_id,
                         GROUP_CONCAT(vsi.vocabulary_set_id) AS set_ids,
@@ -669,12 +665,12 @@ try {
                     WHERE vs.user_id = ?
                     GROUP BY vsi.vocabulary_id
                 ) personal_sets ON personal_sets.vocabulary_id = v.id
-                WHERE v.created_by = ? OR p.user_id = ?
+
                 ORDER BY v.id DESC
             ";
 
             if ($stmt_l = @mysqli_prepare($link, $sql_list)) {
-                mysqli_stmt_bind_param($stmt_l, "iiii", $user_id, $user_id, $user_id, $user_id);
+                mysqli_stmt_bind_param($stmt_l, "ii", $user_id, $user_id);
                 mysqli_stmt_execute($stmt_l);
                 $res_l = mysqli_stmt_get_result($stmt_l);
                 $today = date('Y-m-d');
@@ -779,6 +775,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !headers_sent()) {
     <title>Từ vựng của tôi - LexiLoop</title>
     <link rel="stylesheet" href="../../CSS/Style.css">
     <link rel="stylesheet" href="../../CSS/C_Tuvungcuatoi.css">
+    <link rel="stylesheet" href="../../CSS/guest-preview.css">
     <link rel="stylesheet" href="../../CSS/topheader.css">
 </head>
 
@@ -810,30 +807,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !headers_sent()) {
         ?>
 
         <?php if (!$isLoggedIn): ?>
-            <section class="guest-preview-card">
-                <span class="guest-preview-card__icon" aria-hidden="true">📊</span>
-
-                <div class="guest-preview-card__content">
-                    <h2>Từ vựng cá nhân</h2>
-
-                    <p>
-                        Bạn đang chưa đăng nhập. Đăng nhập để theo dõi
-                        số từ đã học, lịch sử Flashcard và kết quả Quiz của riêng bạn.
-                    </p>
-
-                    <ul class="guest-preview-card__benefits">
-                        <li>Xem tiến độ học theo ngày</li>
-                        <li>Theo dõi lịch sử Flashcard và Quiz</li>
-                        <li>Đánh giá thói quen học tập cá nhân</li>
-                    </ul>
-
-                    <a
-                        href="../auth/A_DangNhap.php"
-                        class="guest-preview-card__login">
-                        Đăng nhập
-                    </a>
-                </div>
-            </section>
+            <?php
+            $guestInviteTitle = 'Xây dựng kho từ vựng cá nhân';
+            $guestInviteMessage = 'Trang đang ở chế độ xem trước và không tải dữ liệu cá nhân. Đăng nhập để thêm từ, phân loại theo bộ và theo dõi mức độ ghi nhớ.';
+            include '../../includes/guest_invite.php';
+            ?>
         <?php endif; ?>
         <!-- MAIN -->
         <main class="C_Tuvungcuatoi_main">
@@ -908,7 +886,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !headers_sent()) {
                                             <th class="C_Tuvungcuatoi_th">Từ vựng</th>
                                             <th class="C_Tuvungcuatoi_th">Nghĩa</th>
                                             <th class="C_Tuvungcuatoi_th">Loại từ</th>
-                                            <th class="C_Tuvungcuatoi_th">Chủ đề</th>
+                                            <th class="C_Tuvungcuatoi_th">Bộ từ</th>
                                             <th class="C_Tuvungcuatoi_th">Ví dụ</th>
                                             <th class="C_Tuvungcuatoi_th">Thuộc</th>
                                             <th class="C_Tuvungcuatoi_th text-center">
@@ -1023,11 +1001,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !headers_sent()) {
                                     </tbody>
                                 </table>
                             </div>
+                            <nav class="C_Tuvungcuatoi_pagination" id="C_Tuvungcuatoi_pagination" aria-label="Phân trang từ vựng"></nav>
+                            <p class="C_Tuvungcuatoi_noResults" id="C_Tuvungcuatoi_noResults" hidden>Không tìm thấy từ vựng phù hợp.</p>
                         </section>
                     </form>
                     <!-- Form độc lập: tránh lồng form trong bảng chọn hàng loạt. -->
                     <form id="C_Tuvungcuatoi_singleStatusForm" method="POST" action="C_Tuvungcuatoi.php">
-                        <input type="hidden" name="C_Tuvungcuatoi_csrf" value="<?php echo htmlspecialchars($_SESSION['C_Tuvungcuatoi_csrf'], ENT_QUOTES, 'UTF-8'); ?>">
+                        <input type="hidden" name="C_Tuvungcuatoi_csrf" value="<?php echo htmlspecialchars($_SESSION['C_Tuvungcuatoi_csrf'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
                         <input type="hidden" name="C_Tuvungcuatoi_action" value="bulk_status">
                         <input type="hidden" name="C_Tuvungcuatoi_selectedIds[]" id="C_Tuvungcuatoi_singleStatusId" value="">
                         <input type="hidden" name="C_Tuvungcuatoi_status" id="C_Tuvungcuatoi_singleStatusValue" value="">
@@ -1068,7 +1048,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !headers_sent()) {
                             method="POST">
 
                             <!-- QUAN TRỌNG: Server bắt buộc token này trước khi thêm/sửa. -->
-                            <input type="hidden" name="C_Tuvungcuatoi_csrf" value="<?php echo htmlspecialchars($_SESSION['C_Tuvungcuatoi_csrf'], ENT_QUOTES, 'UTF-8'); ?>">
+                            <input type="hidden" name="C_Tuvungcuatoi_csrf" value="<?php echo htmlspecialchars($_SESSION['C_Tuvungcuatoi_csrf'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
 
                             <input
                                 type="hidden"
@@ -1262,7 +1242,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !headers_sent()) {
                             action="C_Tuvungcuatoi.php"
                             method="POST"
                             hidden>
-                            <input type="hidden" name="C_Tuvungcuatoi_csrf" value="<?php echo htmlspecialchars($_SESSION['C_Tuvungcuatoi_csrf'], ENT_QUOTES, 'UTF-8'); ?>">
+                            <input type="hidden" name="C_Tuvungcuatoi_csrf" value="<?php echo htmlspecialchars($_SESSION['C_Tuvungcuatoi_csrf'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
                             <input type="hidden" name="C_Tuvungcuatoi_action" value="create_set">
 
                             <div class="C_Tuvungcuatoi_formGroup">

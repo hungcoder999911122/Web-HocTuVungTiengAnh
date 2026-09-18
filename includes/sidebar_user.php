@@ -24,7 +24,7 @@ function isSidebarActive(string $pageName, string $currentPage): string
 <aside class="sidebar">
 
     <!-- Logo: dùng đường dẫn tương đối phù hợp cho pages/main và pages/user -->
-    <a href="../main/B_homepage.html" class="sidebar-logo">
+    <a href="../user/C_Dashboard_user.php" class="sidebar-logo">
         <span class="logo-badge" aria-hidden="true">🌿</span>
         <span>LexiLoop</span>
     </a>
@@ -63,15 +63,9 @@ function isSidebarActive(string $pageName, string $currentPage): string
             <span>Chủ đề</span>
         </a>
 
-        <!--
-            TẠM THỜI:
-            Chưa có trang/form thêm từ nên vẫn giữ href="#".
-            Khi xây tính năng này, chỉ cần đổi href sang trang thật.
-        -->
-
         <a
-            href="../user/C_Tuvungcuatoi.php"
-            class="sidebar-link <?= isSidebarActive('C_Tuvungcuatoi.php', $currentPage) ?>">
+            href="../user/C_Botuvung.php"
+            class="sidebar-link <?= isSidebarActive('C_Botuvung.php', $currentPage) ?>">
             <span class="sidebar-icon" aria-hidden="true">
 
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-folder-heart">
@@ -80,7 +74,7 @@ function isSidebarActive(string $pageName, string $currentPage): string
                 </svg>
 
             </span>
-            <span>Bộ từ từ vựng </span>
+            <span>Bộ từ vựng</span>
         </a>
 
 
@@ -106,8 +100,8 @@ function isSidebarActive(string $pageName, string $currentPage): string
         </a>
 
         <a
-            href="../user/C_Tuvungcuatoi.php"
-            class="sidebar-link <?= isSidebarActive('C_Tuvungcuatoi.php', $currentPage) ?>">
+            href="../user/C_Gocrenluyen.php"
+            class="sidebar-link <?= isSidebarActive('C_Gocrenluyen.php', $currentPage) ?>">
             <span class="sidebar-icon" aria-hidden="true">
 
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-play">

@@ -75,13 +75,13 @@ body,
     font-weight: 700;
 }
 
-.C_Lichsuontap_chartArea { width: 100%; padding-top: 10px; }
+.C_Lichsuontap_chartArea { width: 100%; padding-top: 24px; }
 
 .C_Lichsuontap_barsContainer {
     display: flex;
     align-items: flex-end;
     justify-content: space-around;
-    height: 180px;
+    height: 210px;
     border-bottom: 1px solid var(--color-border);
     padding-bottom: 2px;
 }
@@ -96,9 +96,21 @@ body,
 }
 
 .C_Lichsuontap_barWrapper {
+    position: relative;
     height: 140px;
     display: flex;
     align-items: flex-end;
+}
+
+.C_Lichsuontap_barValue {
+    position: absolute;
+    bottom: calc(100% + 6px);
+    left: 50%;
+    transform: translateX(-50%);
+    color: var(--color-text-muted);
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1;
 }
 
 .C_Lichsuontap_bar {
@@ -188,6 +200,43 @@ body,
 .activity-flashcard { background-color: var(--color-primary-light); color: var(--color-primary-dark); }
 .result-tag         { font-weight: 700; color: var(--color-primary-dark); }
 .time-text          { color: var(--color-text-muted); font-size: 13px; }
+.time-text strong { display: block; color: var(--color-text); font-size: 13px; white-space: nowrap; }
+.time-text small { display: block; margin-top: 4px; color: var(--color-text-muted); white-space: nowrap; }
+
+.C_Lichsuontap_pagination {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 22px;
+}
+
+.C_Lichsuontap_pagination a,
+.C_Lichsuontap_pagination span {
+    display: grid;
+    place-items: center;
+    min-width: 38px;
+    height: 38px;
+    padding: 0 10px;
+    border: 1px solid var(--color-border);
+    border-radius: 10px;
+    color: var(--color-text);
+    background: var(--color-white);
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.C_Lichsuontap_pagination span.is-disabled {
+    color: #aab4ad;
+    background: #f4f6f5;
+    cursor: not-allowed;
+}
+
+.C_Lichsuontap_pagination a:hover,
+.C_Lichsuontap_pagination a.is-active {
+    border-color: var(--color-primary);
+    color: var(--color-white);
+    background: var(--color-primary);
+}
 
 @media (max-width: 860px) {
     /* .sidebar { width: 76px; padding: 20px 10px; }

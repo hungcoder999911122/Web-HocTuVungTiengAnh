@@ -10,7 +10,16 @@ $diem_so      = 0;
 $tong_cau     = 10;
 $thoi_gian    = "0:00";
 $cau_sai      = [];
+$retry_url    = 'C_Gocrenluyen.php';
 $quiz_result_id = isset($_GET['id']) ? intval($_GET['id']) : (isset($_GET['quiz_id']) ? intval($_GET['quiz_id']) : 0);
+$result_source = $_GET['source'] ?? '';
+$retry_limit = (string) ($_GET['limit'] ?? '10');
+if (!in_array($retry_limit, ['5', '10', '20', 'all'], true)) {
+    $retry_limit = '10';
+}
+if ($result_source === 'review') {
+    $retry_url = 'C_Quiz.php?' . http_build_query(['source' => 'review', 'limit' => $retry_limit]);
+}
 
 // Hàm định dạng số giây thành "Phút:Giây"
 if (!function_exists('dinhDangThoiGianLam')) {
@@ -37,38 +46,6 @@ try {
         $tbl_quiz   = isset($db_tables['quiz_results']) ? "`" . $db_tables['quiz_results'] . "`" : "`quiz_results`";
         $tbl_topics = isset($db_tables['topics']) ? "`" . $db_tables['topics'] . "`" : "`Topics`";
 
-        // --- XỬ LÝ LƯU KẾT QUẢ NẾU CÓ DỮ LIỆU SUBMIT TỪ TRANG QUIZ (POST) ---
-        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($db_tables['quiz_results'])) {
-            $p_correct = isset($_POST['correct_answers']) ? intval($_POST['correct_answers']) : (isset($_POST['diem_so']) ? intval($_POST['diem_so']) : null);
-            $p_total   = isset($_POST['total_questions']) ? intval($_POST['total_questions']) : (isset($_POST['tong_cau']) ? intval($_POST['tong_cau']) : 10);
-
-            // Không cho số câu đúng âm hoặc lớn hơn tổng số câu.
-            $p_total = max(1, $p_total);
-            $p_correct = max(0, min($p_correct ?? 0, $p_total));
-            
-            $p_topic   = isset($_POST['topic_id']) ? intval($_POST['topic_id']) : (isset($_POST['id_chude']) ? intval($_POST['id_chude']) : 1);
-            $p_seconds = isset($_POST['duration_seconds']) ? intval($_POST['duration_seconds']) : (isset($_POST['thoi_gian_giay']) ? intval($_POST['thoi_gian_giay']) : 120);
-
-            if ($p_correct !== null && $p_total > 0) {
-                $sql_ins = "
-                    INSERT INTO $tbl_quiz (user_id, topic_id, total_questions, correct_answers, started_at, finished_at) 
-                    VALUES (?, ?, ?, ?, DATE_SUB(NOW(), INTERVAL ? SECOND), NOW())
-                ";
-                if ($stmt_ins = @mysqli_prepare($link, $sql_ins)) {
-                    mysqli_stmt_bind_param($stmt_ins, "iiiii", $user_id, $p_topic, $p_total, $p_correct, $p_seconds);
-                    if (mysqli_stmt_execute($stmt_ins)) {
-                        $quiz_result_id = mysqli_insert_id($link);
-                    }
-                    mysqli_stmt_close($stmt_ins);
-                }
-
-                // Nhận danh sách câu sai nếu từ giao diện gửi lên
-                if (!empty($_POST['cau_sai'])) {
-                    $cau_sai = is_array($_POST['cau_sai']) ? $_POST['cau_sai'] : json_decode($_POST['cau_sai'], true);
-                }
-            }
-        }
-
         // --- TRUY VẤN KẾT QUẢ BÀI QUIZ TỪ CSDL ---
         if (isset($db_tables['quiz_results'])) {
             if ($quiz_result_id > 0) {
@@ -77,6 +54,8 @@ try {
                     SELECT 
                         correct_answers, 
                         total_questions, 
+                        topic_id,
+                        vocabulary_set_id,
                         TIMESTAMPDIFF(SECOND, started_at, finished_at) AS thoi_gian_giay 
                     FROM $tbl_quiz 
                     WHERE id = ? AND user_id = ? 
@@ -90,6 +69,11 @@ try {
                         $diem_so   = (int)$row['correct_answers'];
                         $tong_cau  = (int)$row['total_questions'];
                         $thoi_gian = dinhDangThoiGianLam($row['thoi_gian_giay'] ?? 180);
+                        if (!empty($row['vocabulary_set_id'])) {
+                            $retry_url = 'C_Quiz.php?' . http_build_query(['source' => 'set', 'id' => (int) $row['vocabulary_set_id'], 'limit' => $retry_limit]);
+                        } elseif (!empty($row['topic_id'])) {
+                            $retry_url = 'C_Quiz.php?' . http_build_query(['source' => 'topic', 'id' => (int) $row['topic_id'], 'limit' => $retry_limit]);
+                        }
                     }
                     mysqli_stmt_close($stmt_get);
                 }
@@ -117,6 +101,30 @@ try {
                     mysqli_stmt_close($stmt_lat);
                 }
             }
+        }
+
+        // Câu sai phải đọc từ database, không dùng nội dung mẫu cố định trên giao diện.
+        if ($quiz_result_id > 0 && isset($db_tables['quiz_answer_details'])) {
+            $detailSql = '
+                SELECT qad.question_order, v.word, qad.selected_answer, qad.correct_answer
+                FROM quiz_answer_details qad
+                INNER JOIN quiz_results qr ON qr.id = qad.quiz_result_id AND qr.user_id = ?
+                INNER JOIN vocabulary v ON v.id = qad.vocabulary_id
+                WHERE qad.quiz_result_id = ? AND qad.is_correct = 0
+                ORDER BY qad.question_order ASC';
+            $detailStmt = mysqli_prepare($link, $detailSql);
+            mysqli_stmt_bind_param($detailStmt, 'ii', $user_id, $quiz_result_id);
+            mysqli_stmt_execute($detailStmt);
+            $detailResult = mysqli_stmt_get_result($detailStmt);
+            while ($detail = mysqli_fetch_assoc($detailResult)) {
+                $cau_sai[] = [
+                    'cau' => (int) $detail['question_order'],
+                    'tu' => $detail['word'],
+                    'da_chon' => $detail['selected_answer'] ?: 'Chưa trả lời',
+                    'nghia_dung' => $detail['correct_answer']
+                ];
+            }
+            mysqli_stmt_close($detailStmt);
         }
     }
 } catch (\Throwable $e) {
@@ -216,13 +224,20 @@ if ($diem_so >= $tong_cau) {
         <footer class="C_KetquaQuiz_wrongBoxContainer">
             <div class="C_KetquaQuiz_wrongBox" id="C_KetquaQuiz_wrongBox">
                 <span class="wrong-icon">⚠️</span>
-                <span><strong>Câu cần xem lại:</strong> Câu 3 (Software), Câu 7 (Meeting) - <em>Nhấn để xem chi tiết</em></span>
+                <span>
+                    <strong>Câu cần xem lại:</strong>
+                    <?= empty($cau_sai) ? 'Không có câu sai.' : count($cau_sai) . ' câu - nhấn để xem chi tiết.' ?>
+                </span>
             </div>
 
             <div class="C_KetquaQuiz_wrongDetail" id="C_KetquaQuiz_wrongDetail" style="display: none;">
                 <ul>
                     <?php foreach ($cau_sai as $item): ?>
-                        <li><strong>Câu <?php echo $item['cau']; ?>:</strong> <?php echo $item['tu']; ?> &rarr; Nghĩa đúng: <span class="correct-text"><?php echo $item['nghia_dung']; ?></span></li>
+                        <li>
+                            <strong>Câu <?= $item['cau'] ?>:</strong>
+                            <?= htmlspecialchars($item['tu']) ?> — Đã chọn: <?= htmlspecialchars($item['da_chon']) ?>;
+                            nghĩa đúng: <span class="correct-text"><?= htmlspecialchars($item['nghia_dung']) ?></span>
+                        </li>
                     <?php endforeach; ?>
                 </ul>
             </div>
@@ -230,6 +245,7 @@ if ($diem_so >= $tong_cau) {
 
     </main>
 
+    <script>const quizResultRetryUrl = <?= json_encode($retry_url, JSON_HEX_TAG | JSON_HEX_AMP) ?>;</script>
     <script src="../../JS/C_KetquaQuiz.js"></script>
 </body>
 

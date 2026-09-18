@@ -156,6 +156,12 @@ NÚT THÊM TỪ MỚI
 }
 
 .C_Tuvungcuatoi_tableResponsive { width: 100%; overflow-x: auto; }
+.C_Tuvungcuatoi_pagination { display: flex; justify-content: center; flex-wrap: wrap; gap: 8px; padding: 18px; border-top: 1px solid #e7ece9; }
+.C_Tuvungcuatoi_pagination[hidden] { display: none; }
+.C_Tuvungcuatoi_pagination button { min-width: 38px; height: 38px; margin: 0; padding: 0 10px; border: 1px solid #d7e2db; border-radius: 10px; color: #476052; background: #fff; font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; }
+.C_Tuvungcuatoi_pagination button:hover { border-color: #2c925a; color: #24784b; background: #f0f8f3; }
+.C_Tuvungcuatoi_pagination button.is-active { border-color: #258a55; color: #fff; background: #258a55; }
+.C_Tuvungcuatoi_noResults { margin: 0; padding: 28px 18px; color: #718078; text-align: center; }
 
 .C_Tuvungcuatoi_table {
     width: 100%;
