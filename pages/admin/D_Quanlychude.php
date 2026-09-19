@@ -132,7 +132,7 @@ $ketQuaDanhSach = mysqli_query($link, $sqlDanhSach);
             >Cài đặt</a
           >
           <hr class="D_Quanlychude_GachNgang" />
-          <a href="../main/B_homepage.php" class="D_Quanlychude_MucMenu"
+          <a href="../auth/A_DangXuat.php" class="D_Quanlychude_MucMenu"
             >Đăng xuất</a
           >
         </nav>

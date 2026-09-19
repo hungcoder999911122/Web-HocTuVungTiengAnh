@@ -135,7 +135,7 @@ $danhSachChuDe = mysqli_fetch_all($ketQuaChuDe, MYSQLI_ASSOC);
             >Cài đặt</a
           >
           <hr class="D_Quanlytuvung_GachNgang" />
-          <a href="../main/B_homepage.php" class="D_Quanlytuvung_MucMenu"
+          <a href="../auth/A_DangXuat.php" class="D_Quanlytuvung_MucMenu"
             >Đăng xuất</a
           >
         </nav>

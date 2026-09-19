@@ -88,7 +88,7 @@ $ketQuaHoatDong = mysqli_query($link, $sqlHoatDong);
             >Cài đặt</a
           >
           <hr class="D_Dashboard_admin_GachNgang" />
-          <a href="../main/B_homepage.php" class="D_Dashboard_admin_MucMenu"
+          <a href="../auth/A_DangXuat.php" class="D_Dashboard_admin_MucMenu"
             >Đăng xuất</a
           >
         </nav>

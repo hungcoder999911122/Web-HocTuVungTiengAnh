@@ -37,6 +37,28 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         }
         mysqli_stmt_close($stmt);
     }
+
+    if ($hanhDong === "doivaitro" && $userID > 0) {
+        $vaiTroMoi = $_POST["vaitro"] ?? "";
+
+        if (in_array($vaiTroMoi, ["user", "admin"], true)) {
+            $sql = "UPDATE Users SET role = ? WHERE userID = ?";
+            $stmt = mysqli_prepare($link, $sql);
+            mysqli_stmt_bind_param($stmt, "si", $vaiTroMoi, $userID);
+
+            if (mysqli_stmt_execute($stmt)) {
+                $thongBao = "Đã đổi vai trò thành " . ($vaiTroMoi === "admin" ? "Admin" : "User") . ".";
+                $loaiThongBao = "thanhcong";
+            } else {
+                $thongBao = "Có lỗi xảy ra: " . mysqli_error($link);
+                $loaiThongBao = "loi";
+            }
+            mysqli_stmt_close($stmt);
+        } else {
+            $thongBao = "Vai trò không hợp lệ.";
+            $loaiThongBao = "loi";
+        }
+    }
 }
 
 // ---- B5: SELECT du lieu de hien thi ra bang ----
@@ -93,7 +115,7 @@ $ketQuaDanhSach = mysqli_query($link, $sqlDanhSach);
             >Cài đặt</a
           >
           <hr class="D_Quanlynguoidung_GachNgang" />
-          <a href="../main/B_homepage.php" class="D_Quanlynguoidung_MucMenu"
+          <a href="../auth/A_DangXuat.php" class="D_Quanlynguoidung_MucMenu"
             >Đăng xuất</a
           >
         </nav>
@@ -154,7 +176,16 @@ $ketQuaDanhSach = mysqli_query($link, $sqlDanhSach);
                 <tr data-vaitro="<?php echo htmlspecialchars($hang["role"]); ?>" data-trangthai="<?php echo $trangThaiData; ?>">
                   <td><?php echo htmlspecialchars($hang["full_name"] ?? ""); ?></td>
                   <td><?php echo htmlspecialchars($hang["email"]); ?></td>
-                  <td><?php echo ucfirst(htmlspecialchars($hang["role"])); ?></td>
+                  <td>
+                    <form method="post" action="D_Quanlynguoidung.php" style="display:inline">
+                      <input type="hidden" name="hanhdong" value="doivaitro" />
+                      <input type="hidden" name="userID" value="<?php echo (int) $hang["userID"]; ?>" />
+                      <select name="vaitro" onchange="this.form.submit()">
+                        <option value="user" <?php echo $hang["role"] === "user" ? "selected" : ""; ?>>User</option>
+                        <option value="admin" <?php echo $hang["role"] === "admin" ? "selected" : ""; ?>>Admin</option>
+                      </select>
+                    </form>
+                  </td>
                   <td class="D_Quanlynguoidung_OTrangThai"><?php echo $trangThaiHienThi; ?></td>
                   <td>
                     <form method="post" action="D_Quanlynguoidung.php" style="display:inline">

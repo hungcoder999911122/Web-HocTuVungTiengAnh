@@ -24,9 +24,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         // 3. Cập nhật vào Database (Thay 'users' bằng tên bảng người dùng của bạn)
 $sql = "UPDATE Users SET password_hash = ? WHERE email = ?";
-$stmt = $conn->prepare($sql);
-$stmt->bind_param("ss", $hashed_password, $email);
-
+$stmt = mysqli_prepare($link, $sql);
+mysqli_stmt_bind_param($stmt, "ss", $hashed_password, $email);
         if ($stmt->execute()) {
             $thanhcong = "Đặt lại mật khẩu thành công! Đang chuyển đến trang đăng nhập...";
             header("refresh:2; url=/pages/auth/A_DangNhap.php"); // Chuyển hướng sau 2 giây

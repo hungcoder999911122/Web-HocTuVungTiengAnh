@@ -15,7 +15,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')
 		$loi = "Vui lòng nhập đầy đủ thông tin đăng nhập.";
 	} else {
 		$sql = "
-            SELECT userID, password_hash, full_name
+            SELECT userID, password_hash, full_name, role
             FROM Users
             WHERE email = ?
             AND status = 'active'
@@ -41,9 +41,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')
 
 				$_SESSION['user_id']   = $row['userID'];
 				$_SESSION['full_name'] = $row['full_name'];
+				$_SESSION['role']      = $row['role'];
 
-				// Chuyển đến Dashboard
-				header("Location: ../user/C_Dashboard_user.php?login=success");
+				// Chuyển đến Dashboard theo vai trò
+				if ($row['role'] === 'admin') {
+					header("Location: ../admin/D_Dashboard_admin.php?login=success");
+				} else {
+					header("Location: ../user/C_Dashboard_user.php?login=success");
+				}
 				exit();
 			}
 		}

@@ -125,7 +125,7 @@ function layGiaTri($caiDat, $key, $macDinh = "")
             >Cài đặt</a
           >
           <hr class="D_Caidathethong_GachNgang" />
-          <a href="../main/B_homepage.php" class="D_Caidathethong_MucMenu"
+          <a href="../auth/A_DangXuat.php" class="D_Caidathethong_MucMenu"
             >Đăng xuất</a
           >
         </nav>
