@@ -98,6 +98,7 @@ function isSidebarActive(string $pageName, string $currentPage): string
         </a>
 
         <a
+                    
             href="../user/C_Lichsuontap.php"
             class="sidebar-link <?= isSidebarActive('C_Lichsuontap.php', $currentPage) ?>">
             <span class="sidebar-icon" aria-hidden="true">
@@ -111,8 +112,10 @@ function isSidebarActive(string $pageName, string $currentPage): string
 
             </span>
             <span>Lịch sử ôn tập</span>
-	        
-            href="../user/C_Xephang.php"
+        </a>
+	
+        
+          <a  href="../user/C_Xephang.php"
             class="sidebar-link <?= isSidebarActive('C_Xephang.php', $currentPage) ?>">
             <span class="sidebar-icon" aria-hidden="true">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
@@ -127,8 +130,6 @@ function isSidebarActive(string $pageName, string $currentPage): string
             </span>
             <span> Xếp hạng </span>
         </a>
-        </a>
-
         <a
             href="../user/C_Hosocanhan.php"
             class="sidebar-link <?= isSidebarActive('C_Hosocanhan.php', $currentPage) ?>">

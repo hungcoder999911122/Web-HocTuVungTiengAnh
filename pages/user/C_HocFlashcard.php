@@ -1,31 +1,148 @@
 <?php
-require_once '../../includes/auth_guard.php';
-require_once($_SERVER['DOCUMENT_ROOT'] . "/Connect.php");
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
-// auth_guard.php đã xác thực session trước khi trang sử dụng user_id.
-$user_id = (int) $_SESSION['user_id'];
-if (empty($_SESSION['C_learning_csrf'])) {
-    $_SESSION['C_learning_csrf'] = bin2hex(random_bytes(32));
-}
-$source = $_GET['source'] ?? 'topic';
-$source = in_array($source, ['topic', 'set'], true) ? $source : 'topic';
-$source_id = filter_var($_GET['id'] ?? $_GET['topic_id'] ?? 0, FILTER_VALIDATE_INT) ?: 0;
-$limit_option = (string) ($_GET['limit'] ?? '10');
-if (!in_array($limit_option, ['5', '10', '20', 'all'], true)) {
-    $limit_option = '10';
-}
+require_once($_SERVER['DOCUMENT_ROOT'] . "/Connect.php");
 
 // Đồng bộ biến kết nối DB
 if (isset($link) && !isset($conn)) {
     $conn = $link;
 }
-// Nguồn topic/set bắt buộc có ID hợp lệ; không tự ý rơi sang topic mặc định.
-$id_chu_de = $source === 'topic' ? $source_id : 0;
-$mode = $_GET['mode'] ?? ''; // Chế độ: 'review' (ôn tập) hoặc học theo chủ đề
-if ($mode !== 'review' && $source_id <= 0) {
-    header('Location: C_Gocrenluyen.php');
+
+// Lấy ID người dùng từ Session
+$user_id = $_SESSION['user_id'] 
+    ?? $_SESSION['userID'] 
+    ?? $_SESSION['id'] 
+    ?? $_SESSION['user']['userID'] 
+    ?? $_SESSION['user']['id'] 
+    ?? 2; // Dự phòng khi test mở link trực tiếp
+
+//Xuất dữ liệu từ POST để lưu tiến độ học từ vựng
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'luu_tien_do') {
+    header('Content-Type: application/json');
+    $vocab_id = intval($_POST['vocabulary_id'] ?? 0);
+    $is_remembered = ($_POST['status'] === 'da_nho');
+
+    if ($vocab_id > 0 && $user_id > 0) {
+        $checkStmt = mysqli_prepare($link, "SELECT id, level FROM user_vocab_progress WHERE user_id = ? AND vocabulary_id = ?");
+        mysqli_stmt_bind_param($checkStmt, "ii", $user_id, $vocab_id);
+        mysqli_stmt_execute($checkStmt);
+        $res = mysqli_stmt_get_result($checkStmt);
+        $existing = mysqli_fetch_assoc($res);
+        mysqli_stmt_close($checkStmt);
+
+        $current_level = $existing ? intval($existing['level']) : 1;
+        $intervals = [1 => 1, 2 => 3, 3 => 7, 4 => 14, 5 => 30];
+
+        if ($is_remembered) {
+            $new_level = min($current_level + 1, 5);
+        } else {
+            $new_level = max(1, $current_level - 1);
+        }
+
+        $days = $intervals[$new_level];
+        $next_date = date('Y-m-d', strtotime("+$days days"));
+        $new_status = ($new_level >= 5) ? 'mastered' : 'learning';
+
+        if ($existing) {
+            $upd = mysqli_prepare($link, "UPDATE user_vocab_progress SET level = ?, status = ?, next_review_date = ?, last_reviewed_at = NOW() WHERE id = ?");
+            mysqli_stmt_bind_param($upd, "issi", $new_level, $new_status, $next_date, $existing['id']);
+            mysqli_stmt_execute($upd);
+            mysqli_stmt_close($upd);
+        } else {
+            $ins = mysqli_prepare($link, "INSERT INTO user_vocab_progress (user_id, vocabulary_id, level, status, next_review_date, last_reviewed_at) VALUES (?, ?, ?, ?, ?, NOW())");
+            mysqli_stmt_bind_param($ins, "iiiss", $user_id, $vocab_id, $new_level, $new_status, $next_date);
+            mysqli_stmt_execute($ins);
+            mysqli_stmt_close($ins);
+        }
+
+        // ---- Ghi lịch sử học hôm nay (để Dashboard: chuỗi ngày, số từ học hôm nay, biểu đồ 7 ngày hoạt động đúng) ----
+        $sessionCheckStmt = mysqli_prepare($link, "SELECT id, streak_count FROM learning_sessions WHERE user_id = ? AND session_date = CURDATE() LIMIT 1");
+        mysqli_stmt_bind_param($sessionCheckStmt, "i", $user_id);
+        mysqli_stmt_execute($sessionCheckStmt);
+        $todaySession = mysqli_fetch_assoc(mysqli_stmt_get_result($sessionCheckStmt));
+        mysqli_stmt_close($sessionCheckStmt);
+
+        if ($todaySession) {
+            $sessionUpd = mysqli_prepare($link, "UPDATE learning_sessions SET words_studied = words_studied + 1 WHERE id = ?");
+            mysqli_stmt_bind_param($sessionUpd, "i", $todaySession['id']);
+            mysqli_stmt_execute($sessionUpd);
+            mysqli_stmt_close($sessionUpd);
+        } else {
+            // Tính chuỗi ngày: nếu hôm qua có học thì +1, ngược lại reset về 1.
+            $streak = 1;
+            $lastSessionStmt = mysqli_prepare($link, "SELECT session_date, streak_count FROM learning_sessions WHERE user_id = ? ORDER BY session_date DESC, id DESC LIMIT 1");
+            mysqli_stmt_bind_param($lastSessionStmt, "i", $user_id);
+            mysqli_stmt_execute($lastSessionStmt);
+            $lastSession = mysqli_fetch_assoc(mysqli_stmt_get_result($lastSessionStmt));
+            mysqli_stmt_close($lastSessionStmt);
+
+            if ($lastSession) {
+                $daysApart = (int) ((strtotime(date('Y-m-d')) - strtotime($lastSession['session_date'])) / 86400);
+                if ($daysApart === 1) {
+                    $streak = max(1, (int) $lastSession['streak_count'] + 1);
+                }
+            }
+
+            $sessionIns = mysqli_prepare($link, "INSERT INTO learning_sessions (user_id, session_date, words_studied, duration_seconds, streak_count) VALUES (?, CURDATE(), 1, 0, ?)");
+            mysqli_stmt_bind_param($sessionIns, "ii", $user_id, $streak);
+            mysqli_stmt_execute($sessionIns);
+            mysqli_stmt_close($sessionIns);
+        }
+
+        // ---- Cộng điểm xếp hạng: học xong (mastered) toàn bộ chủ đề => +10 điểm ----
+        // Chỉ cộng đúng 1 lần / chủ đề nhờ UNIQUE KEY (user_id, topic_id) + INSERT IGNORE.
+        $bangDiemTonTai = mysqli_num_rows(mysqli_query($link, "SHOW TABLES LIKE 'user_points'")) > 0;
+        if ($bangDiemTonTai) {
+            $topicStmt = mysqli_prepare($link, "SELECT topic_id FROM vocabulary WHERE id = ? LIMIT 1");
+            mysqli_stmt_bind_param($topicStmt, "i", $vocab_id);
+            mysqli_stmt_execute($topicStmt);
+            $topicRow = mysqli_fetch_assoc(mysqli_stmt_get_result($topicStmt));
+            mysqli_stmt_close($topicStmt);
+            $topic_id_diem = $topicRow['topic_id'] ?? null;
+
+            if ($topic_id_diem) {
+                $tongTuStmt = mysqli_prepare($link, "SELECT COUNT(*) AS tong FROM vocabulary WHERE topic_id = ?");
+                mysqli_stmt_bind_param($tongTuStmt, "i", $topic_id_diem);
+                mysqli_stmt_execute($tongTuStmt);
+                $tongTu = (int) mysqli_fetch_assoc(mysqli_stmt_get_result($tongTuStmt))['tong'];
+                mysqli_stmt_close($tongTuStmt);
+
+                $daThuocStmt = mysqli_prepare($link, "
+                    SELECT COUNT(*) AS da_thuoc FROM vocabulary v
+                    INNER JOIN user_vocab_progress uvp
+                        ON uvp.vocabulary_id = v.id AND uvp.user_id = ? AND uvp.level >= 5
+                    WHERE v.topic_id = ?
+                ");
+                mysqli_stmt_bind_param($daThuocStmt, "ii", $user_id, $topic_id_diem);
+                mysqli_stmt_execute($daThuocStmt);
+                $daThuoc = (int) mysqli_fetch_assoc(mysqli_stmt_get_result($daThuocStmt))['da_thuoc'];
+                mysqli_stmt_close($daThuocStmt);
+
+                if ($tongTu > 0 && $daThuoc >= $tongTu) {
+                    $diemStmt = mysqli_prepare($link, "INSERT IGNORE INTO user_points (user_id, topic_id, points) VALUES (?, ?, 10)");
+                    mysqli_stmt_bind_param($diemStmt, "ii", $user_id, $topic_id_diem);
+                    mysqli_stmt_execute($diemStmt);
+                    mysqli_stmt_close($diemStmt);
+                }
+            }
+        }
+
+        echo json_encode(['success' => true, 'new_level' => $new_level, 'next_date' => $next_date]);
+    } else {
+        echo json_encode(['success' => false]);
+    }
     exit;
 }
+
+// Lấy ID chủ đề từ URL
+$id_chu_de = isset($_GET['id']) ? intval($_GET['id']) : (isset($_GET['topic_id']) ? intval($_GET['topic_id']) : 1);
+if ($id_chu_de <= 0) {
+    $id_chu_de = 1;
+}
+
+$mode = $_GET['mode'] ?? ''; // Chế độ: 'review' (ôn tập) hoặc học theo chủ đề
 $ten_chu_de = ($mode === 'review') ? "Từ vựng cần ôn tập" : "Chủ đề học";
 $danh_sach_tu = [];
 
@@ -43,24 +160,9 @@ try {
         $tbl_vocab    = isset($db_tables['vocabulary']) ? "`" . $db_tables['vocabulary'] . "`" : "`vocabulary`";
         $tbl_topics   = isset($db_tables['topics']) ? "`" . $db_tables['topics'] . "`" : "`Topics`";
         $tbl_progress = isset($db_tables['user_vocab_progress']) ? "`" . $db_tables['user_vocab_progress'] . "`" : "`user_vocab_progress`";
-        $tbl_sets     = isset($db_tables['vocabulary_sets']) ? "`" . $db_tables['vocabulary_sets'] . "`" : "`vocabulary_sets`";
-        $tbl_set_items = isset($db_tables['vocabulary_set_items']) ? "`" . $db_tables['vocabulary_set_items'] . "`" : "`vocabulary_set_items`";
 
         // Lấy tên chủ đề
-        if ($mode !== 'review' && $source === 'set') {
-            // Bộ từ cá nhân bắt buộc thuộc tài khoản đang đăng nhập.
-            $sql_set = "SELECT name FROM $tbl_sets WHERE id = ? AND user_id = ? LIMIT 1";
-            $stmt = mysqli_prepare($link, $sql_set);
-            mysqli_stmt_bind_param($stmt, 'ii', $source_id, $user_id);
-            mysqli_stmt_execute($stmt);
-            $set_row = mysqli_fetch_assoc(mysqli_stmt_get_result($stmt));
-            mysqli_stmt_close($stmt);
-            if (!$set_row) {
-                header('Location: C_Gocrenluyen.php');
-                exit;
-            }
-            $ten_chu_de = $set_row['name'];
-        } elseif ($mode !== 'review' && isset($db_tables['topics'])) {
+        if ($mode !== 'review' && isset($db_tables['topics'])) {
             $sql_topic = "SELECT topicName FROM $tbl_topics WHERE topicID = ? LIMIT 1";
             if ($stmt = @mysqli_prepare($link, $sql_topic)) {
                 mysqli_stmt_bind_param($stmt, "i", $id_chu_de);
@@ -68,10 +170,6 @@ try {
                 $res = mysqli_stmt_get_result($stmt);
                 if ($row = mysqli_fetch_assoc($res)) {
                     $ten_chu_de = $row['topicName'];
-                } else {
-                    mysqli_stmt_close($stmt);
-                    header('Location: C_Gocrenluyen.php');
-                    exit;
                 }
                 mysqli_stmt_close($stmt);
             }
@@ -80,7 +178,7 @@ try {
         // Lấy danh sách từ vựng theo ID người dùng đang đăng nhập
         if (isset($db_tables['vocabulary'])) {
             if ($mode === 'review' && isset($db_tables['user_vocab_progress'])) {
-                // Chế độ ôn tập: Từ vựng đến hạn của người dùng
+                // Chế độ ôn tập: Từ vựng đến hạn của người dùng (chỉ lấy level < 5)
                 $sql_words = "
                     SELECT 
                         v.id,
@@ -90,10 +188,11 @@ try {
                         v.part_of_speech AS loai_tu,
                         v.example_sentence AS vi_du,
                         v.audio_url,
+                        p.level,
                         p.next_review_date
                     FROM $tbl_vocab v
                     INNER JOIN $tbl_progress p ON v.id = p.vocabulary_id
-                    WHERE p.user_id = ? AND p.next_review_date <= CURDATE()
+                    WHERE p.user_id = ? AND p.next_review_date <= CURDATE() AND p.level < 5
                     ORDER BY p.next_review_date ASC
                 ";
                 $stmt = @mysqli_prepare($link, $sql_words);
@@ -110,42 +209,12 @@ try {
                             "loai_tu"   => $row['loai_tu'] ?? '',
                             "vi_du"     => $row['vi_du'] ?? '',
                             "audio_url" => $row['audio_url'] ?? '',
+                            "level"     => (int)($row['level'] ?? 1),
                             "is_review" => true
                         ];
                     }
                     mysqli_stmt_close($stmt);
                 }
-            } elseif ($source === 'set') {
-                // Chỉ lấy từ thuộc bộ cá nhân đã được kiểm tra quyền sở hữu ở trên.
-                $sql_words = "
-                    SELECT v.id, v.word AS tu_vung, v.meaning AS nghia,
-                           v.pronunciation AS phien_am, v.part_of_speech AS loai_tu,
-                           v.example_sentence AS vi_du, v.audio_url, p.next_review_date
-                    FROM $tbl_set_items vsi
-                    INNER JOIN $tbl_sets vs ON vs.id = vsi.vocabulary_set_id AND vs.user_id = ?
-                    INNER JOIN $tbl_vocab v ON v.id = vsi.vocabulary_id
-                    LEFT JOIN $tbl_progress p ON p.vocabulary_id = v.id AND p.user_id = ?
-                    WHERE vsi.vocabulary_set_id = ?
-                    ORDER BY vsi.display_order ASC, vsi.id ASC
-                ";
-                $stmt = mysqli_prepare($link, $sql_words);
-                mysqli_stmt_bind_param($stmt, 'iii', $user_id, $user_id, $source_id);
-                mysqli_stmt_execute($stmt);
-                $result = mysqli_stmt_get_result($stmt);
-                $today = date('Y-m-d');
-                while ($row = mysqli_fetch_assoc($result)) {
-                    $danh_sach_tu[] = [
-                        'id' => (int) $row['id'],
-                        'tu_vung' => $row['tu_vung'],
-                        'nghia' => $row['nghia'],
-                        'phien_am' => $row['phien_am'] ?? '',
-                        'loai_tu' => $row['loai_tu'] ?? '',
-                        'vi_du' => $row['vi_du'] ?? '',
-                        'audio_url' => $row['audio_url'] ?? '',
-                        'is_review' => !empty($row['next_review_date']) && $row['next_review_date'] <= $today
-                    ];
-                }
-                mysqli_stmt_close($stmt);
             } else {
                 // Chế độ học từ mới theo Chủ đề
                 $sql_words = "
@@ -157,6 +226,7 @@ try {
                         v.part_of_speech AS loai_tu,
                         v.example_sentence AS vi_du,
                         v.audio_url,
+                        p.level,
                         p.next_review_date
                     FROM $tbl_vocab v
                     LEFT JOIN $tbl_progress p ON v.id = p.vocabulary_id AND p.user_id = ?
@@ -179,6 +249,7 @@ try {
                             "loai_tu"   => $row['loai_tu'] ?? '',
                             "vi_du"     => $row['vi_du'] ?? '',
                             "audio_url" => $row['audio_url'] ?? '',
+                            "level"     => (int)($row['level'] ?? 0),
                             "is_review" => $is_review
                         ];
                     }
@@ -190,38 +261,22 @@ try {
 } catch (\Throwable $e) {
     error_log("Lỗi Flashcard: " . $e->getMessage());
 }
-
-if ($limit_option !== 'all') {
-    $danh_sach_tu = array_slice($danh_sach_tu, 0, (int) $limit_option);
-}
 ?>
 
 <!DOCTYPE html>
 <html lang="vi">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Học FlashCard - LexiLoop</title>
-    <link rel="stylesheet" href="../../CSS/Style.css">
     <link rel="stylesheet" href="../../CSS/C_HocFlashcard.css">
-
-    <link rel="stylesheet" href="../../CSS/responsive.css">
-    <!-- <link rel="stylesheet" href="../../CSS/topheader.css"> -->
 </head>
-
 <body class="C_HocFlashcard_body">
 
     <!-- Header -->
     <header class="C_HocFlashcard_header">
-
-        <h1 class="C_HocFlashcard_logo">
-            <?php echo $mode === 'review'
-                ? 'Ôn tập Flashcard'
-                : 'Học từ mới: ' . htmlspecialchars($ten_chu_de); ?>
-        </h1>
-
-        <span class="C_HocFlashcard_progressText" id="C_HocFlashcard_progressText">Vòng 1</span>
+        <h1 class="C_HocFlashcard_logo">Học FlashCard</h1>
+        <span class="C_HocFlashcard_progressText" id="C_HocFlashcard_progressText">Thẻ 1/5</span>
     </header>
 
     <!-- Thanh tiến độ học -->
@@ -234,65 +289,28 @@ if ($limit_option !== 'all') {
     <!-- Khu vực thẻ học và điều hướng -->
     <main class="C_HocFlashcard_main">
         <div class="C_HocFlashcard_cardArea">
-            <!-- Nút hoàn tác: quay lại lựa chọn vừa rồi (phòng khi bấm nhầm) -->
-            <button type="button" id="C_HocFlashcard_btnPrev" class="C_HocFlashcard_navBtn" title="Hoàn tác lựa chọn vừa rồi" aria-label="Hoàn tác lựa chọn vừa rồi">&#8617;&#xFE0E;</button>
+            <!-- Nút từ trước -->
+            <button type="button" id="C_HocFlashcard_btnPrev" class="C_HocFlashcard_navBtn" title="Thẻ trước">&larr;</button>
 
             <!-- Hộp thẻ Flashcard -->
             <div class="C_HocFlashcard_cardBox" id="C_HocFlashcard_cardBox">
                 <!-- Badge R (Ôn tập - Review) -->
                 <div class="C_HocFlashcard_badgeR" id="C_HocFlashcard_badgeR" title="Thẻ cần ôn tập">R</div>
-
+                
                 <h2 class="C_HocFlashcard_word" id="C_HocFlashcard_word">Software</h2>
-
-                <!-- Thông tin phát âm đặt bên dưới Flashcard -->
-                <div
-                    class="C_HocFlashcard_pronunciationArea"
-                    id="C_HocFlashcard_pronunciationArea">
-
-                    <p
-                        class="C_HocFlashcard_pronunciation"
-                        id="C_HocFlashcard_pronunciation">
-                        /.../
-                    </p>
-
-                    <button
-                        type="button"
-                        class="C_HocFlashcard_audioButton"
-                        id="C_HocFlashcard_audioButton"
-                        hidden>
-                        🔊 Nghe phát âm
-                    </button>
-
-                    <audio
-                        id="C_HocFlashcard_audioPlayer"
-                        preload="none">
-                    </audio>
-                </div>
                 <p class="C_HocFlashcard_hint" id="C_HocFlashcard_hint">Nhấn để xem nghĩa</p>
             </div>
 
-            <!-- Không còn dùng trong luồng học lặp vòng; giữ lại (ẩn) để bố cục thẻ không bị lệch -->
-            <button type="button" id="C_HocFlashcard_btnNext" class="C_HocFlashcard_navBtn" style="visibility:hidden" tabindex="-1" aria-hidden="true" disabled>&rarr;</button>
+            <!-- Nút từ tiếp theo -->
+            <button type="button" id="C_HocFlashcard_btnNext" class="C_HocFlashcard_navBtn" title="Thẻ tiếp theo">&rarr;</button>
         </div>
 
         <!-- 2 Nút Đánh Giá -->
-        <!-- aria-pressed giúp trình duyệt và công cụ hỗ trợ biết trạng thái nút đang được chọn. Đúng chuẩn accessibility. -->
         <div class="C_HocFlashcard_btnGroup">
-            <button
-                type="button"
-                id="C_HocFlashcard_btnChuaNho"
-                class="C_HocFlashcard_btn C_HocFlashcard_btnWhite"
-                data-status="chua_nho"
-                aria-pressed="false">
+            <button type="button" id="C_HocFlashcard_btnChuaNho" class="C_HocFlashcard_btn C_HocFlashcard_btnWhite">
                 Chưa nhớ
             </button>
-
-            <button
-                type="button"
-                id="C_HocFlashcard_btnDaNho"
-                class="C_HocFlashcard_btn C_HocFlashcard_btnGray"
-                data-status="da_nho"
-                aria-pressed="false">
+            <button type="button" id="C_HocFlashcard_btnDaNho" class="C_HocFlashcard_btn C_HocFlashcard_btnGray">
                 Đã nhớ
             </button>
         </div>
@@ -302,50 +320,17 @@ if ($limit_option !== 'all') {
     <footer class="C_HocFlashcard_footerWrapper">
         <div class="C_HocFlashcard_footerBox">
             <div class="C_HocFlashcard_stats" id="C_HocFlashcard_stats">
-                Đã học: 0 &bull; Đã nhớ: 0 &bull; Chưa nhớ: 0
+                Đã học: 0 &nbsp;&bull;&nbsp; Đã nhớ: 0 &nbsp;&bull;&nbsp; Chưa nhớ: 0
             </div>
-
-            <button
-                type="button"
-                id="C_HocFlashcard_btnKetThuc"
-                class="C_HocFlashcard_btnKetThuc">
+            <button type="button" id="C_HocFlashcard_btnKetThuc" class="C_HocFlashcard_btnKetThuc">
                 Kết thúc sớm
             </button>
         </div>
     </footer>
 
     <script>
-        /*
-         * Dữ liệu thẻ được PHP lấy từ database.
-         * JavaScript chỉ dùng để hiển thị giao diện.
-         */
-        const flashcardsData = <?php
-                                echo json_encode(
-                                    $danh_sach_tu,
-                                    JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP
-                                );
-                                ?>;
-
-        /*
-         * Metadata của phiên học.
-         * topicId sẽ được dùng khi lưu phiên học và tạo Quiz.
-         */
-        const flashcardSessionConfig = <?php
-                                        echo json_encode(
-                                            [
-                                                'topicId' => $id_chu_de,
-                                                'source' => $mode === 'review' ? 'review' : $source,
-                                                'sourceId' => $source_id,
-                                                'limit' => $limit_option,
-                                                'csrf' => $_SESSION['C_learning_csrf'],
-                                                'topicName' => $ten_chu_de,
-                                                'mode' => $mode === 'review' ? 'review' : 'new_learning'
-                                            ],
-                                            JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP
-                                        );
-                                        ?>;
+        const flashcardsData = <?php echo json_encode($danh_sach_tu, JSON_UNESCAPED_UNICODE); ?>;
     </script>
-    <script src="../../JS/C_HocFlashcard.js?v=<?= (int) @filemtime(__DIR__ . '/../../JS/C_HocFlashcard.js') ?>"></script>
+    <script src="../../JS/C_HocFlashcard.js"></script>
 </body>
-
 </html>
