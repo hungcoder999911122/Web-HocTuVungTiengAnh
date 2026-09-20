@@ -1,0 +1,59 @@
+.D_Xephang_HangTop5 {
+    background-color: var(--color-primary-light);
+}
+
+.D_Xephang_FormQua {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.D_Xephang_OQua {
+    height: 36px;
+    padding: 0 10px;
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    font-size: 13px;
+    min-width: 160px;
+}
+
+.D_Xephang_NutLuu {
+    height: 36px;
+    padding: 0 14px;
+    border: none;
+    border-radius: 8px;
+    background-color: var(--color-primary);
+    color: #ffffff;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.D_Xephang_NutLuu:hover {
+    background-color: var(--color-primary-dark);
+}
+
+.D_Xephang_KhongApDung {
+    color: var(--color-text-muted);
+}
+
+.D_Xephang_CanhBao {
+    background-color: var(--color-warning-light);
+    color: var(--color-warning);
+    border: 1px solid var(--color-warning);
+    border-radius: 12px;
+    padding: 14px 18px;
+}
+
+.D_Xephang_GhiChu {
+    color: var(--color-text-muted);
+    font-size: 13px;
+}
+
+.D_Xephang_ThongBaoRong {
+    color: var(--color-text-muted);
+    background-color: var(--color-white);
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+}

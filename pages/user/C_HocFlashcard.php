@@ -221,7 +221,7 @@ if ($limit_option !== 'all') {
                 : 'Học từ mới: ' . htmlspecialchars($ten_chu_de); ?>
         </h1>
 
-        <span class="C_HocFlashcard_progressText" id="C_HocFlashcard_progressText">Thẻ 1/5</span>
+        <span class="C_HocFlashcard_progressText" id="C_HocFlashcard_progressText">Vòng 1</span>
     </header>
 
     <!-- Thanh tiến độ học -->
@@ -234,8 +234,8 @@ if ($limit_option !== 'all') {
     <!-- Khu vực thẻ học và điều hướng -->
     <main class="C_HocFlashcard_main">
         <div class="C_HocFlashcard_cardArea">
-            <!-- Nút từ trước -->
-            <button type="button" id="C_HocFlashcard_btnPrev" class="C_HocFlashcard_navBtn" title="Thẻ trước">&larr;</button>
+            <!-- Nút hoàn tác: quay lại lựa chọn vừa rồi (phòng khi bấm nhầm) -->
+            <button type="button" id="C_HocFlashcard_btnPrev" class="C_HocFlashcard_navBtn" title="Hoàn tác lựa chọn vừa rồi" aria-label="Hoàn tác lựa chọn vừa rồi">&#8617;&#xFE0E;</button>
 
             <!-- Hộp thẻ Flashcard -->
             <div class="C_HocFlashcard_cardBox" id="C_HocFlashcard_cardBox">
@@ -271,8 +271,8 @@ if ($limit_option !== 'all') {
                 <p class="C_HocFlashcard_hint" id="C_HocFlashcard_hint">Nhấn để xem nghĩa</p>
             </div>
 
-            <!-- Nút từ tiếp theo -->
-            <button type="button" id="C_HocFlashcard_btnNext" class="C_HocFlashcard_navBtn" title="Thẻ tiếp theo">&rarr;</button>
+            <!-- Không còn dùng trong luồng học lặp vòng; giữ lại (ẩn) để bố cục thẻ không bị lệch -->
+            <button type="button" id="C_HocFlashcard_btnNext" class="C_HocFlashcard_navBtn" style="visibility:hidden" tabindex="-1" aria-hidden="true" disabled>&rarr;</button>
         </div>
 
         <!-- 2 Nút Đánh Giá -->
@@ -345,7 +345,7 @@ if ($limit_option !== 'all') {
                                         );
                                         ?>;
     </script>
-    <script src="../../JS/C_HocFlashcard.js"></script>
+    <script src="../../JS/C_HocFlashcard.js?v=<?= (int) @filemtime(__DIR__ . '/../../JS/C_HocFlashcard.js') ?>"></script>
 </body>
 
 </html>

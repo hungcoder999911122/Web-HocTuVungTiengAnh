@@ -225,9 +225,10 @@ if ($hasSelectedSource) {
             $modeProgress[$activity] = [
                 'percent' => $percent,
                 // Quiz đạt 100% nhưng chưa bấm Nộp bài vẫn là phiên cần tiếp tục.
+                // Flashcard không resume: phiên chưa xong chỉ là kết quả lần học gần nhất.
                 'label' => $percent === 100 && $attempt['status'] === 'completed'
                     ? 'Đã hoàn thành'
-                    : 'Cần tiếp tục'
+                    : ($activity === 'flashcard' ? 'Chưa hoàn thành' : 'Cần tiếp tục')
             ];
         }
         mysqli_stmt_close($attemptStmt);
@@ -383,7 +384,7 @@ if ($flashcardStatsTotal === 0) {
                         </div>
                     </div>
                     <span class="C_Gocrenluyen_startLink">
-                        <?= $modeProgress['flashcard']['label'] === 'Đã hoàn thành' ? 'Học lại từ đầu' : ($modeProgress['flashcard']['label'] === 'Cần tiếp tục' ? 'Tiếp tục học' : 'Bắt đầu học') ?>
+                        <?= $modeProgress['flashcard']['label'] === 'Chưa bắt đầu' ? 'Bắt đầu học' : 'Học lại từ đầu' ?>
                         <b aria-hidden="true">→</b>
                     </span>
                 </a>

@@ -89,6 +89,9 @@ $dsChuDeHocNhieu = mysqli_fetch_all($ketQuaChuDeHocNhieu, MYSQLI_ASSOC);
           <a href="D_Quanlytuvung.php" class="D_Thongkehethong_MucMenu"
             >Từ vựng</a
           >
+          <a href="D_Xephang.php" class="D_Thongkehethong_MucMenu"
+            >Xếp hạng</a
+          >
           <a
             href="D_Thongkehethong.php"
             class="D_Thongkehethong_MucMenu D_Thongkehethong_DangChon"
@@ -98,7 +101,7 @@ $dsChuDeHocNhieu = mysqli_fetch_all($ketQuaChuDeHocNhieu, MYSQLI_ASSOC);
             >Cài đặt</a
           >
           <hr class="D_Thongkehethong_GachNgang" />
-          <a href="../main/B_homepage.php" class="D_Thongkehethong_MucMenu"
+          <a href="../auth/A_DangXuat.php" class="D_Thongkehethong_MucMenu"
             >Đăng xuất</a
           >
         </nav>

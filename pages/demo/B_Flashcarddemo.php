@@ -2,6 +2,7 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FlashCard Demo</title>
     <link rel="stylesheet" type="text/css" href="/CSS/B_Flashcarddemo.css">
     <script src="/JS/jquery-4.0.0.min.js"></script>
@@ -31,7 +32,7 @@
             <button id="B_Flashcarddemo_BtnDaNho" class="B_Flashcarddemo_Nut B_Flashcarddemo_NutXam" type="button">Đã nhớ</button>
         </div>
 
-        <a href="/pages/auth/A_DangKy.html" id="B_Flashcarddemo_BtnDangKy" class="B_Flashcarddemo_NutDangKy">Đăng ký để lưu tiến độ học</a>
+        <a href="/pages/auth/A_DangKy.php" id="B_Flashcarddemo_BtnDangKy" class="B_Flashcarddemo_NutDangKy">Đăng ký để lưu tiến độ học</a>
 
     </main>
 

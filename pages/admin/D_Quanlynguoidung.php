@@ -108,6 +108,9 @@ $ketQuaDanhSach = mysqli_query($link, $sqlDanhSach);
           <a href="D_Quanlytuvung.php" class="D_Quanlynguoidung_MucMenu"
             >Từ vựng</a
           >
+          <a href="D_Xephang.php" class="D_Quanlynguoidung_MucMenu"
+            >Xếp hạng</a
+          >
           <a href="D_Thongkehethong.php" class="D_Quanlynguoidung_MucMenu"
             >Thống kê</a
           >

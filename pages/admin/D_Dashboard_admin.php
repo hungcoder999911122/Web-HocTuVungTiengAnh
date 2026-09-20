@@ -1,6 +1,6 @@
 <?php
-// 1. Them code ket noi vao dau file
-session_start();
+// 1. Chi admin moi duoc vao trang nay (admin_guard.php da session_start va nap Connect.php)
+require_once '../../includes/admin_guard.php';
 require_once($_SERVER['DOCUMENT_ROOT'] . "/Connect.php");
 /** @var mysqli $link Ket noi CSDL duoc tao trong Connect.php */
 
@@ -46,7 +46,7 @@ $ketQuaHoatDong = mysqli_query($link, $sqlHoatDong);
       type="text/css"
       href="../../CSS/D_Dashboard_admin.css"
     />
-    <script src="../jquery-4.0.0.min.js"></script>
+    <script src="../../JS/jquery-4.0.0.min.js"></script>
   </head>
 
   <body>
@@ -81,13 +81,16 @@ $ketQuaHoatDong = mysqli_query($link, $sqlHoatDong);
           <a href="D_Quanlytuvung.php" class="D_Dashboard_admin_MucMenu"
             >Từ vựng</a
           >
+	  <a href="D_Xephang.php" class="D_Dashboard_admin_MucMenu"
+            >Xếp hạng</a
+          >         
           <a href="D_Thongkehethong.php" class="D_Dashboard_admin_MucMenu"
             >Thống kê</a
           >
-          <a href="D_Caidathethong.php" class="D_Dashboard_admin_MucMenu"
-            >Cài đặt</a
-          >
           <hr class="D_Dashboard_admin_GachNgang" />
+          <a href="../user/C_Dashboard_user.php" class="D_Dashboard_admin_MucMenu"
+            >Về trang người dùng</a
+          >
           <a href="../auth/A_DangXuat.php" class="D_Dashboard_admin_MucMenu"
             >Đăng xuất</a
           >

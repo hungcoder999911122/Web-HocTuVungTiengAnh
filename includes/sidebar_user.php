@@ -63,41 +63,7 @@ function isSidebarActive(string $pageName, string $currentPage): string
             <span>Chủ đề</span>
         </a>
 
-        <a
-            href="../user/C_Botuvung.php"
-            class="sidebar-link <?= isSidebarActive('C_Botuvung.php', $currentPage) ?>">
-            <span class="sidebar-icon" aria-hidden="true">
-
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-folder-heart">
-                    <path d="M10.638 20H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H20a2 2 0 0 1 2 2v3.417" />
-                    <path d="M14.62 18.8A2.25 2.25 0 1 1 18 15.836a2.25 2.25 0 1 1 3.38 2.966l-2.626 2.856a.998.998 0 0 1-1.507 0z" />
-                </svg>
-
-            </span>
-            <span>Bộ từ vựng</span>
-        </a>
-
-
-
-        <a
-            href="../user/C_Tuvungcuatoi.php"
-            class="sidebar-link <?= isSidebarActive('C_Tuvungcuatoi.php', $currentPage) ?>">
-            <span class="sidebar-icon" aria-hidden="true">
-
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2"
-                    stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="8" y1="6" x2="21" y2="6"></line>
-                    <line x1="8" y1="12" x2="21" y2="12"></line>
-                    <line x1="8" y1="18" x2="21" y2="18"></line>
-                    <line x1="3" y1="6" x2="3.01" y2="6"></line>
-                    <line x1="3" y1="12" x2="3.01" y2="12"></line>
-                    <line x1="3" y1="18" x2="3.01" y2="18"></line>
-                </svg>
-
-            </span>
-            <span> Từ vựng </span>
-        </a>
+        
 
         <a
             href="../user/C_Gocrenluyen.php"
@@ -114,6 +80,24 @@ function isSidebarActive(string $pageName, string $currentPage): string
 
 
         <a
+            href="../user/C_Lichhen.php"
+            class="sidebar-link <?= isSidebarActive('C_Lichhen.php', $currentPage) ?>">
+            <span class="sidebar-icon" aria-hidden="true">
+
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                </svg>
+
+            </span>
+            <span>Lịch hẹn ôn tập</span>
+        </a>
+
+        <a
             href="../user/C_Lichsuontap.php"
             class="sidebar-link <?= isSidebarActive('C_Lichsuontap.php', $currentPage) ?>">
             <span class="sidebar-icon" aria-hidden="true">
@@ -127,6 +111,22 @@ function isSidebarActive(string $pageName, string $currentPage): string
 
             </span>
             <span>Lịch sử ôn tập</span>
+	        
+            href="../user/C_Xephang.php"
+            class="sidebar-link <?= isSidebarActive('C_Xephang.php', $currentPage) ?>">
+            <span class="sidebar-icon" aria-hidden="true">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M8 21h8"></path>
+                    <path d="M12 17v4"></path>
+                    <path d="M7 4h10v5a5 5 0 0 1-10 0z"></path>
+                    <path d="M17 6h2a2 2 0 0 1 0 4h-1"></path>
+                    <path d="M7 6H5a2 2 0 0 0 0 4h1"></path>
+                </svg>
+            </span>
+            <span> Xếp hạng </span>
+        </a>
         </a>
 
         <a
@@ -146,8 +146,8 @@ function isSidebarActive(string $pageName, string $currentPage): string
         </a>
 
         <a
-            href="../auth/A_caidattaikhoan.php"
-            class="sidebar-link <?= isSidebarActive('A_caidattaikhoan.php', $currentPage) ?>">
+            href="../auth/A_Caidattaikhoan.php"
+            class="sidebar-link <?= isSidebarActive('A_Caidattaikhoan.php', $currentPage) ?>">
             <span class="sidebar-icon" aria-hidden="true">
 
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">

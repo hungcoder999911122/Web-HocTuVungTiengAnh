@@ -1,6 +1,6 @@
 <?php
-// 1. Them code ket noi vao dau file
-session_start();
+// 1. Chi admin moi duoc vao trang nay (admin_guard.php da session_start va nap Connect.php)
+require_once '../../includes/admin_guard.php';
 require_once($_SERVER['DOCUMENT_ROOT'] . "/Connect.php");
 /** @var mysqli $link Ket noi CSDL duoc tao trong Connect.php */
 
@@ -41,7 +41,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
                 // ---- B5: Thao tac insert / update database ----
                 if ($hanhDong === "them") {
-                    $nguoiTao = $_SESSION["userID"] ?? null;
+                    $nguoiTao = $_SESSION["user_id"] ?? null;
                     $sql = "INSERT INTO vocabulary (topic_id, word, meaning, created_by)
                             VALUES (?, ?, ?, ?)";
                     $stmt = mysqli_prepare($link, $sql);
@@ -97,7 +97,7 @@ $danhSachChuDe = mysqli_fetch_all($ketQuaChuDe, MYSQLI_ASSOC);
     <meta charset="UTF-8" />
     <title>LexiLoop Admin - Quản lý từ vựng</title>
     <link rel="stylesheet" type="text/css" href="../../CSS/D_Quanlytuvung.css" />
-    <script src="../jquery-4.0.0.min.js"></script>
+    <script src="../../JS/jquery-4.0.0.min.js"></script>
   </head>
 
   <body>
@@ -128,13 +128,16 @@ $danhSachChuDe = mysqli_fetch_all($ketQuaChuDe, MYSQLI_ASSOC);
             class="D_Quanlytuvung_MucMenu D_Quanlytuvung_DangChon"
             >Từ vựng</a
           >
+          <a href="D_Xephang.php" class="D_Quanlytuvung_MucMenu"
+            >Xếp hạng</a
+          >
           <a href="D_Thongkehethong.php" class="D_Quanlytuvung_MucMenu"
             >Thống kê</a
           >
-          <a href="D_Caidathethong.php" class="D_Quanlytuvung_MucMenu"
-            >Cài đặt</a
-          >
           <hr class="D_Quanlytuvung_GachNgang" />
+          <a href="../user/C_Dashboard_user.php" class="D_Quanlytuvung_MucMenu"
+            >Về trang người dùng</a
+          >
           <a href="../auth/A_DangXuat.php" class="D_Quanlytuvung_MucMenu"
             >Đăng xuất</a
           >
@@ -274,6 +277,6 @@ $danhSachChuDe = mysqli_fetch_all($ketQuaChuDe, MYSQLI_ASSOC);
       </div>
     </div>
 
-    <script src="../JS/D_Quanlytuvung.js"></script>
+    <script src="../../JS/D_Quanlytuvung.js"></script>
   </body>
 </html>

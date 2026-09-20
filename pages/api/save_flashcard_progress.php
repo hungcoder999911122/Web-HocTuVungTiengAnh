@@ -140,6 +140,40 @@ try {
     }
     mysqli_stmt_close($progressStmt);
     if ($reviewStmt) mysqli_stmt_close($reviewStmt);
+
+    // ---- Cộng điểm xếp hạng: học xong (mastered) toàn bộ chủ đề => +10 điểm ----
+    // Chỉ áp dụng khi học theo chủ đề (source = 'topic'); INSERT IGNORE nhờ
+    // UNIQUE KEY (user_id, topic_id) nên chỉ cộng điểm đúng 1 lần / chủ đề.
+    // Kiểm tra bảng tồn tại trước để không làm vỡ tính năng lưu flashcard
+    // nếu database chưa chạy migration cộng điểm.
+    $bangDiemTonTai = mysqli_num_rows(mysqli_query($link, "SHOW TABLES LIKE 'user_points'")) > 0;
+    if ($bangDiemTonTai && $source === 'topic' && $topicId) {
+        $tongTuSql = 'SELECT COUNT(*) AS tong FROM vocabulary WHERE topic_id = ?';
+        $tongTuStmt = mysqli_prepare($link, $tongTuSql);
+        mysqli_stmt_bind_param($tongTuStmt, 'i', $topicId);
+        mysqli_stmt_execute($tongTuStmt);
+        $tongTu = (int) mysqli_fetch_assoc(mysqli_stmt_get_result($tongTuStmt))['tong'];
+        mysqli_stmt_close($tongTuStmt);
+
+        $daThuocSql = "SELECT COUNT(*) AS da_thuoc FROM vocabulary v
+            INNER JOIN user_vocab_progress uvp
+                ON uvp.vocabulary_id = v.id AND uvp.user_id = ? AND uvp.status = 'mastered'
+            WHERE v.topic_id = ?";
+        $daThuocStmt = mysqli_prepare($link, $daThuocSql);
+        mysqli_stmt_bind_param($daThuocStmt, 'ii', $userId, $topicId);
+        mysqli_stmt_execute($daThuocStmt);
+        $daThuoc = (int) mysqli_fetch_assoc(mysqli_stmt_get_result($daThuocStmt))['da_thuoc'];
+        mysqli_stmt_close($daThuocStmt);
+
+        if ($tongTu > 0 && $daThuoc >= $tongTu) {
+            $diemSql = 'INSERT IGNORE INTO user_points (user_id, topic_id, points) VALUES (?, ?, 10)';
+            $diemStmt = mysqli_prepare($link, $diemSql);
+            mysqli_stmt_bind_param($diemStmt, 'ii', $userId, $topicId);
+            mysqli_stmt_execute($diemStmt);
+            mysqli_stmt_close($diemStmt);
+        }
+    }
+
     mysqli_commit($link);
 
     echo json_encode(['success' => true, 'learningSessionId' => $learningSessionId]);

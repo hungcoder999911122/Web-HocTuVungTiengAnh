@@ -50,6 +50,27 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     <script src="/JS/jquery-4.0.0.min.js"></script>
     <title> Đăng ký </title>
+    <style>
+        /* CSS riêng cho dòng đồng ý điều khoản nằm ngang */
+        .auth-agree-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 15px 0;
+        }
+
+        .auth-agree-group input[type="checkbox"] {
+            margin: 0;
+            width: auto;
+            cursor: pointer;
+        }
+
+        .auth-agree-group label {
+            cursor: pointer;
+            user-select: none;
+            margin: 0;
+        }
+    </style>
 </head>
 
 <body>
@@ -68,7 +89,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             </div>
 
             <div>
-
                 <label> Email </label> <br />
                 <input type="email" id="A_DangKy_email" name="A_DangKy_email" placeholder="Vui lòng nhập Email" required>
             </div>
@@ -83,13 +103,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <input type="password" id="A_DangKy_password_confirm" name="A_DangKy_password_confirm" placeholder="Vui lòng tạo mật khẩu" required>
             </div>
 
-
-            <div>
-                <input type="checkbox" id="A_DangKy_agree"
-                    name="A_DangKy_agree" placeholder="Vui lòng tạo mật khẩu" required>
-
-                <label> Tôi đồng ý với điều khoản sử dụng </label> <br />
+            <!-- Đã sửa phần này -->
+            <div class="auth-agree-group">
+                <input type="checkbox" id="A_DangKy_agree" name="A_DangKy_agree" required>
+                <label for="A_DangKy_agree"> Tôi đồng ý với điều khoản sử dụng </label>
             </div>
+
             <div>
                 <input type="submit" name="A_DangKybtn" id="A_DangKybtn" value="Đăng ký" />
             </div>

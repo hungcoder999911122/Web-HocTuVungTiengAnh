@@ -354,21 +354,12 @@ mysqli_stmt_close($stmtRecentActivity);
                 </div>
             </div>
             <div class="C_Dashboard_user_quickGrid">
-                <a href="C_Botuvung.php" class="C_Dashboard_user_quickCard C_Dashboard_user_quickCard--blue">
-                    <span class="C_Dashboard_user_quickIcon" aria-hidden="true">＋</span>
-                    <span><strong>Bộ từ vựng</strong><small>Tạo và quản lý bộ từ cá nhân</small></span>
-                    <b aria-hidden="true">→</b>
-                </a>
-                <a href="../main/B_DanhSachChuDe.php" class="C_Dashboard_user_quickCard C_Dashboard_user_quickCard--violet">
+                                <a href="../main/B_DanhSachChuDe.php" class="C_Dashboard_user_quickCard C_Dashboard_user_quickCard--violet">
                     <span class="C_Dashboard_user_quickIcon" aria-hidden="true">⚡</span>
                     <span><strong>Học theo chủ đề</strong><small>Khám phá kho từ vựng có sẵn</small></span>
                     <b aria-hidden="true">→</b>
                 </a>
-                <a href="C_Tuvungcuatoi.php" class="C_Dashboard_user_quickCard C_Dashboard_user_quickCard--green">
-                    <span class="C_Dashboard_user_quickIcon" aria-hidden="true">▤</span>
-                    <span><strong>Từ vựng của tôi</strong><small>Xem lại danh sách đã lưu</small></span>
-                    <b aria-hidden="true">→</b>
-                </a>
+                
                 <a href="C_Lichsuontap.php" class="C_Dashboard_user_quickCard C_Dashboard_user_quickCard--orange">
                     <span class="C_Dashboard_user_quickIcon" aria-hidden="true">◷</span>
                     <span><strong>Lịch sử ôn tập</strong><small>Theo dõi quá trình học chi tiết</small></span>

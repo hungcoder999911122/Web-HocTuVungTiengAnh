@@ -5,6 +5,99 @@ require_once($_SERVER['DOCUMENT_ROOT'] . "/Connect.php");
 // auth_guard.php đã xác thực session trước khi trang sử dụng user_id.
 $user_id = (int) $_SESSION['user_id'];
 
+// ---------------------------------------------------------
+// ẢNH ĐẠI DIỆN
+// Ảnh được lưu trong assets/images/avatars/, đường dẫn lưu ở Users.avatar_url.
+// ---------------------------------------------------------
+const AVATAR_URL_DIR   = '/assets/images/avatars/';
+const AVATAR_MAX_BYTES = 2 * 1024 * 1024; // 2MB
+
+/**
+ * Kiểm tra và lưu ảnh người dùng vừa chọn.
+ * Trả về ['url' => đường dẫn|null, 'error' => thông báo|null].
+ * Không chọn ảnh mới thì url = null và error = null.
+ */
+function xu_ly_anh_dai_dien(int $user_id, array $file): array
+{
+    $code = $file['error'] ?? UPLOAD_ERR_NO_FILE;
+    if ($code === UPLOAD_ERR_NO_FILE) {
+        return ['url' => null, 'error' => null];
+    }
+    if ($code === UPLOAD_ERR_INI_SIZE || $code === UPLOAD_ERR_FORM_SIZE) {
+        return ['url' => null, 'error' => 'Ảnh quá lớn, vui lòng chọn ảnh tối đa 2MB.'];
+    }
+    if ($code !== UPLOAD_ERR_OK || !is_uploaded_file($file['tmp_name'])) {
+        return ['url' => null, 'error' => 'Tải ảnh lên thất bại, vui lòng thử lại.'];
+    }
+    if ($file['size'] > AVATAR_MAX_BYTES) {
+        return ['url' => null, 'error' => 'Ảnh quá lớn, vui lòng chọn ảnh tối đa 2MB.'];
+    }
+
+    // Kiểm tra nội dung thật của file, không tin vào đuôi file hay MIME do trình duyệt gửi.
+    $allowed = [IMAGETYPE_JPEG => 'jpg', IMAGETYPE_PNG => 'png', IMAGETYPE_GIF => 'gif', IMAGETYPE_WEBP => 'webp'];
+    $info = @getimagesize($file['tmp_name']);
+    if (!$info || !isset($allowed[$info[2]])) {
+        return ['url' => null, 'error' => 'Chỉ chấp nhận ảnh định dạng JPG, PNG, GIF hoặc WebP.'];
+    }
+
+    $dir = rtrim($_SERVER['DOCUMENT_ROOT'], '/\\') . AVATAR_URL_DIR;
+    if (!is_dir($dir) && !@mkdir($dir, 0775, true)) {
+        return ['url' => null, 'error' => 'Không tạo được thư mục lưu ảnh trên máy chủ.'];
+    }
+
+    $name = 'user_' . $user_id . '_' . bin2hex(random_bytes(8)) . '.' . $allowed[$info[2]];
+    if (!move_uploaded_file($file['tmp_name'], $dir . $name)) {
+        return ['url' => null, 'error' => 'Không lưu được ảnh. Hãy kiểm tra quyền ghi của thư mục assets/images/avatars.'];
+    }
+
+    return ['url' => AVATAR_URL_DIR . $name, 'error' => null];
+}
+
+/** Xóa ảnh cũ, chỉ với ảnh do chức năng này tạo ra (tên bắt đầu bằng user_). */
+function xoa_anh_dai_dien_cu(string $url): void
+{
+    if (strpos($url, AVATAR_URL_DIR . 'user_') !== 0) {
+        return;
+    }
+    $path = rtrim($_SERVER['DOCUMENT_ROOT'], '/\\') . AVATAR_URL_DIR . basename($url);
+    if (is_file($path)) {
+        @unlink($path);
+    }
+}
+
+function lay_avatar_hien_tai(mysqli $link, string $tbl_users, string $col_id, int $user_id): string
+{
+    $avatar = '';
+    if ($stmt = @mysqli_prepare($link, "SELECT avatar_url FROM $tbl_users WHERE `$col_id` = ? LIMIT 1")) {
+        mysqli_stmt_bind_param($stmt, "i", $user_id);
+        mysqli_stmt_execute($stmt);
+        $res = mysqli_stmt_get_result($stmt);
+        if ($row = mysqli_fetch_assoc($res)) {
+            $avatar = (string) ($row['avatar_url'] ?? '');
+        }
+        mysqli_stmt_close($stmt);
+    }
+    return $avatar;
+}
+
+/** Chữ cái đầu của tối đa 2 từ đầu trong họ tên (giống avatar chữ ở header). */
+function lay_chu_cai_dau(string $name): string
+{
+    $words = preg_split('/\s+/u', trim($name), -1, PREG_SPLIT_NO_EMPTY);
+    if (!$words) {
+        return '?';
+    }
+    $initials = '';
+    foreach (array_slice($words, 0, 2) as $word) {
+        // Lấy 1 ký tự UTF-8 đầu tiên; không phụ thuộc extension mbstring.
+        $char = preg_match('/^./us', $word, $m) ? $m[0] : '';
+        $initials .= function_exists('mb_strtoupper') ? mb_strtoupper($char, 'UTF-8') : strtoupper($char);
+    }
+    return $initials;
+}
+
+$avatar_url = '';
+
 $thong_bao = "";
 $loai_thong_bao = "";
 
@@ -73,15 +166,38 @@ try {
                     mysqli_stmt_close($stmt);
                 }
 
+                // Chỉ xử lý ảnh khi email hợp lệ để không lưu file thừa.
+                $avatar_result = $email_trung
+                    ? ['url' => null, 'error' => null]
+                    : xu_ly_anh_dai_dien($user_id, $_FILES['C_Hosocanhan_avatar_file'] ?? []);
+
                 if ($email_trung) {
                     $thong_bao = "Email này đã được sử dụng bởi một tài khoản khác!";
                     $loai_thong_bao = "error";
+                } elseif ($avatar_result['error'] !== null) {
+                    $thong_bao = $avatar_result['error'];
+                    $loai_thong_bao = "error";
                 } else {
-                    // Cập nhật thông tin mới vào CSDL
-                    $sql_update = "UPDATE $tbl_users SET full_name = ?, email = ? WHERE `$col_id` = ?";
+                    $avatar_moi = $avatar_result['url'];
+                    $avatar_cu  = $avatar_moi !== null
+                        ? lay_avatar_hien_tai($link, $tbl_users, $col_id, $user_id)
+                        : '';
+
+                    // Cập nhật thông tin mới vào CSDL (kèm ảnh đại diện nếu có ảnh mới)
+                    $sql_update = $avatar_moi !== null
+                        ? "UPDATE $tbl_users SET full_name = ?, email = ?, avatar_url = ? WHERE `$col_id` = ?"
+                        : "UPDATE $tbl_users SET full_name = ?, email = ? WHERE `$col_id` = ?";
                     if ($stmt = @mysqli_prepare($link, $sql_update)) {
-                        mysqli_stmt_bind_param($stmt, "ssi", $full_name, $email, $user_id);
+                        if ($avatar_moi !== null) {
+                            mysqli_stmt_bind_param($stmt, "sssi", $full_name, $email, $avatar_moi, $user_id);
+                        } else {
+                            mysqli_stmt_bind_param($stmt, "ssi", $full_name, $email, $user_id);
+                        }
                         if (mysqli_stmt_execute($stmt)) {
+                            if ($avatar_moi !== null) {
+                                xoa_anh_dai_dien_cu($avatar_cu);
+                                $_SESSION['avatar_url'] = $avatar_moi;
+                            }
                             // Cập nhật đồng bộ sang SESSION để Dashboard đổi theo ngay lập tức
                             $_SESSION['full_name'] = $full_name;
                             $_SESSION['user_name'] = $full_name;
@@ -97,6 +213,9 @@ try {
                             $thong_bao = "Cập nhật thông tin hồ sơ thành công!";
                             $loai_thong_bao = "success";
                         } else {
+                            if ($avatar_moi !== null) {
+                                xoa_anh_dai_dien_cu($avatar_moi);
+                            }
                             $thong_bao = "Có lỗi xảy ra khi lưu thông tin vào cơ sở dữ liệu!";
                             $loai_thong_bao = "error";
                         }
@@ -119,6 +238,12 @@ try {
                 }
                 mysqli_stmt_close($stmt);
             }
+        }
+
+        // --- ẢNH ĐẠI DIỆN HIỆN TẠI ---
+        if (isset($db_tables['users'])) {
+            $avatar_url = lay_avatar_hien_tai($link, $tbl_users, $col_id, $user_id);
+            $_SESSION['avatar_url'] = $avatar_url;
         }
 
         // --- TÍNH TOÁN CÁC CHỈ SỐ THÀNH TỰU THẬT CỦA TÀI KHOẢN ---
@@ -216,10 +341,11 @@ try {
 
                 <div class="C_Hosocanhan_avatarWrapper">
                     <div class="C_Hosocanhan_avatarCircle" id="C_Hosocanhan_avatarCircle">
-                        <span id="C_Hosocanhan_avatarInitials">NA</span>
-                        <img id="C_Hosocanhan_avatarPreview" src="" alt="Avatar" style="display:none;">
+                        <span id="C_Hosocanhan_avatarInitials"<?php echo $avatar_url !== '' ? ' style="display:none;"' : ''; ?>><?php echo htmlspecialchars(lay_chu_cai_dau($user_profile['C_Hosocanhan_full_name'])); ?></span>
+                        <img id="C_Hosocanhan_avatarPreview" src="<?php echo htmlspecialchars($avatar_url); ?>" alt="Avatar" style="display:<?php echo $avatar_url !== '' ? 'block' : 'none'; ?>;">
                     </div>
-                    <input type="file" id="C_Hosocanhan_fileInput" name="C_Hosocanhan_avatar_file" accept="image/*" style="display:none;">
+                    <!-- form="..." gắn ô chọn ảnh vào form bên dưới (ô này nằm ngoài thẻ <form>), nếu không file sẽ không được gửi lên -->
+                    <input type="file" id="C_Hosocanhan_fileInput" name="C_Hosocanhan_avatar_file" form="C_Hosocanhan_formThongTin" accept="image/jpeg,image/png,image/gif,image/webp" style="display:none;">
                     <button type="button" id="C_Hosocanhan_btnDoiAnh" class="C_Hosocanhan_btnAvatar">
                         Đổi ảnh đại diện
                     </button>

@@ -1,6 +1,6 @@
 <?php
-// 1. Them code ket noi vao dau file
-session_start();
+// 1. Chi admin moi duoc vao trang nay (admin_guard.php da session_start va nap Connect.php)
+require_once '../../includes/admin_guard.php';
 require_once($_SERVER['DOCUMENT_ROOT'] . "/Connect.php");
 /** @var mysqli $link Ket noi CSDL duoc tao trong Connect.php */
 
@@ -40,7 +40,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
                 // ---- B5: Thao tac insert / update database ----
                 if ($hanhDong === "them") {
-                    $nguoiTao = $_SESSION["userID"] ?? null;
+                    $nguoiTao = $_SESSION["user_id"] ?? null;
                     $sql = "INSERT INTO Topics (topicName, topicDescription, category, created_by)
                             VALUES (?, ?, 'common', ?)";
                     $stmt = mysqli_prepare($link, $sql);
@@ -92,7 +92,7 @@ $ketQuaDanhSach = mysqli_query($link, $sqlDanhSach);
     <meta charset="UTF-8" />
     <title>LexiLoop Admin - Quản lý chủ đề</title>
     <link rel="stylesheet" type="text/css" href="../../CSS/D_Quanlychude.css"/>
-    <script src="../jquery-4.0.0.min.js"></script>
+    <script src="../../JS/jquery-4.0.0.min.js"></script>
   </head>
 
   <body>
@@ -125,13 +125,16 @@ $ketQuaDanhSach = mysqli_query($link, $sqlDanhSach);
           <a href="D_Quanlytuvung.php" class="D_Quanlychude_MucMenu"
             >Từ vựng</a
           >
+	  <a href="D_Xephang.php" class="D_Quanlychude_MucMenu"
+            >Xếp hạng</a
+          >
           <a href="D_Thongkehethong.php" class="D_Quanlychude_MucMenu"
             >Thống kê</a
           >
-          <a href="D_Caidathethong.php" class="D_Quanlychude_MucMenu"
-            >Cài đặt</a
-          >
           <hr class="D_Quanlychude_GachNgang" />
+          <a href="../user/C_Dashboard_user.php" class="D_Quanlychude_MucMenu"
+            >Về trang người dùng</a
+          >
           <a href="../auth/A_DangXuat.php" class="D_Quanlychude_MucMenu"
             >Đăng xuất</a
           >
@@ -247,6 +250,6 @@ $ketQuaDanhSach = mysqli_query($link, $sqlDanhSach);
       </div>
     </div>
 
-    <script src="../JS/D_Quanlychude.js"></script>
+    <script src="../../JS/D_Quanlychude.js"></script>
   </body>
 </html>

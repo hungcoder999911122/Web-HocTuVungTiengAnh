@@ -43,12 +43,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')
 				$_SESSION['full_name'] = $row['full_name'];
 				$_SESSION['role']      = $row['role'];
 
-				// Chuyển đến Dashboard theo vai trò
-				if ($row['role'] === 'admin') {
-					header("Location: ../admin/D_Dashboard_admin.php?login=success");
-				} else {
-					header("Location: ../user/C_Dashboard_user.php?login=success");
-				}
+				// Xóa ảnh đại diện còn nhớ từ phiên trước để header tra lại đúng người vừa đăng nhập.
+				unset($_SESSION['avatar_url']);
+
+				// Mọi tài khoản đều vào Dashboard người dùng.
+				// Tài khoản admin sẽ thấy nút "Vào trang admin" ở header (includes/topheader.php).
+				header("Location: ../user/C_Dashboard_user.php?login=success");
 				exit();
 			}
 		}

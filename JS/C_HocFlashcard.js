@@ -1,85 +1,79 @@
 document.addEventListener("DOMContentLoaded", () => {
-    const cardBox = document.getElementById("C_HocFlashcard_cardBox");
-    const wordText = document.getElementById("C_HocFlashcard_word");
-    const hintText = document.getElementById("C_HocFlashcard_hint");
-    const badgeR = document.getElementById("C_HocFlashcard_badgeR");
+    const byId = (id) => document.getElementById(id);
 
-    const pronunciationArea = document.getElementById(
-    "C_HocFlashcard_pronunciationArea"
-    );
-    const pronunciationText = document.getElementById(
-        "C_HocFlashcard_pronunciation"
-    );
-    const audioButton = document.getElementById(
-        "C_HocFlashcard_audioButton"
-    );
-    const audioPlayer = document.getElementById(
-        "C_HocFlashcard_audioPlayer"
-    );
+    const cardBox = byId("C_HocFlashcard_cardBox");
+    const wordText = byId("C_HocFlashcard_word");
+    const hintText = byId("C_HocFlashcard_hint");
+    const badgeR = byId("C_HocFlashcard_badgeR");
 
-    const progressText = document.getElementById(
-        "C_HocFlashcard_progressText"
-    );
-    const progressFill = document.getElementById(
-        "C_HocFlashcard_progressFill"
-    );
-    const statsText = document.getElementById(
-        "C_HocFlashcard_stats"
-    );
+    const pronunciationArea = byId("C_HocFlashcard_pronunciationArea");
+    const pronunciationText = byId("C_HocFlashcard_pronunciation");
+    const audioButton = byId("C_HocFlashcard_audioButton");
+    const audioPlayer = byId("C_HocFlashcard_audioPlayer");
 
-    const btnPrev = document.getElementById(
-        "C_HocFlashcard_btnPrev"
-    );
-    const btnNext = document.getElementById(
-        "C_HocFlashcard_btnNext"
-    );
-    const btnChuaNho = document.getElementById(
-        "C_HocFlashcard_btnChuaNho"
-    );
-    const btnDaNho = document.getElementById(
-        "C_HocFlashcard_btnDaNho"
-    );
-    const btnKetThuc = document.getElementById(
-        "C_HocFlashcard_btnKetThuc"
-    );
+    const progressText = byId("C_HocFlashcard_progressText");
+    const progressFill = byId("C_HocFlashcard_progressFill");
+    const statsText = byId("C_HocFlashcard_stats");
+
+    const btnUndo = byId("C_HocFlashcard_btnPrev"); // nút ← nay dùng để hoàn tác
+    const btnNext = byId("C_HocFlashcard_btnNext"); // không còn dùng
+    const btnChuaNho = byId("C_HocFlashcard_btnChuaNho");
+    const btnDaNho = byId("C_HocFlashcard_btnDaNho");
+    const btnKetThuc = byId("C_HocFlashcard_btnKetThuc");
 
     /*
-     * Không tạo dữ liệu giả khi database không trả về từ nào.
-     * Dữ liệu giả có thể khiến người dùng tưởng rằng đang học
-     * một từ thật thuộc chủ đề.
+     * ============================================================
+     * LUỒNG HỌC
+     * ------------------------------------------------------------
+     * - Danh sách từ được chia thành các nhóm GROUP_SIZE từ.
+     * - Trong một nhóm: học từng thẻ một lượt (một "vòng").
+     *     + "Đã nhớ"  -> từ được tính là đã thuộc, thanh tiến trình tăng,
+     *                    từ không xuất hiện lại trong phiên này.
+     *     + "Chưa nhớ" -> thanh tiến trình giữ nguyên, từ vào danh sách
+     *                    cần học lại.
+     * - Hết vòng: nếu còn từ chưa nhớ thì mở vòng mới CHỈ gồm các từ đó
+     *   (xáo trộn thứ tự). Lặp đến khi cả nhóm đã nhớ hết.
+     * - Xong nhóm thì sang nhóm kế tiếp. Nhớ hết mọi từ = hoàn thành.
+     * - Mỗi lần vào học là bắt đầu lại từ đầu (không resume phiên cũ).
+     * ============================================================
      */
-    let cards = Array.isArray(flashcardsData)
-        ? flashcardsData
-        : [];
+    const GROUP_SIZE = 10;
+    const MAX_UNDO = 30;
+
+    const cards = Array.isArray(flashcardsData) ? flashcardsData : [];
+    const cardsById = new Map(cards.map((card) => [Number(card.id), card]));
 
     const sessionConfig = flashcardSessionConfig || {
         topicId: 0,
         mode: "new_learning"
     };
 
-    let currentIndex = 0;
+    // Chia nhóm theo thứ tự PHP trả về.
+    const groups = [];
+    for (let i = 0; i < cards.length; i += GROUP_SIZE) {
+        groups.push(cards.slice(i, i + GROUP_SIZE).map((card) => Number(card.id)));
+    }
+
+    // Trạng thái phiên học.
+    let cardStatuses = {};              // { id: "da_nho" | "chua_nho" }
+    let groupIndex = 0;                 // nhóm hiện tại
+    let round = 1;                      // vòng hiện tại trong nhóm
+    let queue = groups.length ? groups[0].slice() : []; // id các thẻ của vòng này
+    let queuePos = 0;                   // vị trí thẻ hiện tại trong queue
+    let missedIds = [];                 // các thẻ bấm "Chưa nhớ" trong vòng này
+    const undoStack = [];
+
+    // Trạng thái giao diện / lưu trữ.
     let isFlipped = false;
-    let sessionStartedAt = Date.now();
-    let previousDurationSeconds = 0;
+    const sessionStartedAt = Date.now();
     let isSaving = false;
-    let isAssessing = false;
     let isCompleting = false;
     let hasCompletedSession = false;
     let checkpointQueue = Promise.resolve();
 
-    /*
-     * Lưu một trạng thái duy nhất cho mỗi từ:
-     *
-     * {
-     *   15: "da_nho",
-     *   16: "chua_nho"
-     * }
-     *
-     * Nếu người dùng đổi ý, giá trị cũ bị thay thế chứ không
-     * bị cộng thêm vào thống kê.
-     */
-    const cardStatuses = {};
-
+    /* ---------------------------------------------------------------
+     * Giao tiếp với API (giữ nguyên định dạng request cũ)
+     * ------------------------------------------------------------- */
     async function attemptRequest(action, state = null) {
         const response = await fetch("../api/learning_attempt.php", {
             method: "POST",
@@ -102,10 +96,26 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function getElapsedSeconds() {
-        return previousDurationSeconds + Math.round((Date.now() - sessionStartedAt) / 1000);
+        return Math.round((Date.now() - sessionStartedAt) / 1000);
+    }
+
+    function getCurrentCard() {
+        return cardsById.get(queue[queuePos]) || null;
+    }
+
+    // Dùng cả style.display vì CSS của khu vực phiên âm có thể ghi đè thuộc tính hidden.
+    function setPronunciationVisible(visible) {
+        pronunciationArea.hidden = !visible;
+        pronunciationArea.style.display = visible ? "" : "none";
     }
 
     function getAttemptState() {
+        const current = getCurrentCard();
+        const currentIndex = current
+            ? cards.findIndex((card) => Number(card.id) === Number(current.id))
+            : Math.max(0, cards.length - 1);
+
+        // Giữ đúng cấu trúc cũ để C_Gocrenluyen.php tính % tiến độ như trước.
         return {
             currentIndex,
             cardStatuses,
@@ -115,7 +125,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function saveCheckpoint() {
-        if (cards.length === 0) return true;
+        if (cards.length === 0) return Promise.resolve(true);
         const snapshot = JSON.parse(JSON.stringify(getAttemptState()));
         checkpointQueue = checkpointQueue
             .catch(() => undefined)
@@ -137,189 +147,10 @@ document.addEventListener("DOMContentLoaded", () => {
             limit: sessionConfig.limit || "10",
             state: getAttemptState()
         });
-        navigator.sendBeacon("../api/learning_attempt.php", new Blob([payload], { type: "application/json" }));
-    }
-
-    async function restoreAttempt() {
-        if (cards.length === 0) return;
-        try {
-            const result = await attemptRequest("load");
-            const state = result.attempt?.state;
-            if (state && Array.isArray(state.cardIds)) {
-                const cardsById = new Map(cards.map((card) => [Number(card.id), card]));
-                const restoredCards = state.cardIds.map((id) => cardsById.get(Number(id))).filter(Boolean);
-                const restoredIds = new Set(restoredCards.map((card) => Number(card.id)));
-                cards = restoredCards.concat(cards.filter((card) => !restoredIds.has(Number(card.id))));
-                const validIds = new Set(cards.map((card) => String(card.id)));
-                Object.entries(state.cardStatuses || {}).forEach(([id, status]) => {
-                    if (validIds.has(String(id))) cardStatuses[id] = status;
-                });
-                currentIndex = Math.min(Math.max(0, Number(state.currentIndex) || 0), cards.length - 1);
-                previousDurationSeconds = Math.max(0, Number(state.durationSeconds) || 0);
-                sessionStartedAt = Date.now();
-            } else {
-                await saveCheckpoint();
-            }
-        } catch (error) {
-            // Nếu migration chưa chạy, người dùng vẫn học được nhưng chưa thể resume.
-            console.error(error);
-        }
-    }
-
-    function getCurrentCard() {
-        return cards[currentIndex];
-    }
-
-    function renderEmptyState() {
-        wordText.textContent = "Chủ đề này chưa có từ vựng";
-        hintText.textContent = "Hãy quay lại và chọn chủ đề khác.";
-
-        pronunciationText.textContent = "";
-        audioButton.hidden = true;
-
-        progressText.textContent = "Thẻ 0/0";
-        progressFill.style.width = "0%";
-
-        btnPrev.disabled = true;
-        btnNext.disabled = true;
-        btnChuaNho.disabled = true;
-        btnDaNho.disabled = true;
-    }
-
-    function renderPronunciation(card) {
-        const pronunciation = card.phien_am?.trim();
-
-        pronunciationText.textContent = pronunciation || "Chưa có phiên âm";
-
-        const audioUrl = card.audio_url?.trim();
-
-        if (audioUrl) {
-            audioButton.hidden = false;
-            audioPlayer.src = audioUrl;
-        } else {
-            audioButton.hidden = true;
-            audioPlayer.removeAttribute("src");
-        }
-    }
-
-    function renderAssessmentButtons(cardId) {
-        const currentStatus = cardStatuses[cardId] || null;
-
-        const isRemembered = currentStatus === "da_nho";
-        const isNotRemembered = currentStatus === "chua_nho";
-
-        btnDaNho.classList.toggle(
-            "C_HocFlashcard_btnSelected",
-            isRemembered
+        navigator.sendBeacon(
+            "../api/learning_attempt.php",
+            new Blob([payload], { type: "application/json" })
         );
-
-        btnChuaNho.classList.toggle(
-            "C_HocFlashcard_btnSelected",
-            isNotRemembered
-        );
-
-        btnDaNho.setAttribute("aria-pressed", String(isRemembered));
-        btnChuaNho.setAttribute("aria-pressed", String(isNotRemembered));
-    }
-
-    function renderCard() {
-        if (cards.length === 0) {
-            renderEmptyState();
-            return;
-        }
-
-        const currentCard = getCurrentCard();
-
-        isFlipped = false;
-        cardBox.classList.remove("is-flipped");
-
-        wordText.textContent = currentCard.tu_vung;
-        hintText.textContent = "Nhấn vào thẻ để xem nghĩa";
-
-        progressText.textContent =
-            `Thẻ ${currentIndex + 1}/${cards.length}`;
-
-        badgeR.style.display = currentCard.is_review
-            ? "flex"
-            : "none";
-
-        renderPronunciation(currentCard);
-        renderAssessmentButtons(currentCard.id);
-
-        btnPrev.disabled = currentIndex === 0;
-        btnNext.disabled = currentIndex === cards.length - 1;
-        btnChuaNho.disabled = false;
-        btnDaNho.disabled = false;
-
-        renderStats();
-    }
-
-    function getStatistics() {
-        let rememberedCount = 0;
-        let notRememberedCount = 0;
-
-        Object.values(cardStatuses).forEach((status) => {
-            if (status === "da_nho") {
-                rememberedCount++;
-            }
-
-            if (status === "chua_nho") {
-                notRememberedCount++;
-            }
-        });
-
-        return {
-            rememberedCount,
-            notRememberedCount,
-            assessedCount: rememberedCount + notRememberedCount
-        };
-    }
-
-    function renderStats() {
-        const statistics = getStatistics();
-
-        statsText.innerHTML = `
-            Đã đánh giá: <strong>${statistics.assessedCount}</strong>
-            &nbsp;&bull;&nbsp;
-            Đã nhớ: <strong>${statistics.rememberedCount}</strong>
-            &nbsp;&bull;&nbsp;
-            Chưa nhớ: <strong>${statistics.notRememberedCount}</strong>
-        `;
-
-        const progressPercent = cards.length > 0
-            ? (statistics.rememberedCount / cards.length) * 100
-            : 0;
-        progressFill.style.width = `${progressPercent}%`;
-
-        if (statistics.rememberedCount === cards.length) {
-            statsText.insertAdjacentText("beforeend", " • Hoàn thành 100%");
-        }
-    }
-
-    function setCardStatus(status) {
-        const currentCard = getCurrentCard();
-
-        if (!currentCard) {
-            return;
-        }
-
-        /*
-         * Gán đè trạng thái cũ. Đây là điểm giúp tránh việc
-         * bấm nhiều lần dẫn đến thống kê sai.
-         */
-        cardStatuses[currentCard.id] = status;
-
-        renderAssessmentButtons(currentCard.id);
-        renderStats();
-    }
-
-    function moveToCard(nextIndex) {
-        if (nextIndex < 0 || nextIndex >= cards.length) {
-            return;
-        }
-
-        currentIndex = nextIndex;
-        renderCard();
     }
 
     async function saveProgress(isFinal = true) {
@@ -340,7 +171,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 })
             });
             const result = await response.json();
-            if (!response.ok || !result.success) throw new Error(result.message || "Không thể lưu tiến trình.");
+            if (!response.ok || !result.success) {
+                throw new Error(result.message || "Không thể lưu tiến trình.");
+            }
             return true;
         } catch (error) {
             alert(error.message);
@@ -350,49 +183,269 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
+    /* ---------------------------------------------------------------
+     * Logic vòng học
+     * ------------------------------------------------------------- */
+    function getStatistics() {
+        let rememberedCount = 0;
+        let notRememberedCount = 0;
+
+        Object.values(cardStatuses).forEach((status) => {
+            if (status === "da_nho") rememberedCount++;
+            if (status === "chua_nho") notRememberedCount++;
+        });
+
+        return { rememberedCount, notRememberedCount };
+    }
+
+    function isFinished() {
+        return cards.length > 0 && getStatistics().rememberedCount === cards.length;
+    }
+
+    // Xáo trộn Fisher–Yates; tránh để thẻ vừa học xong lại lên đầu vòng mới.
+    function shuffleAvoidingFirst(ids, avoidId) {
+        const result = ids.slice();
+        for (let i = result.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [result[i], result[j]] = [result[j], result[i]];
+        }
+        if (result.length > 1 && result[0] === avoidId) {
+            const j = 1 + Math.floor(Math.random() * (result.length - 1));
+            [result[0], result[j]] = [result[j], result[0]];
+        }
+        return result;
+    }
+
+    function advanceQueue(lastId) {
+        queuePos++;
+        if (queuePos < queue.length) return;
+
+        // Hết vòng: còn từ chưa nhớ thì mở vòng mới chỉ gồm các từ đó.
+        if (missedIds.length > 0) {
+            round++;
+            queue = shuffleAvoidingFirst(missedIds, lastId);
+            missedIds = [];
+            queuePos = 0;
+            return;
+        }
+
+        // Cả nhóm đã nhớ: sang nhóm kế tiếp (hoặc kết thúc nếu hết nhóm).
+        groupIndex++;
+        round = 1;
+        queuePos = 0;
+        queue = groupIndex < groups.length ? groups[groupIndex].slice() : [];
+    }
+
+    function pushUndo() {
+        undoStack.push(JSON.stringify({
+            queue, queuePos, missedIds, round, groupIndex, cardStatuses
+        }));
+        if (undoStack.length > MAX_UNDO) undoStack.shift();
+    }
+
+    function popUndo() {
+        const snapshot = JSON.parse(undoStack.pop());
+        queue = snapshot.queue;
+        queuePos = snapshot.queuePos;
+        missedIds = snapshot.missedIds;
+        round = snapshot.round;
+        groupIndex = snapshot.groupIndex;
+        cardStatuses = snapshot.cardStatuses;
+    }
+
+    function answerCurrentCard(status) {
+        const card = getCurrentCard();
+        if (!card || hasCompletedSession || isCompleting) return false;
+
+        pushUndo();
+        const id = Number(card.id);
+        cardStatuses[id] = status;
+        if (status === "chua_nho") missedIds.push(id);
+        advanceQueue(id);
+        return true;
+    }
+
+    /* ---------------------------------------------------------------
+     * Hiển thị
+     * ------------------------------------------------------------- */
+    function clearAssessmentButtons() {
+        [btnDaNho, btnChuaNho].forEach((button) => {
+            button.classList.remove("C_HocFlashcard_btnSelected");
+            button.setAttribute("aria-pressed", "false");
+        });
+    }
+
+    function renderPronunciation(card) {
+        const pronunciation = card.phien_am?.trim();
+        pronunciationText.textContent = pronunciation || "Chưa có phiên âm";
+
+        const audioUrl = card.audio_url?.trim();
+        if (audioUrl) {
+            audioButton.hidden = false;
+            audioPlayer.src = audioUrl;
+        } else {
+            audioButton.hidden = true;
+            audioPlayer.removeAttribute("src");
+        }
+    }
+
+    function renderStats() {
+        const { rememberedCount, notRememberedCount } = getStatistics();
+        const total = cards.length;
+
+        statsText.innerHTML = `
+            Đã nhớ: <strong>${rememberedCount}</strong>/${total}
+            &nbsp;&bull;&nbsp;
+            Chưa nhớ: <strong>${notRememberedCount}</strong>
+            &nbsp;&bull;&nbsp;
+            Vòng: <strong>${round}</strong>
+        `;
+
+        // Thanh tiến trình chỉ tăng khi có từ "Đã nhớ".
+        progressFill.style.width = total > 0
+            ? `${(rememberedCount / total) * 100}%`
+            : "0%";
+
+        if (isFinished()) {
+            statsText.insertAdjacentText("beforeend", " • Hoàn thành 100%");
+        }
+    }
+
+    function renderHeader() {
+        const groupLabel = groups.length > 1
+            ? `Nhóm ${groupIndex + 1}/${groups.length} • `
+            : "";
+        progressText.textContent =
+            `${groupLabel}Vòng ${round} • Thẻ ${queuePos + 1}/${queue.length}`;
+    }
+
+    function renderEmptyState() {
+        wordText.textContent = "Chủ đề này chưa có từ vựng";
+        hintText.textContent = "Hãy quay lại và chọn chủ đề khác.";
+        pronunciationText.textContent = "";
+        audioButton.hidden = true;
+        badgeR.style.display = "none";
+
+        progressText.textContent = "Thẻ 0/0";
+        progressFill.style.width = "0%";
+
+        btnUndo.disabled = true;
+        btnChuaNho.disabled = true;
+        btnDaNho.disabled = true;
+    }
+
+    function renderFinishedState() {
+        isFlipped = false;
+        cardBox.classList.remove("is-flipped");
+
+        wordText.textContent = "🎉 Hoàn thành!";
+        hintText.textContent = `Bạn đã nhớ tất cả ${cards.length} từ.`;
+        setPronunciationVisible(false);
+        audioButton.hidden = true;
+        badgeR.style.display = "none";
+
+        progressText.textContent = `Hoàn thành • ${cards.length}/${cards.length} từ`;
+
+        clearAssessmentButtons();
+        btnUndo.disabled = true;
+        btnChuaNho.disabled = true;
+        btnDaNho.disabled = true;
+        renderStats();
+    }
+
+    function renderCard() {
+        if (cards.length === 0) {
+            renderEmptyState();
+            return;
+        }
+
+        const currentCard = getCurrentCard();
+        if (!currentCard) {
+            renderFinishedState();
+            return;
+        }
+
+        isFlipped = false;
+        cardBox.classList.remove("is-flipped");
+        audioPlayer.pause();
+
+        wordText.textContent = currentCard.tu_vung;
+        hintText.textContent = "Nhấn vào thẻ để xem nghĩa";
+        setPronunciationVisible(true);
+        badgeR.style.display = currentCard.is_review ? "flex" : "none";
+
+        renderPronunciation(currentCard);
+        renderHeader();
+        renderStats();
+        clearAssessmentButtons();
+
+        btnUndo.disabled = undoStack.length === 0;
+        btnChuaNho.disabled = false;
+        btnDaNho.disabled = false;
+    }
+
+    /* ---------------------------------------------------------------
+     * Hoàn thành phiên
+     * ------------------------------------------------------------- */
     async function completeFlashcardIfFinished() {
-        // Chỉ "Đã nhớ" mới tạo tiến độ. Còn một thẻ "Chưa nhớ" thì phiên
-        // vẫn phải giữ in_progress để người dùng quay lại học tiếp.
-        if (hasCompletedSession || getStatistics().rememberedCount !== cards.length) return;
+        if (hasCompletedSession || !isFinished()) return;
 
         hasCompletedSession = true;
         isCompleting = true;
         await checkpointQueue.catch(console.error);
+
         const saved = await saveProgress(true);
         if (!saved) {
+            // Cho phép thử lại khi bấm nút kết thúc.
             hasCompletedSession = false;
             isCompleting = false;
             return;
         }
+
         await attemptRequest("complete").catch(console.error);
-        btnDaNho.disabled = true;
-        btnChuaNho.disabled = true;
         btnKetThuc.textContent = "Hoàn tất phiên học";
     }
 
-cardBox.addEventListener("click", () => {
-    const currentCard = getCurrentCard();
-
-    if (!currentCard) {
-        return;
+    async function handleAnswer(status) {
+        if (!answerCurrentCard(status)) return;
+        renderCard();
+        saveCheckpoint(); // tự xếp hàng tuần tự trong checkpointQueue
+        await completeFlashcardIfFinished();
     }
 
-    isFlipped = !isFlipped;
-
-    cardBox.classList.toggle("is-flipped", isFlipped);
-
-    if (isFlipped) {
-        wordText.textContent = currentCard.nghia;
-        hintText.textContent = "Nhấn vào thẻ để xem từ tiếng Anh";
-
-        pronunciationArea.hidden = true;
-    } else {
-        wordText.textContent = currentCard.tu_vung;
-        hintText.textContent = "Nhấn vào thẻ để xem nghĩa";
-
-        pronunciationArea.hidden = false;
+    function leaveSession() {
+        if (sessionConfig.source === "review") {
+            window.location.href = "C_Ontaphomnay.php";
+            return;
+        }
+        const sourceQuery = new URLSearchParams({
+            source: sessionConfig.source || "topic",
+            id: sessionConfig.sourceId || sessionConfig.topicId,
+            limit: sessionConfig.limit || "10"
+        });
+        window.location.href = `C_Gocrenluyen.php?${sourceQuery.toString()}`;
     }
-});
+
+    /* ---------------------------------------------------------------
+     * Sự kiện
+     * ------------------------------------------------------------- */
+    cardBox.addEventListener("click", () => {
+        const currentCard = getCurrentCard();
+        if (!currentCard) return;
+
+        isFlipped = !isFlipped;
+        cardBox.classList.toggle("is-flipped", isFlipped);
+
+        if (isFlipped) {
+            wordText.textContent = currentCard.nghia;
+            hintText.textContent = "Nhấn vào thẻ để xem từ tiếng Anh";
+            setPronunciationVisible(false);
+        } else {
+            wordText.textContent = currentCard.tu_vung;
+            hintText.textContent = "Nhấn vào thẻ để xem nghĩa";
+            setPronunciationVisible(true);
+        }
+    });
 
     audioButton.addEventListener("click", () => {
         audioPlayer.currentTime = 0;
@@ -401,74 +454,46 @@ cardBox.addEventListener("click", () => {
         });
     });
 
-    btnDaNho.addEventListener("click", async () => {
-        if (isAssessing) return;
-        isAssessing = true;
-        try {
-            setCardStatus("da_nho");
-            // Đánh giá xong một thẻ thì chuyển ngay sang thẻ tiếp theo.
-            if (currentIndex < cards.length - 1) moveToCard(currentIndex + 1);
-            await saveCheckpoint();
-            await completeFlashcardIfFinished();
-        } finally {
-            isAssessing = false;
-        }
-    });
+    btnDaNho.addEventListener("click", () => handleAnswer("da_nho"));
+    btnChuaNho.addEventListener("click", () => handleAnswer("chua_nho"));
 
-    btnChuaNho.addEventListener("click", async () => {
-        if (isAssessing) return;
-        isAssessing = true;
-        try {
-            setCardStatus("chua_nho");
-            if (currentIndex < cards.length - 1) moveToCard(currentIndex + 1);
-            await saveCheckpoint();
-            await completeFlashcardIfFinished();
-        } finally {
-            isAssessing = false;
-        }
-    });
-
-    btnPrev.addEventListener("click", async () => {
-        moveToCard(currentIndex - 1);
-        await saveCheckpoint();
-    });
-
-    btnNext.addEventListener("click", async () => {
-        moveToCard(currentIndex + 1);
-        await saveCheckpoint();
+    // Hoàn tác lựa chọn vừa rồi (phòng khi bấm nhầm).
+    btnUndo.addEventListener("click", () => {
+        if (hasCompletedSession || isCompleting || undoStack.length === 0) return;
+        popUndo();
+        renderCard();
+        saveCheckpoint();
     });
 
     btnKetThuc.addEventListener("click", async () => {
-        const shouldEnd = confirm(
-            "Bạn có chắc chắn muốn kết thúc phiên học này?"
-        );
-
-        if (shouldEnd) {
-            // Kết thúc sớm: vừa giữ checkpoint để học tiếp, vừa cập nhật ngay
-            // số từ Đã nhớ/Chưa nhớ cho khu vực thống kê.
-            if (!hasCompletedSession) {
-                await saveCheckpoint();
-                const saved = await saveProgress(false);
-                if (!saved) return;
-            }
-            if (sessionConfig.source === "review") {
-                window.location.href = "C_Ontaphomnay.php";
-                return;
-            }
-            const sourceQuery = new URLSearchParams({
-                source: sessionConfig.source || "topic",
-                id: sessionConfig.sourceId || sessionConfig.topicId,
-                limit: sessionConfig.limit || "10"
-            });
-            window.location.href = `C_Gocrenluyen.php?${sourceQuery.toString()}`;
+        if (isFinished()) {
+            // Đã nhớ hết: đảm bảo kết quả đã được lưu rồi mới thoát.
+            await completeFlashcardIfFinished();
+            if (!hasCompletedSession) return;
+            leaveSession();
+            return;
         }
+
+        const shouldEnd = confirm(
+            "Kết thúc phiên học?\nCác từ đã đánh giá vẫn được lưu, " +
+            "nhưng lần sau bạn sẽ học lại từ đầu."
+        );
+        if (!shouldEnd) return;
+
+        await saveCheckpoint();
+        const saved = await saveProgress(false);
+        if (!saved) return;
+        leaveSession();
     });
 
     window.addEventListener("pagehide", saveCheckpointOnExit);
 
-    btnPrev.disabled = true;
+    /* ---------------------------------------------------------------
+     * Khởi động: luôn bắt đầu phiên mới từ đầu
+     * ------------------------------------------------------------- */
+    btnNext.style.visibility = "hidden"; // nút → không còn ý nghĩa trong luồng mới
     btnNext.disabled = true;
-    btnChuaNho.disabled = true;
-    btnDaNho.disabled = true;
-    restoreAttempt().finally(renderCard);
+    renderCard();
+    // Tạo/ghi đè phiên hiện tại bằng trạng thái trống, không đọc phiên cũ.
+    saveCheckpoint();
 });
