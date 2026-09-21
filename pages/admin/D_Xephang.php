@@ -135,8 +135,8 @@ function huyHieuThuHang(int $thuHang): string
           <a href="D_Quanlytuvung.php" class="D_Quanlynguoidung_MucMenu">Từ vựng</a>
           <a href="D_Xephang.php" class="D_Quanlynguoidung_MucMenu D_Quanlynguoidung_DangChon">Xếp hạng</a>
           <a href="D_Thongkehethong.php" class="D_Quanlynguoidung_MucMenu">Thống kê</a>
-          <a href="D_Caidathethong.php" class="D_Quanlynguoidung_MucMenu">Cài đặt</a>
           <hr class="D_Quanlynguoidung_GachNgang" />
+          <a href="../user/C_Dashboard_user.php" class="D_Quanlynguoidung_MucMenu">Về trang người dùng</a>
           <a href="../auth/A_DangXuat.php" class="D_Quanlynguoidung_MucMenu">Đăng xuất</a>
         </nav>
 

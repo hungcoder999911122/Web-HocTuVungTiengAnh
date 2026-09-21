@@ -114,10 +114,10 @@ $ketQuaDanhSach = mysqli_query($link, $sqlDanhSach);
           <a href="D_Thongkehethong.php" class="D_Quanlynguoidung_MucMenu"
             >Thống kê</a
           >
-          <a href="D_Caidathethong.php" class="D_Quanlynguoidung_MucMenu"
-            >Cài đặt</a
-          >
           <hr class="D_Quanlynguoidung_GachNgang" />
+          <a href="../user/C_Dashboard_user.php" class="D_Quanlynguoidung_MucMenu"
+            >Về trang người dùng</a
+          >
           <a href="../auth/A_DangXuat.php" class="D_Quanlynguoidung_MucMenu"
             >Đăng xuất</a
           >
