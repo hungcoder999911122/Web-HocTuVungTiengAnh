@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>Phương pháp Lặp lại ngắt quãng</title>
-
     <link rel="stylesheet" href="../../CSS/Style.css">
     <link rel="stylesheet" href="../../CSS/B_SpaceRepetitionDemo.css">
 </head>

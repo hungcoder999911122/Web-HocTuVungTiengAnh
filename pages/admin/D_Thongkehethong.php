@@ -97,7 +97,7 @@ $dsChuDeHocNhieu = mysqli_fetch_all($ketQuaChuDeHocNhieu, MYSQLI_ASSOC);
             class="D_Thongkehethong_MucMenu D_Thongkehethong_DangChon"
             >Thống kê</a
           >
-          <hr class="D_Thongkehethong_GachNgang" />
+            <hr class="D_Thongkehethong_GachNgang" />
           <a href="../user/C_Dashboard_user.php" class="D_Thongkehethong_MucMenu"
             >Về trang người dùng</a
           >
