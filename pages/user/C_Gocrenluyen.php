@@ -38,22 +38,27 @@ $latestQuizTotal = null;
 $flashcardRemembered = 0;
 $flashcardStatsTotal = 0;
 $sourceError = '';
-$personalSets = [];
+$systemTopics = [];
 $topicWords = [];
 $topicWordsPerPage = 10;
 $wordPage = max(1, filter_var($_GET['word_page'] ?? 1, FILTER_VALIDATE_INT) ?: 1);
 $topicWordPages = 1;
 
-// Bộ lọc cá nhân chỉ được truy vấn sau khi đăng nhập.
+// Bộ lọc chính của Góc rèn luyện lấy chủ đề và số từ trực tiếp từ hệ thống.
+// COUNT giúp giao diện cảnh báo sớm chủ đề rỗng mà không cần truy vấn phụ.
 if ($isLoggedIn) {
-    $setsStmt = mysqli_prepare($link, 'SELECT id, name FROM vocabulary_sets WHERE user_id = ? ORDER BY name ASC');
-    mysqli_stmt_bind_param($setsStmt, 'i', $userId);
-    mysqli_stmt_execute($setsStmt);
-    $setsResult = mysqli_stmt_get_result($setsStmt);
-    while ($set = mysqli_fetch_assoc($setsResult)) {
-        $personalSets[] = $set;
+    $topicsStmt = mysqli_prepare($link, '
+        SELECT t.topicID, t.topicName, COUNT(v.id) AS word_count
+        FROM Topics t
+        LEFT JOIN vocabulary v ON v.topic_id = t.topicID
+        GROUP BY t.topicID, t.topicName
+        ORDER BY t.topicName ASC');
+    mysqli_stmt_execute($topicsStmt);
+    $topicsResult = mysqli_stmt_get_result($topicsStmt);
+    while ($topic = mysqli_fetch_assoc($topicsResult)) {
+        $systemTopics[] = $topic;
     }
-    mysqli_stmt_close($setsStmt);
+    mysqli_stmt_close($topicsStmt);
 }
 
 if ($isValidSource && $source === 'topic') {
@@ -291,29 +296,21 @@ if ($flashcardStatsTotal === 0) {
             ?>
         <?php endif; ?>
         <form method="get" class="C_Gocrenluyen_filters" id="C_Gocrenluyen_filters">
-            <?php if ($isTopicContext): ?>
-                <!-- Topic đến từ nút Học của hệ thống: không cho đổi sang nguồn khác tại đây. -->
-                <input type="hidden" name="source" value="topic">
-                <input type="hidden" name="id" value="<?= $sourceId ?>">
-                <div class="C_Gocrenluyen_fixedTopic">
-                    <span>Chủ đề hệ thống</span>
-                    <strong><?= htmlspecialchars($sourceName) ?></strong>
-                </div>
-            <?php else: ?>
-                <!-- Vào từ sidebar/Bộ từ vựng: bộ lọc chỉ chứa bộ của chính người dùng. -->
-                <div class="C_Gocrenluyen_filterGroup">
-                    <label for="C_Gocrenluyen_collection">Bộ từ vựng cá nhân</label>
-                    <select name="collection" id="C_Gocrenluyen_collection">
-                        <option value="">Chọn bộ từ cá nhân</option>
-                        <?php foreach ($personalSets as $set): ?>
-                            <?php $optionValue = 'set:' . (int) $set['id']; ?>
-                            <option value="<?= $optionValue ?>" <?= $selectedCollection === $optionValue ? 'selected' : '' ?>>
-                                <?= htmlspecialchars($set['name']) ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-            <?php endif; ?>
+            <!-- Dùng chung một bộ lọc cho cả truy cập từ sidebar và nút Học.
+                 Giá trị topic:<id> được PHP xác thực lại trước khi truy vấn. -->
+            <div class="C_Gocrenluyen_filterGroup">
+                <label for="C_Gocrenluyen_collection">Chủ đề từ vựng hệ thống</label>
+                <select name="collection" id="C_Gocrenluyen_collection" <?= !$isLoggedIn ? 'disabled' : '' ?>>
+                    <option value="">Chọn chủ đề hệ thống</option>
+                    <?php foreach ($systemTopics as $topic): ?>
+                        <?php $optionValue = 'topic:' . (int) $topic['topicID']; ?>
+                        <option value="<?= $optionValue ?>" <?= $selectedCollection === $optionValue ? 'selected' : '' ?>>
+                            <?= htmlspecialchars($topic['topicName']) ?>
+                            (<?= (int) $topic['word_count'] ?> từ)
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
             <div class="C_Gocrenluyen_filterGroup">
                 <label for="C_Gocrenluyen_limit">Số lượng</label>
                 <select name="limit" id="C_Gocrenluyen_limit">
@@ -362,7 +359,7 @@ if ($flashcardStatsTotal === 0) {
 
             <?php if (!$hasSelectedSource): ?>
                 <div class="C_Gocrenluyen_warning">
-                    <?= htmlspecialchars($sourceError ?: 'Hãy chọn một chủ đề hệ thống hoặc bộ từ cá nhân để bắt đầu.') ?>
+                    <?= htmlspecialchars($sourceError ?: 'Hãy chọn một chủ đề từ vựng hệ thống để bắt đầu.') ?>
                 </div>
             <?php elseif ($wordCount === 0): ?>
                 <div class="C_Gocrenluyen_warning">Nội dung đã chọn chưa có từ vựng. Hãy thêm từ hoặc chọn nội dung khác.</div>
