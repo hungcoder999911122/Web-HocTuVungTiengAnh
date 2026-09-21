@@ -115,10 +115,10 @@ try {
     $repetitionUpdate = $isFinal ? 'repetitions = repetitions + 1' : 'repetitions = repetitions';
     $progressStmt = mysqli_prepare($link, '
         INSERT INTO user_vocab_progress
-            (user_id, vocabulary_id, status, interval_days, repetitions, next_review_date, last_reviewed_at, last_quality_rating)
-        VALUES (?, ?, ?, ?, 1, DATE_ADD(CURDATE(), INTERVAL ? DAY), NOW(), ?)
+            (user_id, vocabulary_id, level, status, interval_days, repetitions, next_review_date, last_reviewed_at, last_quality_rating)
+        VALUES (?, ?, ?, ?, ?, 1, DATE_ADD(CURDATE(), INTERVAL ? DAY), NOW(), ?)
         ON DUPLICATE KEY UPDATE
-            id = LAST_INSERT_ID(id), status = VALUES(status),
+            id = LAST_INSERT_ID(id), level = VALUES(level), status = VALUES(status),
             interval_days = VALUES(interval_days), ' . $repetitionUpdate . ',
             next_review_date = VALUES(next_review_date), last_reviewed_at = NOW(),
             last_quality_rating = VALUES(last_quality_rating)');
@@ -128,9 +128,12 @@ try {
 
     foreach ($validStatuses as $vocabularyId => $answer) {
         $status = $answer === 'da_nho' ? 'mastered' : 'learning';
-        $intervalDays = $answer === 'da_nho' ? 7 : 1;
+        // Đồng bộ hợp đồng dữ liệu với Dashboard/Lịch hẹn: mastered luôn ở
+        // level 5; từ chưa nhớ quay về level 1 để ôn lại vào ngày kế tiếp.
+        $level = $answer === 'da_nho' ? 5 : 1;
+        $intervalDays = $answer === 'da_nho' ? 30 : 1;
         $quality = $answer === 'da_nho' ? 5 : 2;
-        mysqli_stmt_bind_param($progressStmt, 'iisiii', $userId, $vocabularyId, $status, $intervalDays, $intervalDays, $quality);
+        mysqli_stmt_bind_param($progressStmt, 'iiisiii', $userId, $vocabularyId, $level, $status, $intervalDays, $intervalDays, $quality);
         mysqli_stmt_execute($progressStmt);
         $progressId = mysqli_insert_id($link);
         if ($reviewStmt) {
