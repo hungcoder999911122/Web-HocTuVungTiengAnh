@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Máy chủ: db
--- Thời gian đã tạo: Th9 21, 2026 lúc 10:39 AM
+-- Thời gian đã tạo: Th9 21, 2026 lúc 12:20 PM
 -- Phiên bản máy phục vụ: 8.0.46
 -- Phiên bản PHP: 8.3.26
 
@@ -20,27 +20,6 @@ SET time_zone = "+00:00";
 --
 -- Cơ sở dữ liệu: `db_LexiLoop`
 --
-
--- --------------------------------------------------------
-
---
--- Cấu trúc bảng cho bảng `favorites`
---
-
-CREATE TABLE `favorites` (
-  `id` int NOT NULL,
-  `user_id` int NOT NULL,
-  `vocabulary_id` int NOT NULL,
-  `created_at` datetime DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Đang đổ dữ liệu cho bảng `favorites`
---
-
-INSERT INTO `favorites` (`id`, `user_id`, `vocabulary_id`, `created_at`) VALUES
-(1, 2, 1, '2026-08-28 16:40:44'),
-(2, 2, 2, '2026-08-28 16:40:44');
 
 -- --------------------------------------------------------
 
@@ -1283,9 +1262,8 @@ INSERT INTO `Users` (`userID`, `email`, `password_hash`, `full_name`, `avatar_ur
 (2, 'quan@gmail.com', '$2y$10$e0MYzXyjpJS7Pd0RVvHwHeFXx...hash...', 'Lê Quân', NULL, 'user', 'active', '2026-08-28 16:40:44', '2026-08-28 16:40:44', 1, '21:00:00', 15, 0),
 (3, 'hungkill146@gmail.com', '$2y$10$Z2/VG5nprFQcK/p6Gdaj0eYcCOx/q48FpHzysLHp04mFLgsJntsyC', 'Nguyễn Tuấn Hùng', NULL, 'user', 'active', '2026-09-06 00:49:49', '2026-09-08 14:21:59', 1, '20:00:00', 20, 0),
 (4, 'kny19122006@gmail.com', '$2y$10$/Uo5YnK5k5lUFDuGTBicW.DzjIl0VTXrkWhxcHxiKpSBP31789N/e', 'Huynh Huỳnh Nhật Ny', '/assets/images/avatars/user_4_8c13e455f3575548.jpg', 'user', 'active', '2026-09-19 21:48:43', '2026-09-20 22:37:37', 1, '20:00:00', 20, 0),
-(5, 'nyhnk4900@ut.edu.vn', '$2y$10$7bUBlMDuwFnLXdxE8VaE4./VVQqfsKveV3F9oO5RWPA60X8fDfxny', 'Ny Huỳnh Nhật Khánh', '/assets/images/avatars/user_5_9ef1c6a17ebafdfb.jpg', 'user', 'active', '2026-09-20 13:39:17', '2026-09-20 13:50:49', 1, '20:00:00', 20, 0),
-(6, 'admin123@gmail.com', '$2y$10$GIXC86sxvuFrMUm21uJ3q.4HVuZ1A0XxMIkdAXOHez6/jGPPAzoh6', 'AdminLexiLoop', NULL, 'admin', 'active', '2026-09-20 14:05:49', '2026-09-20 07:06:23', 1, '20:00:00', 20, 0),
-(7, 'elly@gmail.com', '$2y$10$lpKB/0FmpMNQD4esfsHC0eu1eLjX7zK9vrgoXt1oRsc1bHfMqnnOC', 'Nguyễn Thúy', NULL, 'user', 'active', '2026-09-21 16:40:32', '2026-09-21 16:40:32', 1, '20:00:00', 20, 0);
+(5, 'nyhnk4900@ut.edu.vn', '$2y$10$eqjGtr2Dvpjs0dqMLOucPeQZXVjXH4hWLbxHxjcaBdGZziBszOBvu', 'Ny Huỳnh Nhật Khánh', '/assets/images/avatars/user_5_9ef1c6a17ebafdfb.jpg', 'user', 'active', '2026-09-20 13:39:17', '2026-09-21 17:40:40', 1, '20:00:00', 20, 0),
+(6, 'admin123@gmail.com', '$2y$10$GIXC86sxvuFrMUm21uJ3q.4HVuZ1A0XxMIkdAXOHez6/jGPPAzoh6', 'AdminLexiLoop', NULL, 'admin', 'active', '2026-09-20 14:05:49', '2026-09-20 07:06:23', 1, '20:00:00', 20, 0);
 
 -- --------------------------------------------------------
 
@@ -1609,28 +1587,6 @@ INSERT INTO `vocabulary` (`id`, `topic_id`, `word`, `pronunciation`, `part_of_sp
 -- --------------------------------------------------------
 
 --
--- Cấu trúc bảng cho bảng `vocabulary_images`
---
-
-CREATE TABLE `vocabulary_images` (
-  `id` int NOT NULL,
-  `vocabulary_id` int NOT NULL,
-  `image_url` varchar(255) NOT NULL,
-  `uploaded_by` int DEFAULT NULL,
-  `uploaded_at` datetime DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Đang đổ dữ liệu cho bảng `vocabulary_images`
---
-
-INSERT INTO `vocabulary_images` (`id`, `vocabulary_id`, `image_url`, `uploaded_by`, `uploaded_at`) VALUES
-(1, 1, 'https://images.unsplash.com/photo-elephant.jpg', 1, '2026-08-28 16:40:44'),
-(2, 2, 'https://images.unsplash.com/photo-algorithm.jpg', 1, '2026-08-28 16:40:44');
-
--- --------------------------------------------------------
-
---
 -- Cấu trúc bảng cho bảng `vocabulary_sets`
 --
 
@@ -1678,14 +1634,6 @@ INSERT INTO `vocabulary_set_items` (`id`, `vocabulary_set_id`, `vocabulary_id`, 
 --
 -- Chỉ mục cho các bảng đã đổ
 --
-
---
--- Chỉ mục cho bảng `favorites`
---
-ALTER TABLE `favorites`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `user_id` (`user_id`,`vocabulary_id`),
-  ADD KEY `vocabulary_id` (`vocabulary_id`);
 
 --
 -- Chỉ mục cho bảng `learning_attempts`
@@ -1797,14 +1745,6 @@ ALTER TABLE `vocabulary`
   ADD KEY `created_by` (`created_by`);
 
 --
--- Chỉ mục cho bảng `vocabulary_images`
---
-ALTER TABLE `vocabulary_images`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `vocabulary_id` (`vocabulary_id`),
-  ADD KEY `uploaded_by` (`uploaded_by`);
-
---
 -- Chỉ mục cho bảng `vocabulary_sets`
 --
 ALTER TABLE `vocabulary_sets`
@@ -1823,12 +1763,6 @@ ALTER TABLE `vocabulary_set_items`
 --
 -- AUTO_INCREMENT cho các bảng đã đổ
 --
-
---
--- AUTO_INCREMENT cho bảng `favorites`
---
-ALTER TABLE `favorites`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT cho bảng `learning_attempts`
@@ -1882,7 +1816,7 @@ ALTER TABLE `Topics`
 -- AUTO_INCREMENT cho bảng `Users`
 --
 ALTER TABLE `Users`
-  MODIFY `userID` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `userID` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT cho bảng `user_login_sessions`
@@ -1907,12 +1841,6 @@ ALTER TABLE `user_vocab_progress`
 --
 ALTER TABLE `vocabulary`
   MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=212;
-
---
--- AUTO_INCREMENT cho bảng `vocabulary_images`
---
-ALTER TABLE `vocabulary_images`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT cho bảng `vocabulary_sets`
