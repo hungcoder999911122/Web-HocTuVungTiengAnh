@@ -1249,14 +1249,14 @@ CREATE TABLE `Users` (
   `update_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `daily_reminder_enabled` tinyint DEFAULT '1',
   `reminder_time` time DEFAULT '20:00:00',
-  `daily_target_words` int DEFAULT '20',
-  `level` int DEFAULT '0'
+  `daily_target_words` int DEFAULT '20'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Đang đổ dữ liệu cho bảng `Users`
 --
 
+<<<<<<< HEAD
 INSERT INTO `Users` (`userID`, `email`, `password_hash`, `full_name`, `avatar_url`, `role`, `status`, `created_at`, `update_at`, `daily_reminder_enabled`, `reminder_time`, `daily_target_words`, `level`) VALUES
 (1, 'admin@example.com', '$2y$10$e0MYzXyjpJS7Pd0RVvHwHeFXx...hash...', 'Quản Trị Viên', NULL, 'admin', 'active', '2026-08-28 16:40:44', '2026-08-28 16:40:44', 1, '20:00:00', 20, 0),
 (2, 'quan@gmail.com', '$2y$10$e0MYzXyjpJS7Pd0RVvHwHeFXx...hash...', 'Lê Quân', NULL, 'user', 'active', '2026-08-28 16:40:44', '2026-08-28 16:40:44', 1, '21:00:00', 15, 0),
@@ -1264,6 +1264,16 @@ INSERT INTO `Users` (`userID`, `email`, `password_hash`, `full_name`, `avatar_ur
 (4, 'kny19122006@gmail.com', '$2y$10$/Uo5YnK5k5lUFDuGTBicW.DzjIl0VTXrkWhxcHxiKpSBP31789N/e', 'Huynh Huỳnh Nhật Ny', '/assets/images/avatars/user_4_8c13e455f3575548.jpg', 'user', 'active', '2026-09-19 21:48:43', '2026-09-20 22:37:37', 1, '20:00:00', 20, 0),
 (5, 'nyhnk4900@ut.edu.vn', '$2y$10$eqjGtr2Dvpjs0dqMLOucPeQZXVjXH4hWLbxHxjcaBdGZziBszOBvu', 'Ny Huỳnh Nhật Khánh', '/assets/images/avatars/user_5_9ef1c6a17ebafdfb.jpg', 'user', 'active', '2026-09-20 13:39:17', '2026-09-21 17:40:40', 1, '20:00:00', 20, 0),
 (6, 'admin123@gmail.com', '$2y$10$GIXC86sxvuFrMUm21uJ3q.4HVuZ1A0XxMIkdAXOHez6/jGPPAzoh6', 'AdminLexiLoop', NULL, 'admin', 'active', '2026-09-20 14:05:49', '2026-09-20 07:06:23', 1, '20:00:00', 20, 0);
+=======
+INSERT INTO `Users` (`userID`, `email`, `password_hash`, `full_name`, `avatar_url`, `role`, `status`, `created_at`, `update_at`, `daily_reminder_enabled`, `reminder_time`, `daily_target_words`) VALUES
+(1, 'admin@example.com', '$2y$10$e0MYzXyjpJS7Pd0RVvHwHeFXx...hash...', 'Quản Trị Viên', NULL, 'admin', 'active', '2026-08-28 16:40:44', '2026-08-28 16:40:44', 1, '20:00:00', 20),
+(2, 'quan@gmail.com', '$2y$10$e0MYzXyjpJS7Pd0RVvHwHeFXx...hash...', 'Lê Quân', NULL, 'user', 'active', '2026-08-28 16:40:44', '2026-08-28 16:40:44', 1, '21:00:00', 15),
+(3, 'hungkill146@gmail.com', '$2y$10$Z2/VG5nprFQcK/p6Gdaj0eYcCOx/q48FpHzysLHp04mFLgsJntsyC', 'Nguyễn Tuấn Hùng', NULL, 'user', 'active', '2026-09-06 00:49:49', '2026-09-08 14:21:59', 1, '20:00:00', 20),
+(4, 'kny19122006@gmail.com', '$2y$10$/Uo5YnK5k5lUFDuGTBicW.DzjIl0VTXrkWhxcHxiKpSBP31789N/e', 'Huynh Huỳnh Nhật Ny', '/assets/images/avatars/user_4_8c13e455f3575548.jpg', 'user', 'active', '2026-09-19 21:48:43', '2026-09-20 22:37:37', 1, '20:00:00', 20),
+(5, 'nyhnk4900@ut.edu.vn', '$2y$10$7bUBlMDuwFnLXdxE8VaE4./VVQqfsKveV3F9oO5RWPA60X8fDfxny', 'Ny Huỳnh Nhật Khánh', '/assets/images/avatars/user_5_9ef1c6a17ebafdfb.jpg', 'user', 'active', '2026-09-20 13:39:17', '2026-09-20 13:50:49', 1, '20:00:00', 20),
+(6, 'admin123@gmail.com', '$2y$10$GIXC86sxvuFrMUm21uJ3q.4HVuZ1A0XxMIkdAXOHez6/jGPPAzoh6', 'AdminLexiLoop', NULL, 'admin', 'active', '2026-09-20 14:05:49', '2026-09-20 07:06:23', 1, '20:00:00', 20),
+(7, 'elly@gmail.com', '$2y$10$lpKB/0FmpMNQD4esfsHC0eu1eLjX7zK9vrgoXt1oRsc1bHfMqnnOC', 'Nguyễn Thúy', NULL, 'user', 'active', '2026-09-21 16:40:32', '2026-09-21 16:40:32', 1, '20:00:00', 20);
+>>>>>>> 3fb767ada288fa67871167fe7ab8e4a58f041bbe
 
 -- --------------------------------------------------------
 
@@ -1305,56 +1315,56 @@ CREATE TABLE `user_vocab_progress` (
   `id` int NOT NULL,
   `user_id` int NOT NULL,
   `vocabulary_id` int NOT NULL,
+  `level` tinyint NOT NULL DEFAULT '1' COMMENT 'Giai đoạn ghi nhớ từ 1 đến 5',
   `status` enum('new','learning','mastered') DEFAULT 'new',
   `ease_factor` float DEFAULT '2.5',
   `interval_days` int DEFAULT '0',
   `repetitions` int DEFAULT '0',
   `next_review_date` date DEFAULT NULL,
   `last_reviewed_at` datetime DEFAULT NULL,
-  `last_quality_rating` tinyint DEFAULT NULL,
-  `level` int DEFAULT '0'
+  `last_quality_rating` tinyint DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Đang đổ dữ liệu cho bảng `user_vocab_progress`
 --
 
-INSERT INTO `user_vocab_progress` (`id`, `user_id`, `vocabulary_id`, `status`, `ease_factor`, `interval_days`, `repetitions`, `next_review_date`, `last_reviewed_at`, `last_quality_rating`, `level`) VALUES
-(1, 2, 1, 'mastered', 2.5, 21, 5, '2026-09-18', '2026-08-28 16:40:44', 5, 0),
-(2, 2, 2, 'learning', 2.4, 6, 2, '2026-09-03', '2026-08-28 16:40:44', 4, 0),
-(48, 3, 210, 'mastered', 2.5, 7, 11, '2026-09-20', '2026-09-13 05:41:03', 5, 0),
-(60, 3, 211, 'mastered', 2.5, 7, 10, '2026-09-20', '2026-09-13 05:41:03', 5, 0),
-(65, 3, 1, 'mastered', 2.5, 7, 24, '2026-09-20', '2026-09-13 13:19:59', 5, 0),
-(66, 3, 21, 'mastered', 2.5, 7, 23, '2026-09-20', '2026-09-13 13:19:59', 5, 0),
-(67, 3, 22, 'mastered', 2.5, 7, 23, '2026-09-20', '2026-09-13 13:19:59', 5, 0),
-(68, 3, 23, 'mastered', 2.5, 7, 23, '2026-09-20', '2026-09-13 13:19:59', 5, 0),
-(69, 3, 24, 'mastered', 2.5, 7, 23, '2026-09-20', '2026-09-13 13:19:59', 5, 0),
-(70, 3, 25, 'mastered', 2.5, 7, 23, '2026-09-20', '2026-09-13 13:19:59', 5, 0),
-(71, 3, 26, 'mastered', 2.5, 7, 23, '2026-09-20', '2026-09-13 13:19:59', 5, 0),
-(72, 3, 27, 'mastered', 2.5, 7, 23, '2026-09-20', '2026-09-13 13:19:59', 5, 0),
-(73, 3, 28, 'mastered', 2.5, 7, 23, '2026-09-20', '2026-09-13 13:19:59', 5, 0),
-(74, 3, 29, 'mastered', 2.5, 7, 23, '2026-09-20', '2026-09-13 13:19:59', 5, 0),
-(250, 3, 20, 'learning', 2.5, 1, 27, '2026-09-14', '2026-09-13 05:23:17', 2, 0),
-(251, 3, 192, 'mastered', 2.5, 7, 27, '2026-09-20', '2026-09-13 05:23:17', 5, 0),
-(252, 3, 193, 'mastered', 2.5, 7, 27, '2026-09-20', '2026-09-13 05:23:17', 5, 0),
-(253, 3, 194, 'learning', 2.5, 1, 27, '2026-09-14', '2026-09-13 05:23:17', 2, 0),
-(254, 3, 195, 'mastered', 2.5, 7, 27, '2026-09-20', '2026-09-13 05:23:17', 5, 0),
-(255, 3, 196, 'mastered', 2.5, 7, 26, '2026-09-20', '2026-09-13 05:23:17', 5, 0),
-(256, 3, 197, 'learning', 2.5, 1, 27, '2026-09-14', '2026-09-13 05:23:17', 2, 0),
-(257, 3, 198, 'learning', 2.5, 1, 27, '2026-09-14', '2026-09-13 05:23:17', 2, 0),
-(258, 3, 199, 'learning', 2.5, 1, 27, '2026-09-14', '2026-09-13 05:23:17', 2, 0),
-(259, 3, 200, 'learning', 2.5, 1, 16, '2026-09-14', '2026-09-13 05:23:04', 2, 0),
-(270, 3, 201, 'learning', 2.5, 1, 20, '2026-09-14', '2026-09-13 05:23:17', 2, 0),
-(639, 4, 1, 'mastered', 2.5, 7, 2, '2026-09-27', '2026-09-20 00:07:38', 5, 0),
-(640, 4, 21, 'mastered', 2.5, 7, 2, '2026-09-27', '2026-09-20 00:07:38', 5, 0),
-(641, 4, 22, 'mastered', 2.5, 7, 2, '2026-09-27', '2026-09-20 00:07:38', 5, 0),
-(642, 4, 23, 'mastered', 2.5, 7, 2, '2026-09-27', '2026-09-20 00:07:38', 5, 0),
-(643, 4, 24, 'mastered', 2.5, 7, 2, '2026-09-27', '2026-09-20 00:07:38', 5, 0),
-(644, 4, 25, 'mastered', 2.5, 7, 2, '2026-09-27', '2026-09-20 00:07:38', 5, 0),
-(645, 4, 26, 'mastered', 2.5, 7, 2, '2026-09-27', '2026-09-20 00:07:38', 5, 0),
-(646, 4, 27, 'mastered', 2.5, 7, 2, '2026-09-27', '2026-09-20 00:07:38', 5, 0),
-(647, 4, 28, 'mastered', 2.5, 7, 2, '2026-09-27', '2026-09-20 00:07:38', 5, 0),
-(648, 4, 29, 'mastered', 2.5, 7, 2, '2026-09-27', '2026-09-20 00:07:38', 5, 0);
+INSERT INTO `user_vocab_progress` (`id`, `user_id`, `vocabulary_id`, `level`, `status`, `ease_factor`, `interval_days`, `repetitions`, `next_review_date`, `last_reviewed_at`, `last_quality_rating`) VALUES
+(1, 2, 1, 5, 'mastered', 2.5, 21, 5, '2026-09-18', '2026-08-28 16:40:44', 5),
+(2, 2, 2, 3, 'learning', 2.4, 6, 2, '2026-09-03', '2026-08-28 16:40:44', 4),
+(48, 3, 210, 5, 'mastered', 2.5, 7, 11, '2026-09-20', '2026-09-13 05:41:03', 5),
+(60, 3, 211, 5, 'mastered', 2.5, 7, 10, '2026-09-20', '2026-09-13 05:41:03', 5),
+(65, 3, 1, 5, 'mastered', 2.5, 7, 24, '2026-09-20', '2026-09-13 13:19:59', 5),
+(66, 3, 21, 5, 'mastered', 2.5, 7, 23, '2026-09-20', '2026-09-13 13:19:59', 5),
+(67, 3, 22, 5, 'mastered', 2.5, 7, 23, '2026-09-20', '2026-09-13 13:19:59', 5),
+(68, 3, 23, 5, 'mastered', 2.5, 7, 23, '2026-09-20', '2026-09-13 13:19:59', 5),
+(69, 3, 24, 5, 'mastered', 2.5, 7, 23, '2026-09-20', '2026-09-13 13:19:59', 5),
+(70, 3, 25, 5, 'mastered', 2.5, 7, 23, '2026-09-20', '2026-09-13 13:19:59', 5),
+(71, 3, 26, 5, 'mastered', 2.5, 7, 23, '2026-09-20', '2026-09-13 13:19:59', 5),
+(72, 3, 27, 5, 'mastered', 2.5, 7, 23, '2026-09-20', '2026-09-13 13:19:59', 5),
+(73, 3, 28, 5, 'mastered', 2.5, 7, 23, '2026-09-20', '2026-09-13 13:19:59', 5),
+(74, 3, 29, 5, 'mastered', 2.5, 7, 23, '2026-09-20', '2026-09-13 13:19:59', 5),
+(250, 3, 20, 3, 'learning', 2.5, 1, 27, '2026-09-14', '2026-09-13 05:23:17', 2),
+(251, 3, 192, 5, 'mastered', 2.5, 7, 27, '2026-09-20', '2026-09-13 05:23:17', 5),
+(252, 3, 193, 5, 'mastered', 2.5, 7, 27, '2026-09-20', '2026-09-13 05:23:17', 5),
+(253, 3, 194, 3, 'learning', 2.5, 1, 27, '2026-09-14', '2026-09-13 05:23:17', 2),
+(254, 3, 195, 5, 'mastered', 2.5, 7, 27, '2026-09-20', '2026-09-13 05:23:17', 5),
+(255, 3, 196, 5, 'mastered', 2.5, 7, 26, '2026-09-20', '2026-09-13 05:23:17', 5),
+(256, 3, 197, 3, 'learning', 2.5, 1, 27, '2026-09-14', '2026-09-13 05:23:17', 2),
+(257, 3, 198, 3, 'learning', 2.5, 1, 27, '2026-09-14', '2026-09-13 05:23:17', 2),
+(258, 3, 199, 3, 'learning', 2.5, 1, 27, '2026-09-14', '2026-09-13 05:23:17', 2),
+(259, 3, 200, 3, 'learning', 2.5, 1, 16, '2026-09-14', '2026-09-13 05:23:04', 2),
+(270, 3, 201, 3, 'learning', 2.5, 1, 20, '2026-09-14', '2026-09-13 05:23:17', 2),
+(639, 4, 1, 5, 'mastered', 2.5, 7, 2, '2026-09-27', '2026-09-20 00:07:38', 5),
+(640, 4, 21, 5, 'mastered', 2.5, 7, 2, '2026-09-27', '2026-09-20 00:07:38', 5),
+(641, 4, 22, 5, 'mastered', 2.5, 7, 2, '2026-09-27', '2026-09-20 00:07:38', 5),
+(642, 4, 23, 5, 'mastered', 2.5, 7, 2, '2026-09-27', '2026-09-20 00:07:38', 5),
+(643, 4, 24, 5, 'mastered', 2.5, 7, 2, '2026-09-27', '2026-09-20 00:07:38', 5),
+(644, 4, 25, 5, 'mastered', 2.5, 7, 2, '2026-09-27', '2026-09-20 00:07:38', 5),
+(645, 4, 26, 5, 'mastered', 2.5, 7, 2, '2026-09-27', '2026-09-20 00:07:38', 5),
+(646, 4, 27, 5, 'mastered', 2.5, 7, 2, '2026-09-27', '2026-09-20 00:07:38', 5),
+(647, 4, 28, 5, 'mastered', 2.5, 7, 2, '2026-09-27', '2026-09-20 00:07:38', 5),
+(648, 4, 29, 5, 'mastered', 2.5, 7, 2, '2026-09-27', '2026-09-20 00:07:38', 5);
 
 -- --------------------------------------------------------
 
@@ -1734,7 +1744,8 @@ ALTER TABLE `user_points`
 ALTER TABLE `user_vocab_progress`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `user_id` (`user_id`,`vocabulary_id`),
-  ADD KEY `vocabulary_id` (`vocabulary_id`);
+  ADD KEY `vocabulary_id` (`vocabulary_id`),
+  ADD KEY `idx_progress_user_review` (`user_id`,`next_review_date`,`level`);
 
 --
 -- Chỉ mục cho bảng `vocabulary`
@@ -1855,8 +1866,24 @@ ALTER TABLE `vocabulary_set_items`
   MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
--- Ràng buộc đối với các bảng kết xuất
+-- Ràng buộc khóa ngoại bảo vệ tính toàn vẹn dữ liệu.
+-- Thứ tự khai báo tuân theo quan hệ bảng cha - bảng con của LexiLoop.
 --
+
+-- Yêu thích của người dùng phải tham chiếu tới tài khoản và từ vựng hợp lệ.
+ALTER TABLE `favorites`
+  ADD CONSTRAINT `favorites_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `Users` (`userID`) ON DELETE CASCADE,
+  ADD CONSTRAINT `favorites_ibfk_2` FOREIGN KEY (`vocabulary_id`) REFERENCES `vocabulary` (`id`) ON DELETE CASCADE;
+
+-- Trạng thái phiên học dở thuộc về đúng người dùng.
+ALTER TABLE `learning_attempts`
+  ADD CONSTRAINT `fk_learning_attempts_user` FOREIGN KEY (`user_id`) REFERENCES `Users` (`userID`) ON DELETE CASCADE;
+
+-- Lịch sử Flashcard giữ được ngữ cảnh chủ đề hoặc bộ từ cá nhân.
+ALTER TABLE `learning_sessions`
+  ADD CONSTRAINT `learning_sessions_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `Users` (`userID`) ON DELETE CASCADE,
+  ADD CONSTRAINT `fk_learning_sessions_topic` FOREIGN KEY (`topic_id`) REFERENCES `Topics` (`topicID`) ON DELETE SET NULL,
+  ADD CONSTRAINT `fk_learning_sessions_set` FOREIGN KEY (`vocabulary_set_id`) REFERENCES `vocabulary_sets` (`id`) ON DELETE SET NULL;
 
 --
 -- Ràng buộc cho bảng `monthly_rewards`
@@ -1864,12 +1891,55 @@ ALTER TABLE `vocabulary_set_items`
 ALTER TABLE `monthly_rewards`
   ADD CONSTRAINT `fk_monthly_rewards_user` FOREIGN KEY (`user_id`) REFERENCES `Users` (`userID`) ON DELETE CASCADE;
 
+-- Chi tiết câu trả lời phải thuộc một lượt Quiz và một từ vựng hợp lệ.
+ALTER TABLE `quiz_answer_details`
+  ADD CONSTRAINT `fk_quiz_answer_details_result` FOREIGN KEY (`quiz_result_id`) REFERENCES `quiz_results` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `fk_quiz_answer_details_vocabulary` FOREIGN KEY (`vocabulary_id`) REFERENCES `vocabulary` (`id`) ON DELETE CASCADE;
+
+-- Kết quả Quiz giữ được nguồn học, kể cả khi chủ đề hoặc bộ từ bị xóa.
+ALTER TABLE `quiz_results`
+  ADD CONSTRAINT `quiz_results_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `Users` (`userID`) ON DELETE CASCADE,
+  ADD CONSTRAINT `quiz_results_ibfk_2` FOREIGN KEY (`topic_id`) REFERENCES `Topics` (`topicID`) ON DELETE SET NULL,
+  ADD CONSTRAINT `fk_quiz_results_set` FOREIGN KEY (`vocabulary_set_id`) REFERENCES `vocabulary_sets` (`id`) ON DELETE SET NULL;
+
+-- Nhật ký ôn tập phụ thuộc vào tiến độ của từng người dùng - từ vựng.
+ALTER TABLE `review_logs`
+  ADD CONSTRAINT `review_logs_ibfk_1` FOREIGN KEY (`progress_id`) REFERENCES `user_vocab_progress` (`id`) ON DELETE CASCADE;
+
+-- Chủ đề do người dùng tạo vẫn tồn tại nếu tài khoản người tạo bị xóa.
+ALTER TABLE `Topics`
+  ADD CONSTRAINT `Topics_ibfk_1` FOREIGN KEY (`created_by`) REFERENCES `Users` (`userID`) ON DELETE SET NULL;
+
+ALTER TABLE `user_login_sessions`
+  ADD CONSTRAINT `user_login_sessions_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `Users` (`userID`) ON DELETE CASCADE;
+
 --
 -- Ràng buộc cho bảng `user_points`
 --
 ALTER TABLE `user_points`
   ADD CONSTRAINT `fk_user_points_topic` FOREIGN KEY (`topic_id`) REFERENCES `Topics` (`topicID`) ON DELETE CASCADE,
   ADD CONSTRAINT `fk_user_points_user` FOREIGN KEY (`user_id`) REFERENCES `Users` (`userID`) ON DELETE CASCADE;
+
+-- Một bản ghi tiến độ luôn thuộc đúng người dùng và từ vựng.
+ALTER TABLE `user_vocab_progress`
+  ADD CONSTRAINT `user_vocab_progress_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `Users` (`userID`) ON DELETE CASCADE,
+  ADD CONSTRAINT `user_vocab_progress_ibfk_2` FOREIGN KEY (`vocabulary_id`) REFERENCES `vocabulary` (`id`) ON DELETE CASCADE;
+
+ALTER TABLE `vocabulary`
+  ADD CONSTRAINT `vocabulary_ibfk_1` FOREIGN KEY (`topic_id`) REFERENCES `Topics` (`topicID`) ON DELETE CASCADE,
+  ADD CONSTRAINT `vocabulary_ibfk_2` FOREIGN KEY (`created_by`) REFERENCES `Users` (`userID`) ON DELETE SET NULL;
+
+ALTER TABLE `vocabulary_images`
+  ADD CONSTRAINT `vocabulary_images_ibfk_1` FOREIGN KEY (`vocabulary_id`) REFERENCES `vocabulary` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `vocabulary_images_ibfk_2` FOREIGN KEY (`uploaded_by`) REFERENCES `Users` (`userID`) ON DELETE SET NULL;
+
+-- Bộ từ cá nhân và các mục con được xóa dây chuyền để tránh dữ liệu mồ côi.
+ALTER TABLE `vocabulary_sets`
+  ADD CONSTRAINT `fk_vocabulary_sets_user` FOREIGN KEY (`user_id`) REFERENCES `Users` (`userID`) ON DELETE CASCADE;
+
+ALTER TABLE `vocabulary_set_items`
+  ADD CONSTRAINT `fk_set_items_set` FOREIGN KEY (`vocabulary_set_id`) REFERENCES `vocabulary_sets` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `fk_set_items_vocabulary` FOREIGN KEY (`vocabulary_id`) REFERENCES `vocabulary` (`id`) ON DELETE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

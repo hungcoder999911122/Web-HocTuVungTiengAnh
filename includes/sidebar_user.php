@@ -80,8 +80,8 @@ function isSidebarActive(string $pageName, string $currentPage): string
 
 
         <a
-            href="../user/C_Lichhen.php"
-            class="sidebar-link <?= isSidebarActive('C_Lichhen.php', $currentPage) ?>">
+            href="../user/C_LichHen.php"
+            class="sidebar-link <?= isSidebarActive('C_LichHen.php', $currentPage) ?>">
             <span class="sidebar-icon" aria-hidden="true">
 
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none"

@@ -89,34 +89,6 @@
   box-shadow: 0 0 0 3px rgba(52, 150, 97, .12);
 }
 
-/* Ô cố định chủ đề đang được chọn */
-.C_Gocrenluyen_fixedTopic {
-  display: flex;
-  min-height: 66px;
-  flex-direction: column;
-  justify-content: center;
-  padding: 9px 14px;
-  border: 1px solid #cfe2d6;
-  border-radius: 11px;
-  background: #f1f9f4;
-}
-
-.C_Gocrenluyen_fixedTopic span {
-  margin-bottom: 4px;
-  color: #66756c;
-  font-size: 10px;
-  font-weight: 800;
-  text-transform: uppercase;
-}
-
-.C_Gocrenluyen_fixedTopic strong {
-  overflow: hidden;
-  color: #24764b;
-  font-size: 14px;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
 /* Nút áp dụng bộ lọc */
 .C_Gocrenluyen_applyButton {
   height: 44px;
